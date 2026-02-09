@@ -1,0 +1,37 @@
+Category,Component,Part Number,Quantity,Unit Price (USD),Supplier,Notes
+Microcontroller,ESP32 DevKit V1,ESP32-WROOM-32,5,8.50,Espressif/AliExpress,"Dual-core 240MHz, WiFi/BT"
+Sensors,BME280 Environmental Sensor,BME280,5,4.20,Bosch/Adafruit,"Temperature, humidity, pressure"
+Sensors,MQ-135 Air Quality Sensor,MQ-135,3,3.50,Winsen/Amazon,Gas sensor for air quality
+Sensors,PIR Motion Sensor,HC-SR501,5,1.80,Generic/Amazon,Infrared motion detection
+RFID,MFRC522 RFID Reader,MFRC522,2,4.90,NXP/Amazon,13.56MHz RFID module
+RFID,RFID Cards/Tags,Mifare Classic 1K,10,0.30,Generic/Amazon,1KB memory cards
+Display,OLED Display 0.96",SSD1306,3,5.50,Solomon Systech/Adafruit,128x64 I2C display
+Power,5V 2A Power Supply,AC-DC 5V 2A,5,6.00,Mean Well/Amazon,Regulated power adapter
+Power,LM2596 Buck Converter,LM2596,3,2.50,TI/Amazon,DC-DC step-down module
+Power,18650 Battery (optional),NCR18650B,10,5.00,Panasonic/Amazon,3400mAh Li-ion battery
+Power,TP4056 Battery Charger,TP4056,5,1.20,Generic/Amazon,Li-ion charging module
+Actuators,5V Relay Module,SRD-05VDC-SL-C,5,2.80,Songle/Amazon,10A relay for switching
+Actuators,Servo Motor SG90,SG90,3,3.20,Tower Pro/Amazon,Micro servo for locks
+Actuators,12V Solenoid Lock,Electric Strike Lock,2,15.00,Generic/Amazon,Door lock actuator
+LEDs,WS2812B LED Strip,WS2812B,5m,12.00,Worldsemi/Amazon,Addressable RGB LEDs
+LEDs,LED Indicator,5mm LED assorted,50,0.05,Generic/Amazon,Status indicators
+Resistors,Resistor Kit,1/4W assorted,1 kit,8.00,Generic/Amazon,"10Ω to 1MΩ, common values"
+Capacitors,Capacitor Kit,Ceramic/Electrolytic,1 kit,10.00,Generic/Amazon,"10pF to 1000µF, various"
+Connectors,Dupont Jumper Wires,Male-Male/Female,120,8.00,Generic/Amazon,Breadboard wires
+Connectors,Screw Terminal Blocks,2-pin 5.08mm,20,0.40,Generic/Amazon,Wire connections
+Connectors,JST Connectors,JST-XH 2.54mm,10 sets,5.00,JST/Amazon,Battery/sensor connectors
+PCB,Prototype PCB Board,FR4 5x7cm,10,1.20,Generic/Amazon,Through-hole prototyping
+Enclosure,ABS Plastic Enclosure,100x60x25mm,5,4.50,Generic/Amazon,Waterproof IP65
+Enclosure,3D Printed Parts,Custom,N/A,Variable,Local/Service,Custom sensor housings
+Buttons,Tactile Push Button,6x6x5mm,20,0.10,Generic/Amazon,Reset/config buttons
+Cables,USB-C Cable,1m data cable,5,3.50,Generic/Amazon,Programming/power
+Cables,MQTT Antenna,2.4GHz 3dBi,5,2.00,Generic/Amazon,External WiFi antenna
+Tools,Soldering Kit,60W station,1,25.00,Hakko/Amazon,Required for assembly
+Tools,Multimeter,Digital DMM,1,20.00,UNI-T/Amazon,Testing and debugging
+Tools,Breadboard,830 point,3,4.00,Generic/Amazon,Prototyping
+Misc,Heat Shrink Tubing,Assorted sizes,1 kit,8.00,Generic/Amazon,Wire insulation
+Misc,Solder Wire,60/40 Sn/Pb,100g,8.00,Generic/Amazon,Electronics solder
+Misc,Double-Sided Tape,3M VHB,1 roll,6.00,3M/Amazon,Mounting sensors
+
+Total Estimated Cost (per unit),,$$$,1,"~$45-60",,"Complete sensor node"
+Total Project Cost (5 nodes),,$$$,5,"~$300-400",,"Including tools and extras"

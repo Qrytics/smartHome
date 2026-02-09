@@ -1,0 +1,22 @@
+# Example CA Certificate Structure
+# This is NOT a real certificate - for reference only
+
+# -----BEGIN CERTIFICATE-----
+# MIIFazCCA1OgAwIBAgIUXXXXXXXXXXXXXXXXXXXXXXXXXXXwDQYJKoZIhvcNAQEL
+# BQAwRTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExITAfBgNVBAoM
+# GFNtYXJ0SG9tZSBJb1QgUHJvamVjdCBDQTAeFw0yNDAxMTUwMDAwMDBaFw0zNDAx
+# MTUwMDAwMDBaMEUxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMSEw
+# HwYDVQQKDBhTbWFydEhvbWUgSW9UIFByb2plY3QgQ0EwggIiMA0GCSqGSIb3DQEB
+# AQUAA4ICDwAwggIKAoICAQDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# ... (certificate data continues) ...
+# -----END CERTIFICATE-----
+
+# Certificate Information:
+# Subject: C=US, ST=California, O=SmartHome, CN=SmartHome-CA
+# Issuer: Self-signed
+# Validity: 10 years (CA certificates typically have longer validity)
+# Key Size: 4096 bits RSA
+# Signature Algorithm: SHA256withRSA
+#
+# Usage: This CA certificate is used to sign and verify server/client certificates
+# Distribution: Copy to all ESP32 devices and applications that need to verify server identity
