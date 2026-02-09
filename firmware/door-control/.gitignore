@@ -1,0 +1,22 @@
+# Firmware-specific ignores
+.pio/
+.vscode/
+.pioenvs/
+.piolibdeps/
+
+# Build artifacts
+*.bin
+*.elf
+*.hex
+*.map
+*.o
+
+# Secrets (NEVER commit)
+include/secrets.h
+
+# IDE files
+.clang_complete
+.gcc-flags.json
+
+# Testing
+test/output/
