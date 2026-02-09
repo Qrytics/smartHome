@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  redis:
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_SAVE_ENABLED=true
+    command: redis-server --loglevel debug --save 60 1
+
+  timescaledb:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_HOST_AUTH_METHOD: trust
+    command: postgres -c log_statement=all -c log_destination=stderr

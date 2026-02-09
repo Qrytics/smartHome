@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: smart-home-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    networks:
+      - smart-home-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: smart-home-timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: smart_home
+      POSTGRES_USER: smart_home_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./timescaledb/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./timescaledb/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    restart: unless-stopped
+    networks:
+      - smart-home-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smart_home_user -d smart_home"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis-data:
+    driver: local
+  timescaledb-data:
+    driver: local
+
+networks:
+  smart-home-network:
+    driver: bridge
