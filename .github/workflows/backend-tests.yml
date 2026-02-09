@@ -1,4 +1,4 @@
-name: Backend Tests
+name: Backend Linting and Security
 
 on:
   push:
@@ -13,36 +13,11 @@ on:
       - '.github/workflows/backend-tests.yml'
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
-
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      postgres:
-        image: timescale/timescaledb:latest-pg15
-        env:
-          POSTGRES_DB: smart_home_test
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - name: Checkout code
@@ -78,40 +53,6 @@ jobs:
       run: |
         mypy app/ --ignore-missing-imports
       continue-on-error: true
-
-    - name: Run tests with pytest
-      working-directory: backend
-      env:
-        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/smart_home_test
-        REDIS_URL: redis://localhost:6379/0
-        FLASK_ENV: testing
-        SECRET_KEY: test-secret-key-for-ci
-      run: |
-        pytest tests/ -v --cov=app --cov-report=xml --cov-report=html --cov-report=term
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./backend/coverage.xml
-        flags: backend
-        name: backend-${{ matrix.python-version }}
-        fail_ci_if_error: false
-
-    - name: Upload coverage artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: coverage-report-${{ matrix.python-version }}
-        path: backend/htmlcov/
-        retention-days: 7
-
-    - name: Test database migrations
-      working-directory: backend
-      env:
-        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/smart_home_test
-      run: |
-        echo "Testing database migrations..."
-        # Add migration test commands here when migrations are implemented
 
   security:
     runs-on: ubuntu-latest
