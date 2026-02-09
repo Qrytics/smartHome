@@ -65,18 +65,18 @@ jobs:
     - name: Lint with flake8
       working-directory: backend
       run: |
-        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 app/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Format check with black
       working-directory: backend
       run: |
-        black --check src/ tests/
+        black --check app/
 
     - name: Type check with mypy
       working-directory: backend
       run: |
-        mypy src/ --ignore-missing-imports
+        mypy app/ --ignore-missing-imports
       continue-on-error: true
 
     - name: Run tests with pytest
@@ -87,7 +87,7 @@ jobs:
         FLASK_ENV: testing
         SECRET_KEY: test-secret-key-for-ci
       run: |
-        pytest tests/ -v --cov=src --cov-report=xml --cov-report=html --cov-report=term
+        pytest tests/ -v --cov=app --cov-report=xml --cov-report=html --cov-report=term
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -138,8 +138,8 @@ jobs:
     - name: Security check with bandit
       working-directory: backend
       run: |
-        bandit -r src/ -f json -o bandit-report.json || true
-        bandit -r src/ -f screen
+        bandit -r app/ -f json -o bandit-report.json || true
+        bandit -r app/ -f screen
 
     - name: Upload security reports
       uses: actions/upload-artifact@v4
