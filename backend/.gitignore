@@ -15,12 +15,6 @@ virtualenv/
 *.env
 !.env.example
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-*.cover
-
 # IDEs
 .vscode/
 .idea/

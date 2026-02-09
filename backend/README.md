@@ -108,7 +108,6 @@ backend/
 │       ├── logger.py        # (TODO)
 │       └── crypto.py        # (TODO)
 │
-├── tests/                   # Unit and integration tests
 ├── alembic/                 # Database migrations
 ├── requirements.txt         # Production dependencies
 ├── requirements-dev.txt     # Development dependencies
@@ -117,22 +116,6 @@ backend/
 ```
 
 ## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app tests/
-
-# Run specific test file
-pytest tests/test_health_api.py
-
-# Run with verbose output
-pytest -v
-```
 
 ### Code Quality
 
