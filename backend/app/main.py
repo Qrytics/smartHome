@@ -46,7 +46,7 @@ async def startup_event():
     - Initialize Redis connection
     - Start background workers
     """
-    print("="  * 50)
+    print("=" * 50)
     print("Smart Home Backend Starting...")
     print("=" * 50)
     # TODO: Initialize database connection pool
