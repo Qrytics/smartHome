@@ -244,7 +244,7 @@ void setRelay(int channel, bool state) {
   }
   
   *stateVar = state;
-  digitalWrite(pin, (RELAY_ACTIVE_HIGH && state) ? HIGH : LOW);
+  digitalWrite(pin, (RELAY_ACTIVE_HIGH == state) ? HIGH : LOW);
   
   Serial.print("Relay ");
   Serial.print(channel);

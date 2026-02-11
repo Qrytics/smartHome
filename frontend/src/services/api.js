@@ -61,7 +61,7 @@ export const getSensorHistory = async (deviceId, startTime, endTime, limit = 100
 export const setDimmerBrightness = async (deviceId, brightness) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/lighting/dimmer/${deviceId}`, {
-      brightness: brightness
+      brightness
     });
     return response.data;
   } catch (error) {
@@ -73,8 +73,8 @@ export const setDimmerBrightness = async (deviceId, brightness) => {
 export const setRelayState = async (deviceId, channel, state) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/lighting/relay/${deviceId}`, {
-      channel: channel,
-      state: state
+      channel,
+      state
     });
     return response.data;
   } catch (error) {
@@ -86,7 +86,7 @@ export const setRelayState = async (deviceId, channel, state) => {
 export const setDaylightHarvestMode = async (deviceId, enabled) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/lighting/daylight-harvest/${deviceId}`, {
-      enabled: enabled
+      enabled
     });
     return response.data;
   } catch (error) {
