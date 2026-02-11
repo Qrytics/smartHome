@@ -144,7 +144,7 @@ export function buildWebSocketUrl() {
   }
 }
 
-export default {
+const apiService = {
   addPolicyCard,
   API_BASE_URL,
   buildWebSocketUrl,
@@ -164,3 +164,5 @@ export default {
   setDimmerBrightness,
   setRelayState,
 };
+
+export default apiService;
