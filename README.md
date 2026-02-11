@@ -27,11 +27,12 @@
 
 The **Smart Home Model** project is an 18-500 Capstone Design initiative that demonstrates the feasibility and limitations of fully centralizing building control through a web-based platform. Unlike traditional smart home systems that retain local control capabilities, our system intentionally creates complete dependency on a web dashboard to explore the critical question: **"How much control can be centralized before you risk losing it?"**
 
-This project addresses the growing demand for integrated, intelligent building management systems in an era where artificial intelligence and cloud connectivity are rapidly expanding. By building a physical model house equipped with RFID-based access control and real-time environmental monitoring, we prove that sub-second latency web-first architectures are achievable for critical infrastructure—while simultaneously exposing the vulnerabilities inherent in such designs.
+This project addresses the growing demand for integrated, intelligent building management systems in an era where artificial intelligence and cloud connectivity are rapidly expanding. By building a physical model house equipped with RFID-based access control, real-time environmental monitoring, and intelligent lighting control, we prove that sub-second latency web-first architectures are achievable for critical infrastructure—while simultaneously exposing the vulnerabilities inherent in such designs.
 
 **Core Focus Areas:**
 1. **RFID Door Lock Access Control:** Sub-500ms authorization from card swipe to lock actuation
 2. **Real-Time Temperature Monitoring:** Sub-1-second dashboard updates with 100% data logging
+3. **Intelligent Lighting Control:** Daylight harvesting with ambient light sensing for energy optimization
 
 The system leverages modern asynchronous web technologies (FastAPI, Redis Streams, WebSockets, TimescaleDB) paired with ESP32 microcontrollers featuring hardware cryptographic acceleration. Through rigorous testing and optimization, we demonstrate that web-based building automation can meet the performance demands of security-critical applications—provided the network infrastructure and failsafe mechanisms are properly designed.
 
@@ -138,7 +139,7 @@ A compromised access control system is worse than no system at all.
 
 ### High-Level Concept
 
-We propose a **fully integrated model building** (12"x12"x12" physical structure) with two primary subsystems:
+We propose a **fully integrated model building** (12"x12"x12" physical structure) with three primary subsystems:
 
 1. **Access Control System:**
    - RFID card reader (RC522 module)
@@ -153,6 +154,14 @@ We propose a **fully integrated model building** (12"x12"x12" physical structure
    - WebSocket-based real-time data streaming
    - TimescaleDB time-series database
    - Historical analytics dashboard
+
+3. **Lighting Control System:**
+   - TEMT6000 ambient light sensor
+   - PWM dimmer module for LED brightness control
+   - 4-channel relay module for high-power loads
+   - ESP32 microcontroller with WiFi
+   - Daylight harvesting for energy optimization
+   - Real-time control via WebSocket
 
 **Critical Design Decision:** The physical model is **intentionally rendered inoperative** without the web platform. This forces us to:
 - Optimize every millisecond of latency
@@ -186,7 +195,9 @@ ESP32 → Publishes event → Redis Stream → Backend worker consumes ↓ Immed
 
 **Layer 3: User Interface (React Dashboard)**
 - Real-time temperature graphs (live updates)
+- Real-time light level monitoring (ambient lux)
 - Access control logs (granted/denied attempts)
+- Lighting control panel (dimmer, relays, daylight harvesting)
 - Policy management (add/revoke RFID cards)
 - Historical analytics (24-hour queries)
 
@@ -212,6 +223,23 @@ ESP32 → Publishes event → Redis Stream → Backend worker consumes ↓ Immed
 - Dashboard update: ~50-200ms (browser render)
 - **Total:** <1 second
 
+### Data Flow: Lighting Control
+
+**Sensor Reading Path:**
+- TEMT6000 ADC read: ~1ms (analog conversion)
+- Lux calculation: <1ms (arithmetic)
+- Daylight harvesting logic: ~1ms (brightness mapping)
+- PWM dimmer update: ~1ms (hardware PWM)
+- WebSocket data send: ~5-10ms
+- **Total:** <20ms (sensor-to-control loop)
+
+**Remote Control Path:**
+- Dashboard command → Backend API: ~10-50ms
+- Redis Pub/Sub → WebSocket: ~1-5ms
+- ESP32 receives command: ~5-10ms
+- PWM/Relay actuation: ~1-10ms
+- **Total:** <100ms (command-to-actuation)
+
 ### Security Architecture
 
 **Mutual TLS Handshake:**
@@ -231,7 +259,7 @@ ESP32 → Publishes event → Redis Stream → Backend worker consumes ↓ Immed
 
 ## Hardware Components
 
-### ESP32-S3 Microcontroller (Quantity: 2)
+### ESP32-S3 Microcontroller (Quantity: 3)
 
 **Why ESP32-S3?**
 
@@ -263,7 +291,10 @@ We carefully selected GPIO pins to avoid conflicts with built-in peripherals:
 
 - **SPI pins** (RFID): GPIO 10-13 (VSPI interface)
 - **I2C pins** (BME280, OLED): GPIO 21-22 (can share bus)
-- **GPIO output** (Relay): GPIO 4 (far from ADC pins to reduce noise)
+- **GPIO output** (Door Relay): GPIO 4 (far from ADC pins to reduce noise)
+- **ADC input** (TEMT6000): GPIO 34 (ADC1_CH6, dedicated analog input)
+- **PWM output** (Dimmer): GPIO 25 (LEDC channel)
+- **GPIO outputs** (4-Ch Relay): GPIO 26, 27, 14, 12 (relay channels 1-4)
 
 ### BME280 Environmental Sensor
 
@@ -374,6 +405,101 @@ When relay opens, collapsing magnetic field generates voltage spike (~50-100V). 
 - Frame buffer size: 128×64÷8 = 1024 bytes
 - Screen refresh: ~15-30ms (full redraw)
 
+### TEMT6000 Ambient Light Sensor
+
+**Operating Principle:**
+
+The TEMT6000 is an analog light sensor that converts ambient light intensity into a voltage output:
+
+- **Type:** Phototransistor-based sensor
+- **Output:** Analog voltage (0-3.3V proportional to light level)
+- **Response:** Linear across visible spectrum
+- **Peak sensitivity:** ~570nm (green-yellow, matching human eye response)
+
+**Technical Specifications:**
+
+| Parameter | Specification | Relevance |
+|-----------|--------------|-----------|
+| Voltage range | 0-3.3V | Direct connection to ESP32 ADC |
+| Light range | 0-1000+ lux | Covers indoor/outdoor scenarios |
+| Response time | <1ms | Real-time sensing |
+| Viewing angle | ~60° | Sufficient for room coverage |
+| Power consumption | <1mA | Negligible power draw |
+
+**Why TEMT6000 over alternatives?**
+
+- **BH1750:** Digital I2C sensor, more expensive, slower (120ms read time)
+- **Photoresistor (LDR):** Non-linear response, slower, less accurate
+- **TSL2561:** More complex, requires calibration, higher cost
+
+The TEMT6000 offers simple analog output with fast response time, ideal for real-time daylight harvesting.
+
+**Connection:**
+- VCC → 3.3V
+- GND → GND
+- SIG → GPIO 34 (ADC1_CH6 on ESP32)
+
+### PWM Dimmer Module (MOSFET-based)
+
+**Hardware Type:**
+
+- **MOSFET:** IRF520 or IRF540N (N-channel power MOSFET)
+- **Purpose:** LED brightness control via pulse-width modulation
+- **Control:** Low-voltage PWM signal from ESP32 (3.3V)
+- **Load:** 12V LED strips or panels
+
+**Technical Specifications:**
+
+| Parameter | Specification | Notes |
+|-----------|--------------|-------|
+| Input voltage | 5V (module logic) | From ESP32 5V pin |
+| Output voltage | 12V (LED supply) | From external power supply |
+| Max current | 5-10A | Depends on MOSFET model |
+| PWM frequency | 5 kHz | Flicker-free for human vision |
+| Duty cycle range | 0-100% | Full brightness control |
+
+**How PWM Dimming Works:**
+
+1. ESP32 generates PWM signal (0-255 duty cycle)
+2. MOSFET switches LED power on/off rapidly (5000 times/sec)
+3. Higher duty cycle = longer "on" time = brighter LED
+4. Human eye perceives average brightness (no flicker at 5kHz)
+
+**Benefits over linear dimming:**
+- High efficiency (~95% vs. 60% for resistive dimming)
+- No heat generation in control circuit
+- Smooth brightness control
+
+### 4-Channel Relay Module
+
+**Hardware Type:**
+
+- **Relay type:** Electromechanical (SPDT - Single Pole Double Throw)
+- **Coil voltage:** 5V (controlled by ESP32)
+- **Contact rating:** 10A @ 250VAC / 30VDC per channel
+- **Isolation:** Optical isolation between control and load circuits
+
+**Use Cases:**
+
+1. **Main lighting control:** Switch overhead lights on/off
+2. **HVAC fan control:** Turn ventilation fans on/off
+3. **Auxiliary loads:** Control any high-power device
+4. **Safety interlocks:** Emergency lighting circuits
+
+**Technical Details:**
+
+- **Response time:** ~10ms (mechanical actuation)
+- **Lifetime:** 100,000+ cycles (mechanical relays)
+- **Active state:** Low (relay energized when GPIO LOW) or High (configurable)
+- **Flyback protection:** Built-in diodes on most modules
+
+**Pin Connections:**
+- IN1-IN4 → GPIO 26, 27, 14, 12 (channel control)
+- VCC → 5V (coil power)
+- GND → GND
+
+**Safety Note:** Always use appropriate wire gauges and fuses when switching high-power AC loads. Follow local electrical codes.
+
 ### Power Supply System
 
 **Buck Converter Selection:**
@@ -391,24 +517,34 @@ LM2596-based modules chosen for:
 | ESP32-S3 | 5V (USB) | 4.5V | 5.5V | Or 3.3V on VIN pin |
 | RFID-RC522 | 3.3V | 3.0V | 3.6V | NOT 5V tolerant |
 | BME280 | 3.3V | 1.7V | 3.6V | Logic level |
+| TEMT6000 | 3.3V | 3.0V | 3.6V | Analog sensor |
 | OLED | 3.3-5V | 3.0V | 5.5V | Most modules auto-detect |
+| PWM Dimmer | 5V (logic) | 4.5V | 5.5V | Plus 12V for LED supply |
+| Relay Module | 5V | 4.5V | 5.5V | Coil voltage |
 | Solenoid | 12V | 10V | 14V | Tolerance ±15% |
+| LED Strips | 12V | 11V | 13V | Via dimmer module |
 
 **Power Budget (Total System):**
 
 | Component | Current | Voltage | Power | Duty Cycle |
 |-----------|---------|---------|-------|------------|
-| ESP32 #1 | 200mA | 5V | 1.0W | 100% |
-| ESP32 #2 | 200mA | 5V | 1.0W | 100% |
+| ESP32 #1 (Door) | 200mA | 5V | 1.0W | 100% |
+| ESP32 #2 (Env) | 200mA | 5V | 1.0W | 100% |
+| ESP32 #3 (Light) | 200mA | 5V | 1.0W | 100% |
 | RFID | 30mA | 3.3V | 0.1W | 100% |
 | BME280 | <1mA | 3.3V | ~0W | 100% |
+| TEMT6000 | <1mA | 3.3V | ~0W | 100% |
 | OLED | 10mA | 3.3V | 0.03W | 100% |
-| Relay | 70mA | 5V | 0.35W | 10% (avg) |
+| PWM Dimmer | 5mA | 5V | 0.025W | 100% |
+| 4-Ch Relay (coils) | 280mA | 5V | 1.4W | 25% (avg) |
 | Solenoid | 200mA | 12V | 2.4W | 10% (avg) |
-| **Total** | - | - | **4.88W** | Peak |
-| **Avg** | - | - | **2.7W** | Typical |
+| LED Strips | 500mA | 12V | 6.0W | 50% (avg) |
+| **Total** | - | - | **13.0W** | Peak |
+| **Avg** | - | - | **6.9W** | Typical |
 
-**Safety Factor:** 12V 2A = 24W capacity → 24W / 4.88W = **4.9x headroom**
+**Safety Factor:** 12V 5A = 60W capacity → 60W / 13.0W = **4.6x headroom**
+
+**Note:** Power supply upgraded to 5A to accommodate LED strips and multiple relay channels operating simultaneously.
 
 ---
 
@@ -448,6 +584,15 @@ LM2596-based modules chosen for:
 #include <SPI.h>               // Serial Peripheral Interface
 #include <Wire.h>              // I2C (Two-Wire Interface)
 ```
+
+**Firmware Projects:**
+
+1. **door-control/** - RFID access control with solenoid lock
+2. **sensor-monitoring/** - BME280 environmental data collection
+3. **lighting-control/** - TEMT6000 light sensing with PWM dimming and relay control
+
+Each firmware project is independently deployable with its own PlatformIO configuration.
+
 Backend (Python/FastAPI)
 Why FastAPI?
 
@@ -473,7 +618,8 @@ Python
     ├── main.py           # FastAPI app initialization
     ├── api/              # HTTP endpoints
     │   ├── access.py     # Access control routes
-    │   └── sensors.py    # Sensor data routes
+    │   ├── sensors.py    # Sensor data ingestion routes
+    │   └── lighting.py   # Lighting control routes
     ├── services/         # Business logic
     │   ├── redis_client.py
     │   └── db_client.py
@@ -487,4 +633,12 @@ This follows separation of concerns:
 - API layer: Request validation, response formatting
 - Service layer: Business logic (authorization checks)
 - Workers: Async data processing (database writes)
+
+**Key API Endpoints:**
+
+- `POST /api/sensors/ingest/environmental` - BME280 data ingestion
+- `POST /api/sensors/ingest/lighting` - TEMT6000 data ingestion
+- `POST /api/lighting/dimmer/{device_id}` - Set LED brightness
+- `POST /api/lighting/relay/{device_id}` - Control relay state
+- `POST /api/lighting/daylight-harvest/{device_id}` - Toggle daylight harvesting
 - Database (TimescaleDB)
