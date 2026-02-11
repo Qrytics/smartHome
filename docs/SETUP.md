@@ -218,6 +218,39 @@ docker compose ps
    pio device monitor
    ```
 
+#### Lighting Control ESP32
+
+1. **Navigate to project:**
+   ```bash
+   cd firmware/lighting-control
+   ```
+
+2. **Configure secrets:**
+   ```bash
+   cp include/secrets.h.example include/secrets.h
+   # Edit include/secrets.h with your WiFi credentials and backend IP
+   ```
+
+3. **Verify hardware connections:**
+   - **TEMT6000 Light Sensor:** VCC→3.3V, GND→GND, SIG→GPIO 34
+   - **PWM Dimmer Module:** VCC→5V, GND→GND, SIG→GPIO 25, LED power supply→12V
+   - **4-Channel Relay Module:** VCC→5V, GND→GND, IN1→GPIO 26, IN2→GPIO 27, IN3→GPIO 14, IN4→GPIO 12
+
+4. **Build and upload:**
+   ```bash
+   pio run --target upload
+   pio device monitor
+   ```
+
+5. **Test functionality:**
+   - Observe ambient light readings in serial monitor (updates every 500ms)
+   - Verify PWM dimmer responds to daylight harvesting (brightness adjusts based on ambient light)
+   - Test relay control via WebSocket commands from backend
+
+6. **Calibrate light sensor (optional):**
+   - Adjust `LIGHT_MAX_LUX` in `src/config.h` to match your environment
+   - Typical values: office (300-500 lux), living room (50-150 lux)
+
 ### Infrastructure Setup
 
 1. **Start all services:**
@@ -440,3 +473,80 @@ After completing setup:
 ---
 
 Last updated: 2026-02-09
+
+### Lighting Control Specific Issues
+
+**Problem:** Light sensor always reads 0
+- **Solution:**
+  - Check TEMT6000 wiring: VCC→3.3V, GND→GND, SIG→GPIO 34
+  - Verify sensor has light exposure (not covered or in dark enclosure)
+  - Test with multimeter: SIG pin should read 0-3.3V proportional to light
+  - Increase ambient light and check if reading changes
+
+**Problem:** PWM dimmer not responding
+- **Solution:**
+  - Verify dimmer module has both 5V logic power and 12V LED supply
+  - Check PWM signal with oscilloscope: should be 5 kHz, 0-3.3V
+  - Ensure LED polarity is correct on output terminals
+  - Test dimmer manually by connecting SIG to VCC (should go full brightness)
+
+**Problem:** Relays not switching
+- **Solution:**
+  - Verify relay module has 5V power supply
+  - Check GPIO signals with multimeter (HIGH = 3.3V when active)
+  - Some modules use active-LOW logic - set `RELAY_ACTIVE_HIGH false` in config.h
+  - Test relay manually by connecting IN pins to VCC/GND
+
+**Problem:** Daylight harvesting not working correctly
+- **Solution:**
+  - Calibrate `LIGHT_MAX_LUX` in `config.h` to match your environment
+  - Adjust `TARGET_LUX` (default 300) for desired brightness level
+  - Check that daylight harvesting is enabled (default: true)
+  - Monitor serial output to see actual lux readings vs. dimmer adjustments
+
+**Problem:** Dimmer brightness inverted (brighter when should be dimmer)
+- **Solution:**
+  - Some PWM modules invert the signal
+  - Swap calculation in `updateDimmer()` function to invert PWM values
+
+---
+
+## Next Steps
+
+After completing the setup:
+
+1. **Access the dashboard:**
+   ```
+   http://localhost:3000
+   ```
+
+2. **View API documentation:**
+   ```
+   http://localhost:8000/docs
+   ```
+
+3. **Monitor real-time data:**
+   - Open WebSocket connection to `ws://localhost:8000/ws/client`
+   - Observe sensor data streams from connected devices
+
+4. **Test lighting control:**
+   - Use dashboard to adjust dimmer brightness
+   - Toggle relays on/off
+   - Enable/disable daylight harvesting
+   - Monitor ambient light levels in real-time
+
+5. **Review logs:**
+   ```bash
+   # Backend logs
+   tail -f backend/logs/app.log
+   
+   # Docker services
+   cd infrastructure && docker compose logs -f
+   
+   # ESP32 serial monitor
+   cd firmware/lighting-control && pio device monitor
+   ```
+
+---
+
+Last updated: 2026-02-11
