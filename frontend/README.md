@@ -1,89 +1,83 @@
-# Smart Home Frontend
+# Smart Home Frontend Dashboard
 
-React-based web dashboard for monitoring and controlling smart home IoT devices.
+Full React dashboard for the Smart Home web-first building management system.
 
-## Features
+## What this frontend includes
 
-- Real-time device monitoring via WebSocket
-- Interactive charts and analytics with Recharts
-- Material-UI components for modern design
-- Responsive mobile-first layout
-- Progressive Web App (PWA) support
+- **Dashboard overview** for environmental + lighting telemetry
+- **Lighting controls** (dimmer, daylight harvesting toggle, 4 relay channels)
+- **Access control UI** (RFID policy cards + audit log table)
+- **Analytics** (time-window filtering + CSV export)
+- **Settings** (device IDs, admin session, runtime diagnostics)
+- **Live updates** over WebSocket (`/ws/client`) with auto-reconnect
+- **Graceful fallback mode** for access/policy features when backend endpoints are unavailable
+- **Dark Mosaic-inspired visual theme** with flat controls and deep grey gradient background
 
 ## Prerequisites
 
-- Node.js 16+ and npm
-- Backend API running on port 5000
+- Node.js 18+
+- npm 9+
+- Backend API available at `http://localhost:8000` (default)
 
-## Installation
+## Setup
 
 ```bash
+cd frontend
 npm install
-```
-
-## Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
 cp .env.example .env
 ```
 
-Update the environment variables as needed.
+## Environment variables
 
-## Development
+| Variable | Default | Purpose |
+|---|---|---|
+| `REACT_APP_API_URL` | `http://localhost:8000` | Backend API base URL |
+| `REACT_APP_WS_URL` | _empty_ | Optional explicit websocket URL (`ws://.../ws/client`) |
+| `REACT_APP_ADMIN_USERNAME` | `admin` | Frontend admin session username |
+| `REACT_APP_ADMIN_PASSWORD` | `changeme` | Frontend admin session password |
+| `REACT_APP_ENV` | `development` | Optional environment label |
 
-Start the development server:
+If `REACT_APP_WS_URL` is empty, the app derives websocket URL from `REACT_APP_API_URL`.
+
+## Run locally
 
 ```bash
 npm start
 ```
 
-The app will open at [http://localhost:3000](http://localhost:3000)
+Frontend runs at [http://localhost:3000](http://localhost:3000).
 
-## Building
-
-Create a production build:
+## Build
 
 ```bash
 npm run build
 ```
 
-The optimized files will be in the `build/` directory.
-
-## Testing
-
-Run the test suite:
+## Lint / format
 
 ```bash
-npm test
+npm run lint
+npm run format
 ```
 
-## Project Structure
+## Source layout
 
 ```
 src/
-├── components/     # Reusable UI components
-├── pages/         # Page components
-├── services/      # API and WebSocket services
-├── hooks/         # Custom React hooks
-├── utils/         # Helper functions
-└── App.jsx        # Main application component
+├── components/
+│   ├── access/
+│   ├── charts/
+│   ├── common/
+│   ├── layout/
+│   └── lighting/
+├── contexts/
+├── hooks/
+├── pages/
+├── services/
+└── utils/
 ```
 
-## Available Scripts
+## Notes on backend compatibility
 
-- `npm start` - Start development server
-- `npm build` - Build for production
-- `npm test` - Run tests
-- `npm run lint` - Lint code
-- `npm run format` - Format code with Prettier
-
-## Technologies
-
-- React 18
-- React Router 6
-- Material-UI 5
-- Recharts 2
-- Axios
-- WebSocket API
+This dashboard is wired to documented routes in `docs/API.md`.  
+If access-control policy endpoints are not yet deployed, the UI uses local fallback storage so pages remain fully usable for demos.

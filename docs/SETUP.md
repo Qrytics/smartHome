@@ -311,10 +311,11 @@ LOG_LEVEL=INFO
 ```bash
 # API Configuration
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_WS_URL=ws://localhost:8000
+REACT_APP_WS_URL=ws://localhost:8000/ws/client
 
-# Feature Flags
-REACT_APP_ENABLE_ANALYTICS=true
+# Frontend admin session (policy-management controls)
+REACT_APP_ADMIN_USERNAME=admin
+REACT_APP_ADMIN_PASSWORD=changeme
 ```
 
 ### Firmware (secrets.h)

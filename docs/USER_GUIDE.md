@@ -7,10 +7,11 @@ Welcome to the Smart Home System user guide. This document will help you use the
 1. [Getting Started](#getting-started)
 2. [Dashboard Overview](#dashboard-overview)
 3. [Monitoring Temperature](#monitoring-temperature)
-4. [Managing Access Control](#managing-access-control)
-5. [Viewing Access Logs](#viewing-access-logs)
-6. [System Status](#system-status)
-7. [Troubleshooting](#troubleshooting)
+4. [Managing Lighting Control](#managing-lighting-control)
+5. [Managing Access Control](#managing-access-control)
+6. [Viewing Access Logs](#viewing-access-logs)
+7. [System Status](#system-status)
+8. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
@@ -22,12 +23,13 @@ Welcome to the Smart Home System user guide. This document will help you use the
 
 ### Dashboard Layout
 
-The dashboard consists of four main sections:
+The dashboard consists of five main sections:
 
 - **Temperature Monitoring** - Real-time temperature and humidity graphs
+- **Lighting Control** - Dimmer, relay toggles, and daylight harvesting mode
 - **Access Control** - RFID card management
 - **Access Logs** - Historical access attempt records
-- **System Status** - Device health indicators
+- **Analytics & Settings** - Historical exports, device IDs, and admin session controls
 
 ## Dashboard Overview
 
@@ -36,7 +38,8 @@ The dashboard consists of four main sections:
 Use the sidebar menu to navigate between different sections:
 
 - 🏠 **Dashboard** - Overview of all systems
-- 🌡️ **Temperature** - Detailed environmental data
+- 🌡️ **Dashboard** - Live environmental and lighting summary
+- 💡 **Lighting** - Dimmer, daylight harvesting, and relay controls
 - 🔐 **Access Control** - Manage RFID cards
 - 📊 **Analytics** - Historical data analysis
 - ⚙️ **Settings** - System configuration
@@ -92,6 +95,28 @@ To export temperature data:
 2. Select desired date range
 3. Click **Export CSV** button
 4. Save the downloaded file
+
+## Managing Lighting Control
+
+### Manual Controls
+
+Open the **Lighting** page to control:
+
+- **Dimmer brightness** (0-100%)
+- **Daylight harvesting mode** (automatic lux-based dimming)
+- **Relay channels 1-4** (main lights, secondary lights, HVAC fan, spare)
+
+### Daylight Harvesting
+
+When enabled, manual dimmer updates are disabled and brightness is auto-adjusted from ambient light readings.
+
+### Lighting Timeline
+
+The Lighting page includes a real-time chart for:
+
+- Ambient light percentage
+- Ambient lux value
+- Current dimmer output
 
 ## Managing Access Control
 
@@ -328,4 +353,4 @@ If you encounter issues not covered in this guide:
 
 ---
 
-Last updated: 2026-02-09
+Last updated: 2026-02-11
