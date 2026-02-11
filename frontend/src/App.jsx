@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Dashboard from './pages/Dashboard';
 import './App.css';
 
 const theme = createTheme({
@@ -22,12 +23,9 @@ function App() {
       <CssBaseline />
       <Router>
         <div className="App">
-          <header className="App-header">
-            <h1>Smart Home Dashboard</h1>
-          </header>
           <main>
             <Routes>
-              <Route path="/" element={<div>Dashboard Coming Soon</div>} />
+              <Route path="/" element={<Dashboard />} />
               <Route path="/devices" element={<div>Devices Page</div>} />
               <Route path="/analytics" element={<div>Analytics Page</div>} />
               <Route path="/settings" element={<div>Settings Page</div>} />
