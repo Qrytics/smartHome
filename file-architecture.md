@@ -57,11 +57,11 @@
     ├── lighting-control/ # ESP32 #3: Ambient Light + Dimmer Control
     │ ├── platformio.ini
     │ ├── src/
-    │ │ ├── main.cpp
-    │ │ └── config.h
+    │ │ ├── main.cpp              # Complete lighting control implementation
+    │ │ └── config.h              # Hardware pins and calibration settings
     │ ├── include/
-    │ │ └── secrets.h.example
-    │ └── README.md
+    │ │ └── secrets.h.example     # WiFi and API credentials template
+    │ └── README.md               # Complete hardware setup guide
     │
     ├── backend/ # Python FastAPI server
     │ ├── app/
@@ -70,32 +70,24 @@
     │ │ ├── config.py # Environment variables
     │ │ │
     │ │ ├── api/ # HTTP / WebSocket endpoints
-    │ │ │ ├── init.py
-    │ │ │ ├── access.py # POST /api/access/check
-    │ │ │ ├── sensors.py # POST /api/sensors/ingest (environmental & lighting)
-    │ │ │ ├── lighting.py # POST /api/lighting/dimmer, relay control
-    │ │ │ ├── policies.py # RFID whitelist CRUD
-    │ │ │ ├── websocket.py # WebSocket handler
-    │ │ │ └── health.py # GET /health
+    │ │ │ ├── __init__.py
+    │ │ │ ├── health.py           # ✅ GET /health
+    │ │ │ ├── sensors.py          # ✅ POST /api/sensors/ingest/lighting, GET /api/sensors/latest, history
+    │ │ │ ├── lighting.py         # ✅ POST /api/lighting/dimmer, relay, daylight-harvest, GET /api/lighting/status
+    │ │ │ └── websocket.py        # ✅ WS /ws (devices), WS /ws/client (frontend)
     │ │ │
     │ │ ├── models/ # SQLAlchemy models
-    │ │ │ ├── init.py
-    │ │ │ ├── device.py
-    │ │ │ ├── access_log.py
-    │ │ │ ├── sensor_data.py
-    │ │ │ └── policy.py
+    │ │ │ ├── __init__.py         # Model exports
+    │ │ │ └── lighting.py         # ✅ LightingSensorData, RelayState, DimmerState, Device
     │ │ │
     │ │ ├── services/ # Business logic
-    │ │ │ ├── init.py
-    │ │ │ ├── redis_client.py
-    │ │ │ ├── db_client.py
-    │ │ │ ├── auth_service.py # TLS cert validation
-    │ │ │ └── stream_processor.py # Background worker
+    │ │ │ ├── __init__.py         # Service exports
+    │ │ │ ├── db_client.py        # ✅ DatabaseClient with CRUD operations
+    │ │ │ └── websocket_manager.py # ✅ ConnectionManager for real-time communication
     │ │ │
     │ │ ├── schemas/ # Pydantic models
-    │ │ │ ├── init.py
-    │ │ │ ├── access.py
-    │ │ │ └── sensor.py
+    │ │ │ ├── __init__.py         # Schema exports
+    │ │ │ └── lighting.py         # ✅ Request/response validation schemas
     │ │ │
     │ │ └── utils/
     │ │ ├── init.py
@@ -133,18 +125,16 @@
     │ │
     │ ├── src/
     │ │ ├── components/
-    │ │ │ ├── TemperatureGraph.jsx
-    │ │ │ ├── AmbientLightGraph.jsx
-    │ │ │ ├── DimmerControl.jsx
-    │ │ │ ├── RelayControl.jsx
-    │ │ │ ├── AccessLogTable.jsx
-    │ │ │ ├── PolicyManager.jsx
-    │ │ │ ├── SystemStatus.jsx
-    │ │ │ └── Header.jsx
+    │ │ │ ├── AmbientLightGraph.jsx  # ✅ Real-time light level visualization
+    │ │ │ ├── DimmerControl.jsx      # ✅ Brightness slider and daylight harvest toggle
+    │ │ │ ├── RelayControl.jsx       # ✅ 4-channel relay switches
+    │ │ │ └── SystemStatus.jsx       # System monitoring
+    │ │ │
+    │ │ ├── pages/
+    │ │ │ └── Dashboard.jsx          # ✅ Main dashboard with all lighting controls
     │ │ │
     │ │ ├── services/
-    │ │ │ ├── api.js
-    │ │ │ └── websocket.js
+    │ │ │ └── api.js                 # ✅ Complete API client with all endpoints
     │ │ │
     │ │ ├── contexts/
     │ │ │ └── AuthContext.js
@@ -178,8 +168,8 @@
     │ │ └── redis.conf
     │ │
     │ ├── timescaledb/
-    │ │ ├── init.sql
-    │ │ └── seed.sql
+    │ │ ├── init.sql              # ✅ Complete schema with lighting tables
+    │ │ └── seed.sql              # ✅ Sample data including lighting device
     │ │
     │ ├── nginx/
     │ │ ├── nginx.conf

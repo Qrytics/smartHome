@@ -109,6 +109,89 @@ CREATE TRIGGER update_devices_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- ============================================================================
+-- Lighting Control Tables
+-- ============================================================================
+
+-- Lighting sensor data table (ambient light readings)
+CREATE TABLE IF NOT EXISTS lighting_sensor_data (
+    time TIMESTAMPTZ NOT NULL,
+    device_id VARCHAR(50) NOT NULL,
+    light_level DOUBLE PRECISION,      -- Ambient light level (0-100%)
+    light_lux DOUBLE PRECISION,        -- Calculated lux value
+    dimmer_brightness INT,             -- Current dimmer setting (0-100%)
+    daylight_harvest_mode BOOLEAN,     -- Daylight harvesting enabled
+    FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- Convert to hypertable
+SELECT create_hypertable('lighting_sensor_data', 'time', if_not_exists => TRUE);
+
+-- Create indexes for efficient querying
+CREATE INDEX IF NOT EXISTS idx_lighting_sensor_data_device_time 
+    ON lighting_sensor_data (device_id, time DESC);
+
+-- Relay state history table
+CREATE TABLE IF NOT EXISTS relay_state (
+    time TIMESTAMPTZ NOT NULL,
+    device_id VARCHAR(50) NOT NULL,
+    channel INT NOT NULL CHECK (channel BETWEEN 1 AND 4),
+    state BOOLEAN NOT NULL,
+    FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- Convert to hypertable
+SELECT create_hypertable('relay_state', 'time', if_not_exists => TRUE);
+
+-- Create indexes for efficient querying
+CREATE INDEX IF NOT EXISTS idx_relay_state_device_time 
+    ON relay_state (device_id, time DESC);
+CREATE INDEX IF NOT EXISTS idx_relay_state_device_channel_time 
+    ON relay_state (device_id, channel, time DESC);
+
+-- Dimmer state history table
+CREATE TABLE IF NOT EXISTS dimmer_state (
+    time TIMESTAMPTZ NOT NULL,
+    device_id VARCHAR(50) NOT NULL,
+    brightness INT NOT NULL CHECK (brightness BETWEEN 0 AND 100),
+    FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- Convert to hypertable
+SELECT create_hypertable('dimmer_state', 'time', if_not_exists => TRUE);
+
+-- Create indexes for efficient querying
+CREATE INDEX IF NOT EXISTS idx_dimmer_state_device_time 
+    ON dimmer_state (device_id, time DESC);
+
+-- Automated data retention policy for lighting data (keep 90 days)
+SELECT add_retention_policy('lighting_sensor_data', INTERVAL '90 days', if_not_exists => TRUE);
+SELECT add_retention_policy('relay_state', INTERVAL '90 days', if_not_exists => TRUE);
+SELECT add_retention_policy('dimmer_state', INTERVAL '90 days', if_not_exists => TRUE);
+
+-- Continuous aggregate for hourly lighting sensor averages
+CREATE MATERIALIZED VIEW IF NOT EXISTS lighting_sensor_data_hourly
+WITH (timescaledb.continuous) AS
+SELECT 
+    time_bucket('1 hour', time) AS bucket,
+    device_id,
+    AVG(light_level) AS avg_light_level,
+    MIN(light_level) AS min_light_level,
+    MAX(light_level) AS max_light_level,
+    AVG(light_lux) AS avg_light_lux,
+    AVG(dimmer_brightness) AS avg_dimmer_brightness,
+    COUNT(*) AS reading_count
+FROM lighting_sensor_data
+GROUP BY bucket, device_id
+WITH NO DATA;
+
+-- Refresh policy for lighting continuous aggregate
+SELECT add_continuous_aggregate_policy('lighting_sensor_data_hourly',
+    start_offset => INTERVAL '2 hours',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '1 hour',
+    if_not_exists => TRUE);
+
 -- Grant permissions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO smart_home_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO smart_home_user;

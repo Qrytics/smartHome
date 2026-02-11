@@ -1,4 +1,24 @@
-"""Pydantic Schemas Package - Request/Response Models"""
-# TODO: Import Pydantic schemas here
-# from .access import AccessCheckRequest, AccessCheckResponse
-# from .sensor import SensorDataRequest, SensorDataResponse
+"""
+Pydantic schemas for API request/response validation
+"""
+
+from .lighting import (
+    LightingSensorDataSchema,
+    DimmerCommandSchema,
+    RelayCommandSchema,
+    DaylightHarvestSchema,
+    DeviceStatusSchema,
+    LightingHistorySchema,
+    LightingHistoryResponse,
+)
+
+__all__ = [
+    'LightingSensorDataSchema',
+    'DimmerCommandSchema',
+    'RelayCommandSchema',
+    'DaylightHarvestSchema',
+    'DeviceStatusSchema',
+    'LightingHistorySchema',
+    'LightingHistoryResponse',
+]
+

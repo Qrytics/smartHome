@@ -448,6 +448,375 @@ X-RateLimit-Reset: 1707506404
 
 ---
 
+### Lighting Control
+
+#### POST /api/lighting/dimmer/{device_id}
+
+Set LED dimmer brightness for a lighting control device.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/api/lighting/dimmer/lighting-control-01 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "brightness": 75
+  }'
+```
+
+**Path Parameters:**
+- `device_id`: Device identifier (e.g., "lighting-control-01")
+
+**Request Body:**
+```json
+{
+  "brightness": 75  // Brightness level (0-100%)
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Dimmer set to 75%",
+  "device_id": "lighting-control-01"
+}
+```
+
+**Status Codes:**
+- `200 OK` - Command sent successfully
+- `404 Not Found` - Device not registered
+- `503 Service Unavailable` - Device offline
+- `422 Unprocessable Entity` - Validation error (brightness out of range)
+
+**Notes:**
+- Command is sent via WebSocket to the connected device
+- Dimmer brightness change is logged in database
+- Disables daylight harvesting mode when manual control is used
+
+---
+
+#### POST /api/lighting/relay/{device_id}
+
+Control relay state for high-power load switching.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/api/lighting/relay/lighting-control-01 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "channel": 1,
+    "state": true
+  }'
+```
+
+**Path Parameters:**
+- `device_id`: Device identifier
+
+**Request Body:**
+```json
+{
+  "channel": 1,     // Relay channel (1-4)
+  "state": true     // Relay state (true=ON, false=OFF)
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Relay 1 set to ON",
+  "device_id": "lighting-control-01"
+}
+```
+
+**Status Codes:**
+- `200 OK` - Command sent successfully
+- `404 Not Found` - Device not registered
+- `503 Service Unavailable` - Device offline
+- `422 Unprocessable Entity` - Validation error (invalid channel)
+
+**Relay Channel Assignments:**
+- Channel 1: Main lights
+- Channel 2: Secondary lights
+- Channel 3: HVAC fan
+- Channel 4: Spare
+
+---
+
+#### POST /api/lighting/daylight-harvest/{device_id}
+
+Toggle daylight harvesting mode for automatic brightness adjustment.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/api/lighting/daylight-harvest/lighting-control-01 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true
+  }'
+```
+
+**Path Parameters:**
+- `device_id`: Device identifier
+
+**Request Body:**
+```json
+{
+  "enabled": true  // Enable/disable daylight harvesting
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Daylight harvesting ENABLED",
+  "device_id": "lighting-control-01"
+}
+```
+
+**Status Codes:**
+- `200 OK` - Command sent successfully
+- `404 Not Found` - Device not registered
+- `503 Service Unavailable` - Device offline
+
+**Notes:**
+- When enabled, device automatically adjusts LED brightness based on ambient light
+- Target illumination: 300 lux (configurable in firmware)
+- Saves energy while maintaining comfortable lighting levels
+
+---
+
+#### GET /api/lighting/status/{device_id}
+
+Get current status of a lighting control device.
+
+**Request:**
+```bash
+curl http://localhost:8000/api/lighting/status/lighting-control-01
+```
+
+**Response:**
+```json
+{
+  "device_id": "lighting-control-01",
+  "online": true,
+  "status": "online",
+  "last_seen": "2026-02-11T16:30:00.000Z",
+  "current_state": {
+    "light_level": 45.3,
+    "light_lux": 453.0,
+    "dimmer_brightness": 65,
+    "daylight_harvest_mode": true,
+    "relays": [false, false, false, false],
+    "last_update": "2026-02-11T16:30:00.000Z"
+  }
+}
+```
+
+**Status Codes:**
+- `200 OK` - Status retrieved successfully
+- `404 Not Found` - Device not registered
+
+---
+
+#### POST /api/sensors/ingest/lighting
+
+Ingest lighting sensor data from ESP32 devices.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/api/sensors/ingest/lighting \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "lighting-control-01",
+    "timestamp": "2026-02-11T16:00:00.000Z",
+    "light_level": 45.3,
+    "light_lux": 453.0,
+    "dimmer_brightness": 65,
+    "daylight_harvest_mode": true,
+    "relays": [false, false, false, false]
+  }'
+```
+
+**Request Body:**
+```json
+{
+  "device_id": "string",              // Unique device identifier
+  "timestamp": "string",              // ISO 8601 timestamp
+  "light_level": 45.3,                // Ambient light level (0-100%)
+  "light_lux": 453.0,                 // Calculated lux value
+  "dimmer_brightness": 65,            // Current dimmer setting (0-100%)
+  "daylight_harvest_mode": true,      // Daylight harvesting enabled
+  "relays": [false, false, false, false]  // Relay states [ch1, ch2, ch3, ch4]
+}
+```
+
+**Response:**
+```json
+{
+  "status": "accepted",
+  "message": "Lighting sensor data processed successfully",
+  "device_id": "lighting-control-01",
+  "timestamp": "2026-02-11T16:00:00.000Z"
+}
+```
+
+**Status Codes:**
+- `202 Accepted` - Data queued for processing
+- `404 Not Found` - Device not registered
+- `422 Unprocessable Entity` - Validation error
+
+**Notes:**
+- Data is stored in TimescaleDB
+- Real-time updates are broadcast to WebSocket clients
+- Device status is updated to 'online'
+
+---
+
+#### GET /api/sensors/latest/{device_id}
+
+Get the latest sensor reading for a device.
+
+**Request:**
+```bash
+curl http://localhost:8000/api/sensors/latest/lighting-control-01
+```
+
+**Response:**
+```json
+{
+  "device_id": "lighting-control-01",
+  "source": "cache",
+  "data": {
+    "time": "2026-02-11T16:00:00.000Z",
+    "light_level": 45.3,
+    "light_lux": 453.0,
+    "dimmer_brightness": 65,
+    "daylight_harvest_mode": true
+  }
+}
+```
+
+**Status Codes:**
+- `200 OK` - Data retrieved successfully
+- `404 Not Found` - Device not found or no data available
+
+**Notes:**
+- Returns cached data if available (most recent)
+- Falls back to database if not in cache
+
+---
+
+#### GET /api/sensors/history/{device_id}
+
+Get historical sensor data for a device.
+
+**Request:**
+```bash
+curl "http://localhost:8000/api/sensors/history/lighting-control-01?start_time=2026-02-11T00:00:00Z&end_time=2026-02-11T23:59:59Z&limit=100"
+```
+
+**Query Parameters:**
+- `start_time` (optional): Start timestamp (ISO 8601)
+- `end_time` (optional): End timestamp (ISO 8601)
+- `limit` (optional): Maximum number of records (default: 100, max: 1000)
+
+**Response:**
+```json
+{
+  "device_id": "lighting-control-01",
+  "data": [
+    {
+      "time": "2026-02-11T16:00:00.000Z",
+      "light_level": 45.3,
+      "light_lux": 453.0,
+      "dimmer_brightness": 65,
+      "daylight_harvest_mode": true
+    }
+  ],
+  "total_records": 100,
+  "start_time": "2026-02-11T00:00:00Z",
+  "end_time": "2026-02-11T23:59:59Z",
+  "limit": 100
+}
+```
+
+**Status Codes:**
+- `200 OK` - Data retrieved successfully
+- `404 Not Found` - Device not found
+- `400 Bad Request` - Invalid timestamp format
+
+---
+
+### WebSocket Endpoints
+
+#### WS /ws
+
+WebSocket endpoint for ESP32 device connections.
+
+**Connection:**
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws');
+
+// First message must include device_id
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    device_id: 'lighting-control-01'
+  }));
+};
+
+// Receive confirmation
+ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  console.log(message); // {status: 'connected', device_id: 'lighting-control-01'}
+};
+
+// Send sensor data
+ws.send(JSON.stringify({
+  device_id: 'lighting-control-01',
+  timestamp: '2026-02-11T16:00:00.000Z',
+  light_level: 45.3,
+  light_lux: 453.0,
+  dimmer_brightness: 65,
+  daylight_harvest_mode: true,
+  relays: [false, false, false, false]
+}));
+
+// Receive commands from server
+ws.onmessage = (event) => {
+  const command = JSON.parse(event.data);
+  // {command: 'dimmer', value: 75}
+  // {command: 'relay1', value: 1}
+  // {command: 'daylight_harvest', value: 1}
+};
+```
+
+---
+
+#### WS /ws/client
+
+WebSocket endpoint for frontend client connections.
+
+**Connection:**
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws/client');
+
+ws.onopen = () => {
+  console.log('Connected to Smart Home');
+};
+
+// Receive real-time sensor updates
+ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  if (message.type === 'sensor_data' || message.type === 'lighting_data') {
+    console.log(`Update from ${message.device_id}:`, message.data);
+  }
+};
+```
+
+---
+
 ## SDK Examples
 
 ### Python

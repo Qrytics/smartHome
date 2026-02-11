@@ -8,7 +8,7 @@ routers, and configuration.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.api import health, sensors, lighting
+from app.api import health, sensors, lighting, websocket
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -32,11 +32,11 @@ app.add_middleware(
 app.include_router(health.router, tags=["health"])
 app.include_router(sensors.router, prefix="/api/sensors", tags=["sensors"])
 app.include_router(lighting.router, prefix="/api/lighting", tags=["lighting"])
+app.include_router(websocket.router, tags=["websocket"])
 
 # TODO: Add additional routers
 # app.include_router(access.router, prefix="/api/access", tags=["access"])
 # app.include_router(policies.router, prefix="/api/policies", tags=["policies"])
-# app.include_router(websocket.router, prefix="/ws", tags=["websocket"])
 
 
 @app.on_event("startup")
@@ -50,9 +50,15 @@ async def startup_event():
     print("=" * 50)
     print("Smart Home Backend Starting...")
     print("=" * 50)
-    # TODO: Initialize database connection pool
-    # TODO: Initialize Redis connection pool
-    # TODO: Start stream processor worker
+    
+    # Initialize database connection (tables are created by init.sql)
+    from app.services import db_client
+    print("✓ Database client initialized")
+    
+    # Initialize WebSocket manager
+    from app.services import ws_manager
+    print("✓ WebSocket manager initialized")
+    
     print("All services initialized successfully!")
 
 
@@ -67,9 +73,13 @@ async def shutdown_event():
     print("=" * 50)
     print("Smart Home Backend Shutting Down...")
     print("=" * 50)
-    # TODO: Close database connections
-    # TODO: Close Redis connections
-    # TODO: Stop background workers
+    
+    # Close database connections
+    from app.services import db_client
+    if hasattr(db_client, 'engine'):
+        db_client.engine.dispose()
+        print("✓ Database connections closed")
+    
     print("Shutdown complete.")
 
 

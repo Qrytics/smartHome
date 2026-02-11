@@ -10,6 +10,7 @@ Handles control commands for lighting devices including:
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import Dict
+from app.services import ws_manager, db_client
 
 router = APIRouter()
 
@@ -57,19 +58,32 @@ async def set_dimmer_brightness(device_id: str, request: DimmerControlRequest) -
     Raises:
         HTTPException: 404 if device not found, 503 if device offline
     """
-    # TODO: Validate device exists and is online
-    # TODO: Send command via WebSocket to device
-    # TODO: Log command in database
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
     
-    print(f"[CONTROL] Setting dimmer brightness for {device_id}: {request.brightness}%")
+    # Check if device is online
+    if not ws_manager.is_device_connected(device_id):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Device {device_id} is offline"
+        )
     
-    # Placeholder: Queue command for WebSocket delivery
-    command = {
-        "command": "dimmer",
-        "value": request.brightness
-    }
+    # Send command via WebSocket
+    success = await ws_manager.send_dimmer_command(device_id, request.brightness)
     
-    # TODO: Send via WebSocket to device
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send command to device {device_id}"
+        )
+    
+    # Log command in database
+    db_client.insert_dimmer_state(device_id, request.brightness)
     
     return {
         "status": "success",
@@ -96,21 +110,34 @@ async def set_relay_state(device_id: str, request: RelayControlRequest) -> Dict:
     Raises:
         HTTPException: 404 if device not found, 503 if device offline
     """
-    # TODO: Validate device exists and is online
-    # TODO: Send command via WebSocket to device
-    # TODO: Log command in database
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
+    
+    # Check if device is online
+    if not ws_manager.is_device_connected(device_id):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Device {device_id} is offline"
+        )
+    
+    # Send command via WebSocket
+    success = await ws_manager.send_relay_command(device_id, request.channel, request.state)
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send command to device {device_id}"
+        )
+    
+    # Log command in database
+    db_client.insert_relay_state(device_id, request.channel, request.state)
     
     state_str = "ON" if request.state else "OFF"
-    print(f"[CONTROL] Setting relay {request.channel} for {device_id}: {state_str}")
-    
-    # Placeholder: Queue command for WebSocket delivery
-    command = {
-        "command": f"relay{request.channel}",
-        "value": 1 if request.state else 0
-    }
-    
-    # TODO: Send via WebSocket to device
-    
     return {
         "status": "success",
         "message": f"Relay {request.channel} set to {state_str}",
@@ -136,21 +163,31 @@ async def set_daylight_harvest_mode(device_id: str, request: DaylightHarvestRequ
     Raises:
         HTTPException: 404 if device not found, 503 if device offline
     """
-    # TODO: Validate device exists and is online
-    # TODO: Send command via WebSocket to device
-    # TODO: Log command in database
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
+    
+    # Check if device is online
+    if not ws_manager.is_device_connected(device_id):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Device {device_id} is offline"
+        )
+    
+    # Send command via WebSocket
+    success = await ws_manager.send_daylight_harvest_command(device_id, request.enabled)
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send command to device {device_id}"
+        )
     
     mode_str = "ENABLED" if request.enabled else "DISABLED"
-    print(f"[CONTROL] Daylight harvesting for {device_id}: {mode_str}")
-    
-    # Placeholder: Queue command for WebSocket delivery
-    command = {
-        "command": "daylight_harvest",
-        "value": 1 if request.enabled else 0
-    }
-    
-    # TODO: Send via WebSocket to device
-    
     return {
         "status": "success",
         "message": f"Daylight harvesting {mode_str}",
@@ -174,10 +211,28 @@ async def get_device_status(device_id: str) -> Dict:
     Raises:
         HTTPException: 404 if device not found
     """
-    # TODO: Query device status from cache or database
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
     
-    # Placeholder response
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Device status retrieval not yet implemented"
-    )
+    # Get cached device state from WebSocket manager
+    device_state = ws_manager.get_device_state(device_id)
+    
+    # Get latest data from database if not in cache
+    if not device_state:
+        latest_data = db_client.get_latest_lighting_data(device_id)
+        if latest_data:
+            device_state = latest_data
+    
+    return {
+        "device_id": device_id,
+        "online": ws_manager.is_device_connected(device_id),
+        "status": device.get('status'),
+        "last_seen": device.get('last_seen'),
+        "current_state": device_state,
+    }
+
