@@ -8,7 +8,7 @@ routers, and configuration.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.api import health
+from app.api import health, sensors, lighting
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -30,10 +30,11 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["health"])
+app.include_router(sensors.router, prefix="/api/sensors", tags=["sensors"])
+app.include_router(lighting.router, prefix="/api/lighting", tags=["lighting"])
 
 # TODO: Add additional routers
 # app.include_router(access.router, prefix="/api/access", tags=["access"])
-# app.include_router(sensors.router, prefix="/api/sensors", tags=["sensors"])
 # app.include_router(policies.router, prefix="/api/policies", tags=["policies"])
 # app.include_router(websocket.router, prefix="/ws", tags=["websocket"])
 
