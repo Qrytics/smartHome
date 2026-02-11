@@ -73,14 +73,20 @@ This project demonstrates a fully integrated, web-dependent smart home system fo
 - Fail-safe offline state detection (>5s Redis loss)
 - React-based web dashboard with policy management UI
 
+**Phase 5: Lighting Control & Daylight Harvesting**
+- TEMT6000 ambient light sensor integration for real-time light level monitoring
+- PWM-based LED dimmer control (0-100% brightness via MOSFET modules)
+- Automatic daylight harvesting: adjust artificial lighting based on ambient light to save energy
+- 4-channel relay module for switching high-power loads (HVAC fans, main lights)
+- ESP32 #3 dedicated to lighting control with WebSocket integration
+- Real-time light level visualization in dashboard
+- Manual override controls for dimmer brightness and relay states
+
 ### 1.3 Out-of-Scope (Deferred Features)
 
 - CO2 sensing (SCD40 sensor)
-- Ambient light control (TEMT6000 sensor)
 - Power monitoring (INA226 sensor)
 - Occupancy detection (HC-SR501 PIR sensor)
-- HVAC control (fans, dampers, relays)
-- Light dimming systems
 - Multi-zone climate control
 - Machine learning forecasting
 - Mobile application

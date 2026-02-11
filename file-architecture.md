@@ -54,6 +54,15 @@
     │ │ └── secrets.h.example
     │ └── README.md
     │
+    ├── lighting-control/ # ESP32 #3: Ambient Light + Dimmer Control
+    │ ├── platformio.ini
+    │ ├── src/
+    │ │ ├── main.cpp
+    │ │ └── config.h
+    │ ├── include/
+    │ │ └── secrets.h.example
+    │ └── README.md
+    │
     ├── backend/ # Python FastAPI server
     │ ├── app/
     │ │ ├── init.py
@@ -63,7 +72,8 @@
     │ │ ├── api/ # HTTP / WebSocket endpoints
     │ │ │ ├── init.py
     │ │ │ ├── access.py # POST /api/access/check
-    │ │ │ ├── sensors.py # POST /api/sensors/ingest
+    │ │ │ ├── sensors.py # POST /api/sensors/ingest (environmental & lighting)
+    │ │ │ ├── lighting.py # POST /api/lighting/dimmer, relay control
     │ │ │ ├── policies.py # RFID whitelist CRUD
     │ │ │ ├── websocket.py # WebSocket handler
     │ │ │ └── health.py # GET /health
@@ -124,6 +134,9 @@
     │ ├── src/
     │ │ ├── components/
     │ │ │ ├── TemperatureGraph.jsx
+    │ │ │ ├── AmbientLightGraph.jsx
+    │ │ │ ├── DimmerControl.jsx
+    │ │ │ ├── RelayControl.jsx
     │ │ │ ├── AccessLogTable.jsx
     │ │ │ ├── PolicyManager.jsx
     │ │ │ ├── SystemStatus.jsx
