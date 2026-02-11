@@ -64,8 +64,9 @@ There's a clear intersection between these markets:
 - Smart thermostats are fundamentally building management tools
 - Energy management requires real-time sensor data and automated control
 - Security systems (access control) share the same infrastructure needs
+- Intelligent lighting contributes to both comfort and energy efficiency
 
-Our project targets this crossover by building a unified platform that handles both **security** (door locks) and **environmental control** (temperature monitoring)—the two most critical building management functions.
+Our project targets this crossover by building a unified platform that handles **security** (door locks), **environmental control** (temperature monitoring), and **energy management** (intelligent lighting)—three critical building management functions.
 
 ### Why This Matters for Building Managers
 
@@ -73,6 +74,7 @@ While consumer smart homes focus on convenience, **commercial buildings** (offic
 
 - **Security personnel** need centralized access logs and real-time revocation capabilities
 - **Facility managers** require historical environmental data for HVAC optimization
+- **Energy managers** demand lighting control and energy usage analytics
 - **Compliance officers** demand audit trails proving 100% data retention
 
 Current solutions often use proprietary, closed systems with high vendor lock-in. Our open-source, web-first approach demonstrates an alternative that prioritizes:
