@@ -1,5 +1,12 @@
 """Services Package - Business Logic Layer"""
-# TODO: Import services here
-# from .redis_client import RedisClient
-# from .db_client import DatabaseClient
-# from .auth_service import AuthService
+
+from .db_client import DatabaseClient, db_client
+from .websocket_manager import ConnectionManager, ws_manager
+
+__all__ = [
+    'DatabaseClient',
+    'db_client',
+    'ConnectionManager',
+    'ws_manager',
+]
+

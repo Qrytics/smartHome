@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException, status
 from datetime import datetime
 from typing import Dict, Optional, List
 from pydantic import BaseModel, Field
+from app.services import db_client, ws_manager
 
 router = APIRouter()
 
@@ -90,20 +91,44 @@ async def ingest_lighting_data(data: LightingSensorData) -> Dict:
     Returns:
         SensorDataResponse: Acknowledgment of data receipt
     """
-    # TODO: Validate device_id against registered devices
-    # TODO: Push data to Redis Streams for async processing
-    # TODO: Broadcast to WebSocket clients for real-time updates
-    # TODO: Store in TimescaleDB via background worker
+    # Validate device exists
+    device = db_client.get_device(data.device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {data.device_id} not registered"
+        )
     
-    print(f"[SENSOR] Lighting data from {data.device_id}:")
-    print(f"  Light Level: {data.light_level}% ({data.light_lux} lux)")
-    print(f"  Dimmer: {data.dimmer_brightness}%")
-    print(f"  Daylight Harvest: {data.daylight_harvest_mode}")
-    print(f"  Relays: {data.relays}")
+    # Store in database
+    try:
+        db_client.insert_lighting_data(data.dict())
+        
+        # Update device status
+        db_client.update_device_status(data.device_id, 'online')
+        
+        # Broadcast to WebSocket clients for real-time updates
+        await ws_manager.broadcast_to_clients({
+            'type': 'lighting_data',
+            'device_id': data.device_id,
+            'data': data.dict()
+        })
+        
+        print(f"[SENSOR] Lighting data from {data.device_id}:")
+        print(f"  Light Level: {data.light_level}% ({data.light_lux} lux)")
+        print(f"  Dimmer: {data.dimmer_brightness}%")
+        print(f"  Daylight Harvest: {data.daylight_harvest_mode}")
+        print(f"  Relays: {data.relays}")
+        
+    except Exception as e:
+        print(f"[ERROR] Failed to process lighting data: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to process sensor data"
+        )
     
     return {
         "status": "accepted",
-        "message": "Lighting sensor data queued for processing",
+        "message": "Lighting sensor data processed successfully",
         "device_id": data.device_id,
         "timestamp": data.timestamp,
     }
@@ -123,13 +148,36 @@ async def get_latest_sensor_data(device_id: str) -> Dict:
     Raises:
         HTTPException: 404 if device not found
     """
-    # TODO: Query Redis cache for latest data
-    # TODO: Fall back to database if not in cache
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
     
-    # Placeholder response
+    # Try WebSocket cache first (most recent)
+    cached_state = ws_manager.get_device_state(device_id)
+    if cached_state:
+        return {
+            "device_id": device_id,
+            "source": "cache",
+            "data": cached_state
+        }
+    
+    # Fall back to database
+    latest_data = db_client.get_latest_lighting_data(device_id)
+    if latest_data:
+        return {
+            "device_id": device_id,
+            "source": "database",
+            "data": latest_data
+        }
+    
+    # No data available
     raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Latest sensor data retrieval not yet implemented"
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No sensor data found for device {device_id}"
     )
 
 
@@ -155,12 +203,56 @@ async def get_sensor_history(
     Raises:
         HTTPException: 404 if device not found
     """
-    # TODO: Query TimescaleDB for historical data
-    # TODO: Apply time range filters
-    # TODO: Apply limit
+    # Check if device exists
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found"
+        )
     
-    # Placeholder response
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Sensor history retrieval not yet implemented"
-    )
+    # Parse timestamps if provided
+    start_dt = None
+    end_dt = None
+    
+    if start_time:
+        try:
+            start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid start_time format. Use ISO 8601 format."
+            )
+    
+    if end_time:
+        try:
+            end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid end_time format. Use ISO 8601 format."
+            )
+    
+    # Query database
+    try:
+        history = db_client.get_lighting_history(
+            device_id=device_id,
+            start_time=start_dt,
+            end_time=end_dt,
+            limit=min(limit, 1000)  # Cap at 1000 records
+        )
+        
+        return {
+            "device_id": device_id,
+            "data": history,
+            "total_records": len(history),
+            "start_time": start_time,
+            "end_time": end_time,
+            "limit": limit
+        }
+    except Exception as e:
+        print(f"[ERROR] Failed to query history: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve sensor history"
+        )
