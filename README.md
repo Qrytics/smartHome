@@ -430,7 +430,7 @@ The TEMT6000 is an analog light sensor that converts ambient light intensity int
 
 **Why TEMT6000 over alternatives?**
 
-- **BH1750:** Digital I2C sensor, more expensive, slower (120ms read time)
+- **BH1750:** Digital I2C sensor, more expensive, slower (120ms in highest resolution mode)
 - **Photoresistor (LDR):** Non-linear response, slower, less accurate
 - **TSL2561:** More complex, requires calibration, higher cost
 
@@ -492,7 +492,7 @@ The TEMT6000 offers simple analog output with fast response time, ideal for real
 
 - **Response time:** ~10ms (mechanical actuation)
 - **Lifetime:** 100,000+ cycles (mechanical relays)
-- **Active state:** Low (relay energized when GPIO LOW) or High (configurable)
+- **Trigger logic:** Most modules use active-low (relay ON when GPIO LOW). Some modules have jumpers to select active-high or active-low. Check module documentation.
 - **Flyback protection:** Built-in diodes on most modules
 
 **Pin Connections:**
@@ -503,6 +503,10 @@ The TEMT6000 offers simple analog output with fast response time, ideal for real
 **Safety Note:** Always use appropriate wire gauges and fuses when switching high-power AC loads. Follow local electrical codes.
 
 ### Power Supply System
+
+**Overall System Requirements:**
+
+With the addition of the lighting control system (LED strips and 4-channel relay), the power supply has been upgraded from 12V 2A to **12V 5A** to accommodate the increased load.
 
 **Buck Converter Selection:**
 
