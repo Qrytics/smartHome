@@ -1,19 +1,19 @@
 :root {
-  --bg-0: #1a1e24;
-  --bg-1: #20252d;
-  --bg-2: #171b22;
-  --panel: rgba(255, 255, 255, 0.05);
-  --panel-strong: rgba(255, 255, 255, 0.08);
-  --text: rgba(244, 247, 255, 0.95);
-  --muted: rgba(227, 233, 247, 0.7);
-  --border: rgba(255, 255, 255, 0.13);
-  --focus: rgba(56, 189, 248, 0.55);
-  --accent: #60a5fa;
-  --success: #34d399;
-  --warning: #f59e0b;
-  --danger: #fb7185;
-  --info: #a78bfa;
-  --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.24);
+  --bg-0: #050608;
+  --bg-1: #0b0d11;
+  --bg-2: #050608;
+  --panel: rgba(15, 17, 23, 0.92);
+  --panel-strong: rgba(18, 20, 26, 0.96);
+  --text: rgba(243, 244, 246, 0.96);
+  --muted: rgba(156, 163, 175, 0.9);
+  --border: rgba(31, 41, 55, 0.9);
+  --focus: rgba(156, 163, 175, 0.85);
+  --accent: #9ca3af;
+  --success: #22c55e;
+  --warning: #f97316;
+  --danger: #ef4444;
+  --info: #6b7280;
+  --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.8);
 }
 
 .app-shell {
@@ -51,7 +51,7 @@
 .metric-card {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 14px;
   box-shadow: var(--shadow-soft);
 }
@@ -130,7 +130,7 @@
   display: grid;
   gap: 3px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.02);
   color: var(--text);
   text-decoration: none;
@@ -160,7 +160,7 @@
 .topbar {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: var(--shadow-soft);
   padding: 14px 16px;
   display: flex;
@@ -210,7 +210,7 @@
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: var(--shadow-soft);
 }
 
@@ -256,7 +256,7 @@
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 3px 9px;
   background: rgba(255, 255, 255, 0.06);
   font-size: 11px;
@@ -288,7 +288,7 @@
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.08);
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 8px 12px;
   font-size: 13px;
   cursor: pointer;
@@ -336,7 +336,7 @@
 .input {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   padding: 9px 11px;
@@ -403,7 +403,7 @@
   gap: 10px;
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 10px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
   padding: 9px 10px;
 }
@@ -411,7 +411,7 @@
 .table-wrap {
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .data-table {
@@ -452,7 +452,7 @@
   font-size: 13px;
   padding: 12px;
   border: 1px dashed rgba(255, 255, 255, 0.17);
-  border-radius: 12px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -501,7 +501,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 11px;
   text-align: left;
   cursor: pointer;
@@ -538,7 +538,7 @@
 .command-message {
   border: 1px solid rgba(167, 139, 250, 0.4);
   background: rgba(167, 139, 250, 0.12);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 9px 10px;
   display: flex;
   gap: 8px;
