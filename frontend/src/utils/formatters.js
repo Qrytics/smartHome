@@ -1,5 +1,5 @@
 export function toIsoTimestamp(value) {
-  if (!value) return new Date().toISOString();
+  if (value === null || value === undefined) return new Date().toISOString();
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return new Date().toISOString();
   return parsed.toISOString();
