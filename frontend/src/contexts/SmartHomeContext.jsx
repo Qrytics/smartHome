@@ -567,7 +567,16 @@ export function SmartHomeProvider({ children }) {
 
         appendAccessLog(log);
         appendMockAccessLog(log);
-        return response;
+        return {
+          granted: log.granted,
+          card_uid: log.card_uid,
+          device_id: log.device_id,
+          user_name: log.user_name,
+          reason: log.reason,
+          access_log_id: log.id,
+          timestamp: log.timestamp,
+          latency_ms: log.latency_ms,
+        };
       } catch (error) {
         const fallback = createMockAccessEvent({
           cardUid,
