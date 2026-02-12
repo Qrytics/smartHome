@@ -96,8 +96,8 @@ export function filterSeriesByRange(series, startTime, endTime) {
   return series.filter((entry) => {
     const at = new Date(entry.timestamp || entry.time).getTime();
     if (Number.isNaN(at)) return false;
-    if (startMs && at < startMs) return false;
-    if (endMs && at > endMs) return false;
+    if (Number.isFinite(startMs) && at < startMs) return false;
+    if (Number.isFinite(endMs) && at > endMs) return false;
     return true;
   });
 }
