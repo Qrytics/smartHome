@@ -1,140 +1,150 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Grid, Typography, Box, Paper } from '@mui/material';
-import DimmerControl from '../components/DimmerControl';
-import RelayControl from '../components/RelayControl';
-import AmbientLightGraph from '../components/AmbientLightGraph';
-import { setDimmerBrightness, setRelayState, setDaylightHarvestMode } from '../services/api';
+import React from 'react';
+import EnvironmentalChart from '../components/charts/EnvironmentalChart';
+import LightingChart from '../components/charts/LightingChart';
+import AccessLogTable from '../components/access/AccessLogTable';
+import MetricCard from '../components/common/MetricCard';
+import Panel from '../components/common/Panel';
+import StatusBadge from '../components/common/StatusBadge';
+import { useSmartHome } from '../contexts/SmartHomeContext';
+import {
+  formatLux,
+  formatPercent,
+  formatRelativeTime,
+  formatTempC,
+  formatTimestamp,
+} from '../utils/formatters';
 
-/**
- * Dashboard Page
- * 
- * Main dashboard displaying:
- * - Environmental sensors (temperature, humidity)
- * - Ambient light levels
- * - Lighting controls (dimmer, relays)
- */
-const Dashboard = () => {
-  const [deviceId] = useState('lighting-control-01');
-  const [brightness, setBrightness] = useState(100);
-  const [daylightHarvest, setDaylightHarvest] = useState(true);
-  const [relayStates, setRelayStates] = useState([false, false, false, false]);
-  const [lightData, setLightData] = useState([]);
+export default function Dashboard() {
+  const {
+    accessLogs,
+    connectedDevices,
+    environmentalData,
+    health,
+    latestEnvironmental,
+    latestLighting,
+    lightingData,
+    usingSyntheticFeed,
+    wsStatus,
+    refreshAll,
+    loading,
+  } = useSmartHome();
 
-  // Simulate real-time data updates
-  useEffect(() => {
-    // TODO: Replace with WebSocket connection for real-time updates
-    const interval = setInterval(() => {
-      // Generate sample data for demonstration
-      const now = new Date();
-      const newDataPoint = {
-        timestamp: now.toISOString(),
-        light_level: Math.random() * 100,
-        light_lux: Math.random() * 1000,
-      };
-      
-      setLightData(prev => {
-        const updated = [...prev, newDataPoint];
-        // Keep only last 20 data points
-        return updated.slice(-20);
-      });
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleBrightnessChange = async (newBrightness) => {
-    setBrightness(newBrightness);
-    try {
-      await setDimmerBrightness(deviceId, newBrightness);
-      console.log(`Brightness set to ${newBrightness}%`);
-    } catch (error) {
-      console.error('Failed to set brightness:', error);
-    }
-  };
-
-  const handleDaylightHarvestToggle = async (enabled) => {
-    setDaylightHarvest(enabled);
-    try {
-      await setDaylightHarvestMode(deviceId, enabled);
-      console.log(`Daylight harvesting ${enabled ? 'enabled' : 'disabled'}`);
-    } catch (error) {
-      console.error('Failed to toggle daylight harvesting:', error);
-    }
-  };
-
-  const handleRelayChange = async (channel, state) => {
-    const newStates = [...relayStates];
-    newStates[channel - 1] = state;
-    setRelayStates(newStates);
-    
-    try {
-      await setRelayState(deviceId, channel, state);
-      console.log(`Relay ${channel} set to ${state ? 'ON' : 'OFF'}`);
-    } catch (error) {
-      console.error('Failed to set relay state:', error);
-    }
-  };
+  const recentAccess = accessLogs.slice(0, 8);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Smart Home Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Monitor and control your smart home lighting system
-        </Typography>
-      </Box>
+    <div className="page-stack">
+      <section className="metric-grid">
+        <MetricCard
+          label="Temperature"
+          value={latestEnvironmental ? formatTempC(latestEnvironmental.temperature) : '--'}
+          subtext={latestEnvironmental ? `Updated ${formatRelativeTime(latestEnvironmental.timestamp)}` : 'Waiting for sensor stream'}
+          accent="cyan"
+        />
+        <MetricCard
+          label="Humidity"
+          value={latestEnvironmental ? formatPercent(latestEnvironmental.humidity, 1) : '--'}
+          subtext={latestEnvironmental ? `Pressure ${latestEnvironmental.pressure.toFixed(1)} hPa` : 'No environmental sample yet'}
+          accent="amber"
+        />
+        <MetricCard
+          label="Ambient Light"
+          value={latestLighting ? formatLux(latestLighting.light_lux, 0) : '--'}
+          subtext={latestLighting ? `${formatPercent(latestLighting.light_level, 0)} ambient level` : 'No lighting telemetry yet'}
+          accent="green"
+        />
+        <MetricCard
+          label="Dimmer"
+          value={latestLighting ? formatPercent(latestLighting.dimmer_brightness, 0) : '--'}
+          subtext={
+            latestLighting?.daylight_harvest_mode
+              ? 'Daylight harvesting enabled'
+              : 'Manual brightness mode'
+          }
+          accent="violet"
+        />
+      </section>
 
-      <Grid container spacing={3}>
-        {/* Ambient Light Graph */}
-        <Grid item xs={12}>
-          <AmbientLightGraph data={lightData} deviceId={deviceId} />
-        </Grid>
+      <section className="split-grid">
+        <Panel
+          title="Environmental Monitoring"
+          subtitle="Live temperature, humidity, and pressure telemetry"
+        >
+          <EnvironmentalChart data={environmentalData} />
+        </Panel>
 
-        {/* Dimmer Control */}
-        <Grid item xs={12} md={6}>
-          <DimmerControl
-            deviceId={deviceId}
-            brightness={brightness}
-            daylightHarvest={daylightHarvest}
-            onBrightnessChange={handleBrightnessChange}
-            onDaylightHarvestToggle={handleDaylightHarvestToggle}
-          />
-        </Grid>
+        <Panel
+          title="Lighting Monitoring"
+          subtitle="Ambient light, lux estimation, and dimmer behavior"
+        >
+          <LightingChart data={lightingData} />
+        </Panel>
+      </section>
 
-        {/* Relay Control */}
-        <Grid item xs={12} md={6}>
-          <RelayControl
-            deviceId={deviceId}
-            relayStates={relayStates}
-            onRelayChange={handleRelayChange}
-          />
-        </Grid>
+      <section className="split-grid">
+        <Panel
+          title="System Status"
+          subtitle="Backend health, websocket state, and connected devices"
+          actions={
+            <button
+              className="btn btn-ghost btn-small"
+              type="button"
+              onClick={() => refreshAll()}
+              disabled={loading.health}
+            >
+              Refresh
+            </button>
+          }
+        >
+          <div className="status-list">
+            <div className="status-row">
+              <span>Backend health</span>
+              <StatusBadge tone={health.status === 'healthy' ? 'success' : 'warning'}>
+                {health.status?.toUpperCase() || 'UNKNOWN'}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>Redis</span>
+              <StatusBadge tone={health.services?.redis === 'connected' ? 'success' : 'neutral'}>
+                {(health.services?.redis || 'unknown').toUpperCase()}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>Database</span>
+              <StatusBadge
+                tone={health.services?.database === 'connected' ? 'success' : 'neutral'}
+              >
+                {(health.services?.database || 'unknown').toUpperCase()}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>WebSocket stream</span>
+              <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'warning'}>
+                {wsStatus.toUpperCase()}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>Connected devices</span>
+              <StatusBadge tone={connectedDevices.length ? 'success' : 'info'}>
+                {connectedDevices.length ? connectedDevices.join(', ') : 'NONE'}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>Data source</span>
+              <StatusBadge tone={usingSyntheticFeed ? 'warning' : 'success'}>
+                {usingSyntheticFeed ? 'SYNTHETIC FALLBACK' : 'LIVE STREAM'}
+              </StatusBadge>
+            </div>
+            <div className="status-row">
+              <span>Last backend report</span>
+              <span>{health.timestamp ? formatTimestamp(health.timestamp) : 'Unknown'}</span>
+            </div>
+          </div>
+        </Panel>
 
-        {/* System Status */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              System Status
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              • Device: {deviceId}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              • Status: Connected
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              • Current Brightness: {brightness}%
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              • Daylight Harvesting: {daylightHarvest ? 'Enabled' : 'Disabled'}
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+        <Panel title="Recent Access Attempts" subtitle="Latest RFID authorization results">
+          <AccessLogTable logs={recentAccess} maxRows={8} />
+        </Panel>
+      </section>
+    </div>
   );
-};
-
-export default Dashboard;
+}
