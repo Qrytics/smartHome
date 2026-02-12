@@ -140,7 +140,8 @@ export function buildWebSocketUrl() {
     const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
     return `${protocol}//${parsed.host}/ws/client`;
   } catch (error) {
-    return 'ws://localhost:8000/ws/client';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${protocol}//${window.location.host}/ws/client`;
   }
 }
 
