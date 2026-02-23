@@ -9,13 +9,13 @@ FastAPI backend for the Smart Home system, providing REST API and WebSocket endp
 - **WebSocket Streaming**: Live data broadcast to dashboard clients
 - **Policy Management**: RFID whitelist CRUD operations
 - **Time-Series Storage**: Historical data in TimescaleDB
-- **Event-Driven Architecture**: Redis Streams for async processing
+- **Event-Driven Architecture**: MQTT message broker by default, with Redis Streams retained as an alternative implementation
 
 ## Tech Stack
 
 - **Framework**: FastAPI (Python 3.11+)
 - **Database**: TimescaleDB (PostgreSQL extension)
-- **Cache/Broker**: Redis (in-memory data store)
+- **Message Broker**: MQTT (default) with optional Redis Streams
 - **ORM**: SQLAlchemy 2.0
 - **Validation**: Pydantic v2
 - **ASGI Server**: Uvicorn
@@ -50,7 +50,8 @@ FastAPI backend for the Smart Home system, providing REST API and WebSocket endp
 4. **Start infrastructure services:**
    ```bash
    cd ../infrastructure
-   docker compose up -d redis timescaledb
+   # Start database + message broker stack
+   docker compose up -d timescaledb mqtt redis
    ```
 
 5. **Run database migrations:**
@@ -172,7 +173,9 @@ See `.env.example` for all available configuration options.
 
 Key variables:
 - `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection string
+- `BROKER_TYPE`: Message broker selector (`mqtt` = default, `redis` = alternative)
+- `MQTT_BROKER_URL`: MQTT broker URL (e.g. `mqtt://localhost:1883`)
+- `REDIS_URL`: Redis connection string (used when `BROKER_TYPE=redis` or for caching)
 - `SECRET_KEY`: JWT signing key (CHANGE IN PRODUCTION!)
 - `ALLOWED_ORIGINS`: CORS allowed origins
 
@@ -250,7 +253,17 @@ See `../infrastructure/systemd/smarthome-backend.service`
 
 ## Troubleshooting
 
-### Cannot connect to Redis
+### Cannot connect to MQTT
+
+```bash
+# Check if MQTT broker is running
+docker compose ps mqtt
+
+# (Optional) Test connection with mosquitto tools if installed
+mosquitto_pub -h localhost -t "test/topic" -m "hello" || echo "mosquitto_pub not installed"
+```
+
+### Cannot connect to Redis (when using Redis broker/cache)
 
 ```bash
 # Check if Redis is running

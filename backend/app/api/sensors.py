@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException, status
 from datetime import datetime
 from typing import Dict, Optional, List
 from pydantic import BaseModel, Field
-from app.services import db_client, ws_manager
+from app.services import db_client, ws_manager, broker
 
 router = APIRouter()
 
@@ -52,7 +52,8 @@ async def ingest_environmental_data(data: EnvironmentalSensorData) -> Dict:
     Ingest environmental sensor data (temperature, humidity, pressure)
     
     This endpoint receives data from BME280 sensors and queues it for
-    asynchronous processing via Redis Streams.
+    asynchronous processing via the configured message broker
+    (MQTT by default, Redis Streams as an alternative).
     
     Args:
         data: Environmental sensor readings
@@ -61,13 +62,22 @@ async def ingest_environmental_data(data: EnvironmentalSensorData) -> Dict:
         SensorDataResponse: Acknowledgment of data receipt
     """
     # TODO: Validate device_id against registered devices
-    # TODO: Push data to Redis Streams for async processing
     # TODO: Store in TimescaleDB via background worker
     
     print(f"[SENSOR] Environmental data from {data.device_id}:")
     print(f"  Temperature: {data.temperature}°C")
     print(f"  Humidity: {data.humidity}%")
     print(f"  Pressure: {data.pressure} hPa")
+
+    # Publish event to message broker (fire-and-forget)
+    try:
+        await broker.publish(
+            channel="sensors/environmental",
+            payload=data.dict(),
+        )
+    except Exception as e:
+        # Broker failures should not break ingestion for now; just log.
+        print(f"[BROKER] Failed to publish environmental data: {e}")
     
     return {
         "status": "accepted",

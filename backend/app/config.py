@@ -31,7 +31,20 @@ class Settings(BaseSettings):
     # Database Configuration
     DATABASE_URL: str = "postgresql://smarthome:password@localhost:5432/smarthome"
     
-    # Redis Configuration
+    # Message Broker Configuration
+    # BROKER_TYPE controls which broker implementation the backend will use
+    # Supported values:
+    #   - "mqtt"  (default)  → MQTT broker (e.g. Eclipse Mosquitto)
+    #   - "redis"           → Redis Streams (legacy/alternative)
+    BROKER_TYPE: str = "mqtt"
+
+    # MQTT broker URL, used when BROKER_TYPE="mqtt"
+    # Format examples:
+    #   mqtt://localhost:1883
+    #   mqtts://user:pass@broker.local:8883
+    MQTT_BROKER_URL: str = "mqtt://localhost:1883"
+
+    # Redis configuration, used when BROKER_TYPE="redis" or for optional caching
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # Security

@@ -130,7 +130,8 @@ docker compose ps
 4. **Start infrastructure services:**
    ```bash
    cd ../infrastructure
-   docker compose up -d redis timescaledb
+   # Start database + message broker stack (MQTT default, Redis optional)
+   docker compose up -d timescaledb mqtt redis
    ```
 
 5. **Initialize database:**
@@ -286,6 +287,10 @@ docker compose ps
 ```bash
 # Database
 DATABASE_URL=postgresql://smarthome:password@localhost:5432/smarthome
+
+# Message broker configuration
+BROKER_TYPE=mqtt        # mqtt (default) or redis
+MQTT_BROKER_URL=mqtt://localhost:1883
 REDIS_URL=redis://localhost:6379/0
 
 # API Configuration
