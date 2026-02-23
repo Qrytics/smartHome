@@ -34,7 +34,7 @@ This project addresses the growing demand for integrated, intelligent building m
 2. **Real-Time Temperature Monitoring:** Sub-1-second dashboard updates with 100% data logging
 3. **Intelligent Lighting Control:** Daylight harvesting with ambient light sensing for energy optimization
 
-The system leverages modern asynchronous web technologies (FastAPI, Redis Streams, WebSockets, TimescaleDB) paired with ESP32 microcontrollers featuring hardware cryptographic acceleration. Through rigorous testing and optimization, we demonstrate that web-based building automation can meet the performance demands of security-critical applications—provided the network infrastructure and failsafe mechanisms are properly designed.
+The system leverages modern asynchronous web technologies (FastAPI, **MQTT** message broker, WebSockets, TimescaleDB) paired with ESP32 microcontrollers featuring hardware cryptographic acceleration. Redis Streams remains available as an optional/alternative broker for specific workloads (for example, durable streams or legacy experiments). Through rigorous testing and optimization, we demonstrate that web-based building automation can meet the performance demands of security-critical applications—provided the network infrastructure and failsafe mechanisms are properly designed.
 
 ---
 
@@ -172,9 +172,12 @@ We propose a **fully integrated model building** (12"x12"x12" physical structure
 
 ### Key Innovation: Event-Driven Architecture
 
-Unlike synchronous request-response systems, we use **Redis Streams** as a message broker:
+Unlike synchronous request-response systems, we use an **event-driven message broker**:
 
-ESP32 → Publishes event → Redis Stream → Backend worker consumes ↓ Immediate ACK to ESP32 ↓ (Processing happens async)
+- **Default:** MQTT topics for lightweight pub/sub between devices and backend  
+- **Alternative:** Redis Streams for experiments that require durable streams or tight Redis integration
+
+ESP32 → Publishes event → MQTT topic → Backend worker consumes ↓ Immediate ACK to ESP32 ↓ (Processing happens async)
 
 **Benefits:**
 - ESP32 doesn't wait for database writes (faster response)
@@ -191,7 +194,8 @@ ESP32 → Publishes event → Redis Stream → Backend worker consumes ↓ Immed
 
 **Layer 2: Backend Services (Raspberry Pi)**
 - FastAPI gateway (HTTP/WebSocket entry point)
-- Redis Streams (event buffer + pub/sub)
+- MQTT broker (event buffer + pub/sub, default)
+- Optional Redis Streams (alternative broker / caching layer)
 - TimescaleDB (time-series persistence)
 - Stream processor (background worker)
 

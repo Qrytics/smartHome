@@ -83,7 +83,8 @@
     │ │ ├── services/ # Business logic
     │ │ │ ├── __init__.py         # Service exports
     │ │ │ ├── db_client.py        # ✅ DatabaseClient with CRUD operations
-    │ │ │ └── websocket_manager.py # ✅ ConnectionManager for real-time communication
+    │ │ │ ├── websocket_manager.py # ✅ ConnectionManager for real-time communication
+    │ │ │ └── broker.py           # ✅ Message broker abstraction (MQTT default, Redis alternative)
     │ │ │
     │ │ ├── schemas/ # Pydantic models
     │ │ │ ├── __init__.py         # Schema exports
@@ -160,8 +161,8 @@
     │ └── README.md
     │
     ├── infrastructure/ # Deployment configs
-    │ ├── docker-compose.yml
-    │ ├── docker-compose.dev.yml
+    │ ├── docker-compose.yml      # TimescaleDB + MQTT + Redis services
+    │ ├── docker-compose.dev.yml  # Dev-time overrides for DB/brokers
     │ ├── docker-compose.prod.yml
     │ │
     │ ├── redis/

@@ -25,7 +25,7 @@ The Smart Home system consists of three main layers:
                      ▼
 ┌─────────────────────────────────────────────────────────┐
 │                   Backend Services                       │
-│         (FastAPI + Redis + TimescaleDB - Port 8000)     │
+│   (FastAPI + MQTT/Redis + TimescaleDB - Port 8000)      │
 └────────────────────┬────────────────────────────────────┘
                      │ HTTPS/WebSocket
                      ▼
@@ -39,7 +39,7 @@ The Smart Home system consists of three main layers:
 
 ### Key Architectural Principles
 
-1. **Event-Driven Design**: Use Redis Streams for asynchronous message processing
+1. **Event-Driven Design**: Use a message broker (MQTT by default, Redis Streams as an alternative) for asynchronous message processing
 2. **API-First**: All device interactions go through REST/WebSocket APIs
 3. **Stateless Services**: Backend can be horizontally scaled
 4. **Time-Series Optimized**: TimescaleDB for efficient sensor data storage
@@ -93,7 +93,7 @@ app/
 │   ├── websocket.py      # WebSocket /ws connection
 │   └── health.py         # GET /health endpoint
 ├── services/             # Business logic
-│   ├── redis_client.py   # Redis connection pool
+│   ├── broker.py         # MQTT (default) / Redis (alternative) message broker abstraction
 │   ├── db_client.py      # TimescaleDB connection
 │   └── auth_service.py   # TLS cert validation
 ├── models/               # SQLAlchemy ORM models
