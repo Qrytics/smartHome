@@ -1,654 +1,617 @@
 # Smart Home Model: Web-First Building Management System
-## Comprehensive Project Description
+
+**18-500 Capstone Design Project — Team A4**
+Mario Belmonte · Cindy Chen — Department of Electrical and Computer Engineering, Carnegie Mellon University
+
+---
+
+## Abstract
+
+This project presents a web-first smart building model that integrates RFID access control, PID-based HVAC temperature regulation, and adaptive lighting control using ESP32 microcontrollers. All sensing and actuation are centrally managed through a web dashboard, achieving <500 ms access response and <1 s environmental updates. A PID-controlled fan system maintains temperature within ±1 °C of a setpoint, while ambient-light-driven dimming automatically adjusts artificial lighting for energy efficiency. Compared to passive monitoring systems, this platform demonstrates real-time, closed-loop environmental control with secure centralized management, validating the feasibility of responsive, fully web-dependent building automation.
+
+**Index Terms:** Access control, building automation, daylight harvesting, ESP32, HVAC control, Internet of Things, PID control, RFID, smart lighting, web-based control
 
 ---
 
 ## Table of Contents
 
-1. [Executive Summary](#executive-summary)
-2. [Market Context & Motivation](#market-context--motivation)
-3. [Problem Statement](#problem-statement)
-4. [Proposed Solution](#proposed-solution)
-5. [System Architecture](#system-architecture)
+1. [Introduction](#introduction)
+2. [Use-Case Requirements](#use-case-requirements)
+3. [System Architecture](#system-architecture)
+4. [Design Requirements](#design-requirements)
+5. [Design Trade Studies](#design-trade-studies)
 6. [Hardware Components](#hardware-components)
 7. [Software Stack](#software-stack)
-8. [Technical Requirements](#technical-requirements)
-9. [Implementation Approach](#implementation-approach)
-10. [Testing Strategy](#testing-strategy)
-11. [Minimum Viable Product (MVP)](#minimum-viable-product-mvp)
-12. [Comparison to Prior Work](#comparison-to-prior-work)
-13. [Innovation & Contributions](#innovation--contributions)
-14. [Timeline & Milestones](#timeline--milestones)
-15. [Team Members](#team-members)
+8. [Verification Plan](#verification-plan)
+9. [Project Management](#project-management)
+10. [Related Work](#related-work)
+11. [Quick Start](#quick-start)
+12. [Repository Structure](#repository-structure)
+13. [References](#references)
 
 ---
 
-## Executive Summary
+## Introduction
 
-The **Smart Home Model** project is an 18-500 Capstone Design initiative that demonstrates the feasibility and limitations of fully centralizing building control through a web-based platform. Unlike traditional smart home systems that retain local control capabilities, our system intentionally creates complete dependency on a web dashboard to explore the critical question: **"How much control can be centralized before you risk losing it?"**
+Modern buildings increasingly rely on automated systems to manage access control, lighting, and climate to improve security, energy efficiency, and occupant comfort. Traditionally, these subsystems operate as independent units with local controllers and limited integration, making centralized management difficult and reducing overall system visibility. Building managers and security personnel benefit from unified platforms that provide real-time monitoring, historical analytics, and remote control of critical infrastructure.
 
-This project addresses the growing demand for integrated, intelligent building management systems in an era where artificial intelligence and cloud connectivity are rapidly expanding. By building a physical model house equipped with RFID-based access control, real-time environmental monitoring, and intelligent lighting control, we prove that sub-second latency web-first architectures are achievable for critical infrastructure—while simultaneously exposing the vulnerabilities inherent in such designs.
+Existing commercial smart home and building automation products — such as standalone smart locks and thermostats — provide basic remote functionality but typically rely on proprietary ecosystems and distributed local control logic. These systems limit flexibility, make cross-vendor integration difficult, and provide limited quantitative assurance of response latency, system availability, or data integrity.
 
-**Core Focus Areas:**
-1. **RFID Door Lock Access Control:** Sub-500ms authorization from card swipe to lock actuation
-2. **Real-Time Temperature Monitoring:** Sub-1-second dashboard updates with 100% data logging
-3. **Intelligent Lighting Control:** Daylight harvesting with ambient light sensing for energy optimization
+Our project explores a **fully web-dependent architecture** in which all sensing, decision-making, and actuation are coordinated through a centralized backend. This approach allows precise policy enforcement, complete system observability, and consistent integration across subsystems. The intended users are **building managers and security personnel** who require centralized RFID door access, lighting control, and environmental monitoring through a unified dashboard interface.
 
-The system leverages modern asynchronous web technologies (FastAPI, **MQTT** message broker, WebSockets, TimescaleDB) paired with ESP32 microcontrollers featuring hardware cryptographic acceleration. Redis Streams remains available as an optional/alternative broker for specific workloads (for example, durable streams or legacy experiments). Through rigorous testing and optimization, we demonstrate that web-based building automation can meet the performance demands of security-critical applications—provided the network infrastructure and failsafe mechanisms are properly designed.
+**Core Goals:**
 
----
-
-## Market Context & Motivation
-
-### Growing Demand for Smart Home Integration
-
-The smart home market is experiencing unprecedented growth, driven by two converging trends:
-
-1. **Consumer demand for convenience:** Homeowners want centralized control of lighting, climate, security, and appliances through unified interfaces (smartphones, voice assistants, dashboards)
-
-2. **AI integration:** Machine learning algorithms promise energy optimization, predictive maintenance, and personalized automation—but require continuous data collection and cloud processing
-
-#### Market Data Analysis
-
-**Smart Thermostat Market (Grand View Research):**
-
-The market research data shows smart thermostats growing from approximately $1.5 billion (2024) to a projected $6+ billion by 2032, representing a compound annual growth rate (CAGR) of ~18%. This explosive growth indicates that consumers are willing to adopt connected devices that promise comfort and energy savings.
-
-**Global Smart Devices Revenue (Statista):**
-
-The broader smart home device market shows similar expansion, with global revenue expected to exceed $150 billion by 2026. Notably, the data highlights a significant uptick in **energy management** solutions between 2025-2026, suggesting increased interest in sustainability and cost control.
-
-### The Crossover Opportunity
-
-There's a clear intersection between these markets:
-- Smart thermostats are fundamentally building management tools
-- Energy management requires real-time sensor data and automated control
-- Security systems (access control) share the same infrastructure needs
-- Intelligent lighting contributes to both comfort and energy efficiency
-
-Our project targets this crossover by building a unified platform that handles **security** (door locks), **environmental control** (temperature monitoring), and **energy management** (intelligent lighting)—three critical building management functions.
-
-### Why This Matters for Building Managers
-
-While consumer smart homes focus on convenience, **commercial buildings** (offices, hospitals, schools) have stricter requirements:
-
-- **Security personnel** need centralized access logs and real-time revocation capabilities
-- **Facility managers** require historical environmental data for HVAC optimization
-- **Energy managers** demand lighting control and energy usage analytics
-- **Compliance officers** demand audit trails proving 100% data retention
-
-Current solutions often use proprietary, closed systems with high vendor lock-in. Our open-source, web-first approach demonstrates an alternative that prioritizes:
-- **Transparency:** All code and protocols documented
-- **Flexibility:** Standard web technologies enable easy customization
-- **Cost-effectiveness:** Commodity hardware (ESP32, Raspberry Pi) instead of specialized controllers
+1. **RFID Door Lock Access Control** — door unlock latency under 500 ms, with real-time policy enforcement and 100% audit logging
+2. **Closed-Loop HVAC Temperature Regulation** — PID-controlled fans maintain temperature within ±0.5 °C of a user-defined setpoint across multiple rooms
+3. **Adaptive Lighting with Daylight Harvesting** — ambient-light-driven PWM dimming with manual override through the dashboard
 
 ---
 
-## Problem Statement
+## Use-Case Requirements
 
-### The Central Question
+The primary use case is centralized building management through a web-based platform. All requirements were identified with consideration for public health, safety, and welfare as well as environmental and economic factors.
 
-**How much control can be centralized in a web-based platform before system dependency becomes a critical vulnerability?**
+### Access Control
 
-This question has become increasingly relevant as:
-- IoT devices proliferate (projected 30+ billion connected devices by 2030)
-- Cloud outages cause widespread service disruptions (AWS, Azure incidents)
-- Cybersecurity threats target building automation systems (ransomware attacks on HVAC)
+| Requirement | Target |
+|---|---|
+| RFID credential detection | ≤ 50 ms from card presentation |
+| Door lock actuation | ≤ 500 ms from initial swipe |
+| Credential revocation enforcement | ≤ 100 ms after policy change |
+| Access attempt logging | 100% with timestamps |
 
-### Specific Challenges Addressed
+Safety and welfare drive these targets: reliable, low-latency door response reduces security risk and supports occupant safety.
 
-#### 1. Latency Constraints
+### HVAC Temperature Regulation
 
-**Problem:** Traditional web applications accept 1-2 second response times, but physical security systems require **immediate** feedback. A door lock that responds slowly:
-- Frustrates users (perceived as "broken")
-- Creates security vulnerabilities (tailgating attacks during unlock delay)
-- Fails safety requirements (emergency egress must be instantaneous)
+| Requirement | Target |
+|---|---|
+| Temperature sampling rate | ≥ 1 Hz |
+| Steady-state temperature accuracy | ± 0.5 °C of setpoint |
+| Dashboard update latency | ≤ 1 s from measurement |
+| Historical data retrieval (24-hour window) | ≤ 2 s |
 
-**Our Target:** <500ms end-to-end latency (competitive with local control systems)
+Occupant welfare motivates the HVAC specifications; continuous temperature regulation within a comfort band supports a usable, comfortable environment.
 
-#### 2. Real-Time Data Synchronization
+### Lighting and Daylight Harvesting
 
-**Problem:** Environmental monitoring generates high-frequency data (1 Hz or faster), overwhelming synchronous request-response architectures. Past projects (e.g., SmartWatt) experienced:
-- UI freezing during heavy computation
-- Data loss under concurrent load
-- Inconsistent dashboard updates
+| Requirement | Target |
+|---|---|
+| Ambient light update and response | ≤ 1 s from environmental change |
+| Manual dashboard brightness update | ≤ 300 ms |
+| Daylight harvesting | Continuous automatic adjustment |
 
-**Our Target:** <1 second dashboard updates with zero data loss
+Automatic lighting adjustment in response to ambient light reduces energy use and cost while meeting illumination needs.
 
-#### 3. Secure Device Communication
+### Web-Based Monitoring and Control
 
-**Problem:** IoT devices are notorious for weak security:
-- Hardcoded credentials
-- Unencrypted communication
-- No device authentication
-
-A compromised access control system is worse than no system at all.
-
-**Our Target:** Mutual TLS authentication with <200ms handshake overhead
-
-#### 4. Fail-Safe Behavior
-
-**Problem:** When web-dependent systems lose connectivity, they often:
-- Fail insecurely (doors unlock)
-- Fail silently (no error indication)
-- Require manual recovery (physical reset)
-
-**Our Target:** Automatic offline detection (5s) with secure default state
-
----
-
-## Proposed Solution
-
-### High-Level Concept
-
-We propose a **fully integrated model building** (12"x12"x12" physical structure) with three primary subsystems:
-
-1. **Access Control System:**
-   - RFID card reader (RC522 module)
-   - Electromagnetic door lock (12V solenoid)
-   - ESP32 microcontroller with WiFi
-   - Real-time authorization via web API (<500ms)
-   - Permission management dashboard
-
-2. **Environmental Monitoring System:**
-   - BME280 temperature/humidity/pressure sensor
-   - ESP32 microcontroller with WiFi
-   - WebSocket-based real-time data streaming
-   - TimescaleDB time-series database
-   - Historical analytics dashboard
-
-3. **Lighting Control System:**
-   - TEMT6000 ambient light sensor
-   - PWM dimmer module for LED brightness control
-   - 4-channel relay module for high-power loads
-   - ESP32 microcontroller with WiFi
-   - Daylight harvesting for energy optimization
-   - Real-time control via WebSocket
-
-**Critical Design Decision:** The physical model is **intentionally rendered inoperative** without the web platform. This forces us to:
-- Optimize every millisecond of latency
-- Implement bulletproof error handling
-- Design meaningful failsafe states
-
-### Key Innovation: Event-Driven Architecture
-
-Unlike synchronous request-response systems, we use an **event-driven message broker**:
-
-- **Default:** MQTT topics for lightweight pub/sub between devices and backend  
-- **Alternative:** Redis Streams for experiments that require durable streams or tight Redis integration
-
-ESP32 → Publishes event → MQTT topic → Backend worker consumes ↓ Immediate ACK to ESP32 ↓ (Processing happens async)
-
-**Benefits:**
-- ESP32 doesn't wait for database writes (faster response)
-- Backend can batch process events (higher throughput)
-- System naturally handles load spikes (buffering)
-
-### System Layers
-
-**Layer 1: Physical Edge (ESP32 + Sensors/Actuators)**
-- Collects sensor data (temperature, RFID swipes)
-- Actuates devices (solenoid lock)
-- Establishes secure TLS connections
-- Detects offline states
-
-**Layer 2: Backend Services (Raspberry Pi)**
-- FastAPI gateway (HTTP/WebSocket entry point)
-- MQTT broker (event buffer + pub/sub, default)
-- Optional Redis Streams (alternative broker / caching layer)
-- TimescaleDB (time-series persistence)
-- Stream processor (background worker)
-
-**Layer 3: User Interface (React Dashboard)**
-- Real-time temperature graphs (live updates)
-- Real-time light level monitoring (ambient lux)
-- Access control logs (granted/denied attempts)
-- Lighting control panel (dimmer, relays, daylight harvesting)
-- Policy management (add/revoke RFID cards)
-- Historical analytics (24-hour queries)
+| Requirement | Target |
+|---|---|
+| Dashboard data display latency | ≤ 1 s from event occurrence |
+| System availability | ≥ 99.9% during operation |
+| Unauthorized access rejection | 100% |
 
 ---
 
 ## System Architecture
 
-### Data Flow: Access Control
+The system consists of three primary layers that communicate through secure network connections.
 
-**Key Latency Components:**
-- TLS handshake: ~50-150ms (first connection, then cached)
-- Network RTT: ~10-50ms (local WiFi)
-- Redis SET lookup: ~1ms (in-memory)
-- HTTP processing: ~5-20ms
-- **Total budget:** <500ms (includes actuation time)
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Web Dashboard (React)                  │
+│  Access Logs │ Temp Graphs │ Lighting Control │ Policies │
+└────────────────────────┬────────────────────────────────┘
+                   HTTPS / WebSocket
+┌────────────────────────▼────────────────────────────────┐
+│              Backend (Raspberry Pi)                     │
+│  FastAPI Server │ MQTT Broker │ TimescaleDB              │
+│  Rules Engine   │ mTLS Auth  │ Stream Processor         │
+└───────┬─────────────────┬──────────────────┬────────────┘
+   MQTT/mTLS         MQTT/mTLS          MQTT/mTLS
+┌──────▼──────┐  ┌───────▼──────┐  ┌────────▼─────┐
+│  ESP32 #1   │  │   ESP32 #2   │  │   ESP32 #3   │
+│ Access Ctrl │  │ Env Monitor  │  │   Lighting   │
+│ RC522 RFID  │  │ BME280 ×3    │  │ BH1750 ×3    │
+│ Relay+Lock  │  │ OLED Display │  │ PWM Dimmers  │
+└─────────────┘  └──────────────┘  └──────────────┘
+```
 
-### Data Flow: Temperature Monitoring
+### Layer 1 — Physical Edge (ESP32-S3 Nodes)
 
-**Key Performance Points:**
-- BME280 read time: ~8ms (I2C transaction)
-- WebSocket send: ~5-10ms (no HTTP overhead)
-- Redis Pub/Sub latency: ~1-5ms
-- Dashboard update: ~50-200ms (browser render)
-- **Total:** <1 second
+Three independent ESP32-S3 nodes handle sensing and actuation:
 
-### Data Flow: Lighting Control
+- **Access Control Node:** RC522 RFID reader, relay driver, and 12 V solenoid lock. On card detection, the UID is sent to the backend; the backend evaluates access policy and returns a grant/deny command that actuates the relay.
+- **Environmental Monitoring Node:** Three BME280 temperature/humidity/pressure sensors (one per room) and an OLED display. Readings are transmitted at 1 Hz to the backend for PID processing, storage, and visualization.
+- **Lighting Control Node:** Three BH1750 ambient light sensors (one per room), N-channel MOSFETs (IRLZ44N) as PWM dimmers, and a relay module for high-power loads. Ambient light data drives automatic daylight harvesting; the dashboard enables manual override.
 
-**Sensor Reading Path:**
-- TEMT6000 ADC read: ~1ms (analog conversion)
-- Lux calculation: <1ms (arithmetic)
-- Daylight harvesting logic: ~1ms (brightness mapping)
-- PWM dimmer update: ~1ms (hardware PWM)
-- WebSocket data send: ~5-10ms
-- **Total:** <20ms (sensor-to-control loop)
+### Layer 2 — Backend Services (Raspberry Pi)
 
-**Remote Control Path:**
-- Dashboard command → Backend API: ~10-50ms
-- Redis Pub/Sub → WebSocket: ~1-5ms
-- ESP32 receives command: ~5-10ms
-- PWM/Relay actuation: ~1-10ms
-- **Total:** <100ms (command-to-actuation)
+- **FastAPI** serves HTTP/WebSocket entry points for the dashboard and REST API.
+- **MQTT broker** (primary) provides asynchronous publish–subscribe messaging between ESP32 nodes and the backend with typical latency of 10–50 ms. This event-driven architecture lets devices publish without waiting for backend processing.
+- **TimescaleDB** persists time-series sensor and event data; supports 24-hour historical queries.
+- **Rules engine** enforces access control policy and generates actuator commands.
+- **Mutual TLS (mTLS)** authenticates every ESP32 device; only devices with a certificate signed by the CA can connect.
 
-### Security Architecture
+### Layer 3 — Web Dashboard (React)
 
-**Mutual TLS Handshake:**
+- Real-time temperature graphs per room (WebSocket updates)
+- Real-time ambient light level monitoring
+- Access control logs (granted / denied, timestamped)
+- Lighting control panel (per-room dimmer, relay, daylight harvesting toggle)
+- Policy management (add / revoke RFID cards)
+- Historical analytics (24-hour data window)
+
+### Data Flow: Access Control Latency Budget
+
+| Stage | Time |
+|---|---|
+| RFID credential read | ~50 ms |
+| Network transmission (Wi-Fi + MQTT) | ~50 ms |
+| Backend processing (policy lookup) | ~20 ms |
+| Solenoid actuation | ~100 ms |
+| **Total** | **~220 ms** (target: < 500 ms) |
+
+### Security: Mutual TLS Handshake
 
 1. ESP32 connects to `https://raspberrypi.local:8443`
 2. Server presents certificate (signed by CA)
 3. ESP32 validates server cert against embedded CA cert
 4. Server requests client certificate
 5. ESP32 presents client cert (signed by CA)
-6. Server validates client cert against CA and checks fingerprint whitelist
-7. Connection established (encrypted session)
+6. Server validates client cert and checks fingerprint allowlist
+7. Encrypted session established
 
-**Total handshake time:** ~100-200ms (first connection)  
-**Session resumption:** ~20-50ms (subsequent connections)
+**First-connection handshake:** ~100–200 ms | **Session resumption:** ~20–50 ms
+
+---
+
+## Design Requirements
+
+### Access Control Subsystem
+
+- ESP32 must read RFID credentials and transmit over secure wireless with processing and transmission latency on the order of tens of milliseconds.
+- Relay driver must provide sufficient current to actuate the solenoid reliably with electrical isolation and flyback protection.
+- **Mutual TLS authentication** is required: only authorized ESP32 devices may communicate with the backend.
+
+### HVAC Temperature Regulation Subsystem
+
+- Sampling rate must be sufficient to detect meaningful environmental changes; selected rate is **1 Hz**.
+- Closed-loop **PID controller** (discrete-time, implemented on ESP32) maintains temperature within the sensor accuracy range.
+- Fan actuator must support variable PWM output for proportional control rather than simple on/off switching.
+- Environmental data must be stored for historical trend analysis.
+
+Discrete-time PID control law:
+
+```
+u[k] = Kp·e[k] + Ki·Ts·Σe[i] + Kd·(e[k] − e[k−1]) / Ts
+```
+
+where `u[k]` is the actuator (fan) output, `e[k]` is temperature error, `Ts` = 1 s (sampling period).
+
+### Lighting and Daylight Harvesting Subsystem
+
+- The BH1750 ambient light sensor communicates over I²C and outputs lux values directly (no ADC conversion required). It provides 1 lux resolution in high-resolution mode across a range that covers all relevant indoor lighting levels, well below the ~10 lux human perception threshold.
+- PWM resolution: 8-bit (1/256 ≈ 0.39%, below the ~1% human visual perception threshold). PWM frequency: **5 kHz** (flicker-free).
+- System supports both **manual dashboard control** and **automatic daylight harvesting** mode.
+
+### Backend and Communication
+
+- **MQTT** is the primary message broker (10–50 ms typical latency). Selected over polling (500–1000 ms) and Redis Streams (higher complexity).
+- **HTTPS** for configuration and policy management; **WebSockets** for real-time telemetry to the dashboard.
+- **TimescaleDB** for persistent time-series storage.
+
+### Microcontroller Hardware Interfaces
+
+The ESP32-S3 must support:
+
+| Interface | Used For |
+|---|---|
+| SPI | RC522 RFID reader |
+| I²C | BME280 sensors, BH1750 sensors, OLED display |
+| PWM (LEDC) | Fan speed control, LED dimming |
+| GPIO | Relay control |
+
+---
+
+## Design Trade Studies
+
+### A. HVAC Temperature Control — Sampling Rate
+
+The thermal dynamics of the model enclosure are approximated as a first-order system with a thermal time constant τ ≈ 20 s (bandwidth ≈ 0.008 Hz). The selected sampling rate of **1 Hz** exceeds the required minimum by more than an order of magnitude, ensuring stable PID control, accurate derivative estimation, and effective disturbance rejection. Higher rates were considered but rejected due to increased communication overhead without control performance benefit.
+
+### B. PWM Resolution and Frequency
+
+- 8-bit resolution (256 steps) → 1/256 = 0.39%, below the ~1% human brightness-change perception threshold → smooth, perceptibly continuous dimming.
+- 5 kHz PWM frequency eliminates visible flicker (threshold ~100 Hz) and ensures stable actuator operation.
+
+### C. Communication Architecture
+
+| Architecture | Latency | Verdict |
+|---|---|---|
+| Polling | 500–1000 ms (poll interval) | ✗ Too slow |
+| Redis Streams | 10–50 ms, higher complexity | Optional / alternative |
+| **MQTT** | **10–50 ms, lightweight pub/sub** | **✓ Selected** |
+
+MQTT was selected as the primary broker for best balance of low latency, scalability, and implementation simplicity.
+
+### D. Access Control Latency
+
+Total latency = T_RFID + T_network + T_process + T_actuation = 50 + 50 + 20 + 100 = **220 ms** < 500 ms requirement. ✓
+
+### E. Lighting Sensor Resolution
+
+The BH1750 ambient light sensor (I²C) provides a high-resolution mode with **1 lux resolution** across the indoor lighting range (1–65535 lux). This is well below the ~10 lux human perception threshold, providing accurate daylight harvesting control without ADC conversion overhead. The digital I²C interface also reduces noise susceptibility compared to analog sensor designs.
 
 ---
 
 ## Hardware Components
 
-### ESP32-S3 Microcontroller (Quantity: 3)
+### ESP32-S3 Microcontroller (×1 DevKit, shared across nodes)
 
-**Why ESP32-S3?**
+Selected for:
+- **Hardware cryptographic acceleration** (AES, SHA-256, RSA) — reduces TLS handshake time by 60–80%
+- **Dual-core architecture** — Core 0: Wi-Fi/network; Core 1: application logic (RFID, sensors)
+- **Sufficient memory** — 512 KB SRAM, 8–16 MB Flash for certificates and libraries
+- **Native Wi-Fi** — 802.11 b/g/n (2.4 GHz), no external module required
 
-The ESP32-S3 was chosen over alternatives (Arduino, Raspberry Pi Pico) for specific technical reasons:
+### BME280 Environmental Sensor (×3, one per room)
 
-1. **Hardware Cryptographic Acceleration:**
-   - AES, SHA-256, RSA coprocessors
-   - Reduces TLS handshake time by 60-80%
-   - Critical for meeting <200ms overhead target
+| Parameter | Specification |
+|---|---|
+| Temperature range | −40 °C to +85 °C |
+| Temperature accuracy | ±0.5 °C typical @ 25 °C (±1 °C worst-case) |
+| Temperature resolution | 0.01 °C |
+| Humidity range / accuracy | 0–100% RH / ±3% RH |
+| Pressure range | 300–1100 hPa |
+| Interface | I²C (100/400 kHz) |
+| Power consumption | 3.6 µA @ 1 Hz |
 
-2. **Dual-Core Architecture:**
-   - Core 0: WiFi/network stack
-   - Core 1: Application logic (RFID, sensors)
-   - Prevents network interrupts from blocking sensor reads
+I²C address: 0x76 (SDO low, default) to avoid conflict with OLED (0x3C).
 
-3. **Native WiFi + Bluetooth:**
-   - No external WiFi module needed
-   - 802.11 b/g/n (2.4GHz) with acceptable range (30+ feet)
-   - Bluetooth reserved for future proximity detection
+### RC522 / MFRC522 RFID Reader Module (×1)
 
-4. **Sufficient Memory:**
-   - 512KB SRAM (vs. 320KB on ESP32 original)
-   - 8-16MB Flash for TLS certificates and libraries
-   - No external memory chips required
+- 13.56 MHz electromagnetic induction; read range 0–5 cm (intentionally short to prevent accidental reads and relay attacks)
+- Supported cards: MIFARE Classic 1K/4K, MIFARE Ultralight, NTAG213/215/216
+- SPI communication, up to 10 MHz; UID read time ~50 ms
 
-**Pinout Strategy:**
+### 12 V Mini Solenoid Door Lock (×1)
 
-We carefully selected GPIO pins to avoid conflicts with built-in peripherals:
+- Coil resistance: ~24 Ω | Inrush current: ~500 mA | Holding current: ~200 mA
+- Mechanical actuation: < 100 ms
+- Flyback diode (1N4007) required to clamp inductive kickback
 
-- **SPI pins** (RFID): GPIO 10-13 (VSPI interface)
-- **I2C pins** (BME280, OLED): GPIO 21-22 (can share bus)
-- **GPIO output** (Door Relay): GPIO 4 (far from ADC pins to reduce noise)
-- **ADC input** (TEMT6000): GPIO 34 (ADC1_CH6, dedicated analog input)
-- **PWM output** (Dimmer): GPIO 25 (LEDC channel)
-- **GPIO outputs** (4-Ch Relay): GPIO 26, 27, 14, 12 (relay channels 1-4)
+### BH1750 Ambient Light Sensor (×3, one per room)
 
-### BME280 Environmental Sensor
+| Parameter | Specification |
+|---|---|
+| Interface | I²C |
+| Range | 1–65535 lux |
+| Resolution (high-res mode) | 1 lux |
+| Measurement time | ~120 ms (high-res) |
+| Supply voltage | 3.3 V / 5 V |
 
-**Technical Specifications:**
+Selected over photoresistors (non-linear, slow) for its direct lux output and I²C integration. Used for daylight harvesting control in each room.
 
-| Parameter | Specification | Relevance |
-|-----------|--------------|-----------|
-| Temperature range | -40°C to +85°C | Covers all indoor scenarios |
-| Temperature accuracy | ±0.5°C @ 25°C | Sufficient for HVAC control |
-| Temperature resolution | 0.01°C | Enables detecting small changes |
-| Humidity range | 0-100% RH | Full scale coverage |
-| Humidity accuracy | ±3% RH | Industry standard |
-| Pressure range | 300-1100 hPa | Sea level to high altitude |
-| Interface | I2C (100/400 kHz) | Standard protocol |
-| Power consumption | 3.6 µA @ 1Hz | Negligible power draw |
+### N-Channel MOSFET PWM Dimmer (IRLZ44N, ×2 packs)
 
-**Why BME280 over alternatives?**
+- Logic-level gate (3.3 V compatible with ESP32)
+- Controls 12 V LED brightness via 8-bit PWM at 5 kHz
+- High efficiency (~95%) vs. resistive dimming (~60%)
+- TO-220 package; flyback diode (1N4007) for inductive loads
 
-- **DHT22:** Lower accuracy (±2°C), slower read time (~2s)
-- **DS18B20:** Temperature-only, requires 1-Wire protocol
-- **SHT31:** More expensive ($15 vs. $10), no pressure sensing
-- **BME680:** Adds gas sensor (not needed), 3x cost
+### 5 V 1-Channel Relay Module with Optocoupler (×1)
 
-The BME280 offers the best price/performance ratio for multi-parameter environmental monitoring.
+- Contact rating: suitable for HVAC fan switching
+- Optocoupler isolation between ESP32 control signal and load circuit
+- Active-low trigger (verify module jumper setting)
 
-**I2C Address Configuration:**
+### 5 V Brushless Fans 30×30×10 mm (×3, one per room)
 
-- Default: 0x76 (SDO pin LOW)
-- Alternate: 0x77 (SDO pin HIGH)
+Used as HVAC actuators. Speed controlled via PWM from ESP32 (proportional PID output). Three fans — one per modeled room — allow independent temperature regulation.
 
-We use 0x76 to avoid conflicts with OLED (0x3C/0x3D).
+### SSD1306 OLED Display (×1)
 
-### RFID-RC522 Reader Module
-
-**Operating Principle:**
-
-The RC522 uses 13.56 MHz electromagnetic induction to communicate with passive RFID cards:
-
-1. Reader generates RF field (antenna coil)
-2. Card enters field → induces current in card antenna
-3. Card modulates RF field with its UID (data)
-4. Reader detects modulation and decodes UID
-
-**Supported Card Types:**
-- MIFARE Classic 1K/4K (most common)
-- MIFARE Ultralight (transit cards)
-- NTAG213/215/216 (NFC tags)
-
-**Read Range:**
-- Optimal: 0-3 cm (very close proximity)
-- Maximum: ~5 cm (larger cards/antennas)
-
-**Why short range is a feature:**
-
-Unlike long-range RFID (UHF, 5-10 meter range), the 13.56 MHz short range:
-- Prevents accidental reads (user must intentionally swipe)
-- Reduces relay attacks (attacker must be very close)
-- Complies with access control best practices (intentional action)
-
-**SPI Communication:**
-
-The RC522 uses SPI for high-speed data transfer:
-- Clock frequency: up to 10 MHz
-- Read UID time: ~50ms (includes anticollision protocol)
-- SPI mode: MODE0 (CPOL=0, CPHA=0)
-
-### 12V Solenoid Door Lock
-
-**Electrical Characteristics:**
-
-- **Coil resistance:** ~24Ω (nominal)
-- **Inrush current:** ~500mA (first 100ms)
-- **Holding current:** ~200mA (steady state)
-- **Actuation time:** <100ms (mechanical response)
-- **Duty cycle:** 100% (can remain energized)
-
-**Power Calculation:**
-- P = V² / R = 12² / 24 = 6W (instantaneous)
-- P = V × I = 12 × 0.2 = 2.4W (holding)
-
-**Flyback Diode:**
-
-Essential for protecting relay contacts from inductive kickback:
-
-When relay opens, collapsing magnetic field generates voltage spike (~50-100V). Diode clamps this to safe level.
-
-### SSD1306 OLED Display
-
-**Display Technology:**
-
-- **Type:** Passive-matrix OLED (organic light-emitting diode)
-- **Benefits over LCD:**
-  - No backlight (each pixel emits light)
-  - True black (pixels off = no light)
-  - Wide viewing angle (>160°)
-  - Fast response time (<1ms)
-
-**Resolution:** 128x64 pixels (monochrome white)
-
-**Text Display Capacity:**
-- 8 lines × 21 characters (6x8 font)
-- 4 lines × 10 characters (12x16 font) ← **We use this**
-
-**I2C Communication:**
-
-- Address: 0x3C (default) or 0x3D (if ADR pin tied high)
-- Clock speed: 400 kHz (fast mode)
-- Frame buffer size: 128×64÷8 = 1024 bytes
-- Screen refresh: ~15-30ms (full redraw)
-
-### TEMT6000 Ambient Light Sensor
-
-**Operating Principle:**
-
-The TEMT6000 is an analog light sensor that converts ambient light intensity into a voltage output:
-
-- **Type:** Phototransistor-based sensor
-- **Output:** Analog voltage (0-3.3V proportional to light level)
-- **Response:** Linear across visible spectrum
-- **Peak sensitivity:** ~570nm (green-yellow, matching human eye response)
-
-**Technical Specifications:**
-
-| Parameter | Specification | Relevance |
-|-----------|--------------|-----------|
-| Voltage range | 0-3.3V | Direct connection to ESP32 ADC |
-| Light range | 0-1000+ lux | Covers indoor/outdoor scenarios |
-| Response time | <1ms | Real-time sensing |
-| Viewing angle | ~60° | Sufficient for room coverage |
-| Power consumption | <1mA | Negligible power draw |
-
-**Why TEMT6000 over alternatives?**
-
-- **BH1750:** Digital I2C sensor, more expensive, slower (120ms in highest resolution mode)
-- **Photoresistor (LDR):** Non-linear response, slower, less accurate
-- **TSL2561:** More complex, requires calibration, higher cost
-
-The TEMT6000 offers simple analog output with fast response time, ideal for real-time daylight harvesting.
-
-**Connection:**
-- VCC → 3.3V
-- GND → GND
-- SIG → GPIO 34 (ADC1_CH6 on ESP32)
-
-### PWM Dimmer Module (MOSFET-based)
-
-**Hardware Type:**
-
-- **MOSFET:** IRF520 or IRF540N (N-channel power MOSFET)
-- **Purpose:** LED brightness control via pulse-width modulation
-- **Control:** Low-voltage PWM signal from ESP32 (3.3V)
-- **Load:** 12V LED strips or panels
-
-**Technical Specifications:**
-
-| Parameter | Specification | Notes |
-|-----------|--------------|-------|
-| Input voltage | 5V (module logic) | From ESP32 5V pin |
-| Output voltage | 12V (LED supply) | From external power supply |
-| Max current | 5-10A | Depends on MOSFET model |
-| PWM frequency | 5 kHz | Flicker-free for human vision |
-| Duty cycle range | 0-100% | Full brightness control |
-
-**How PWM Dimming Works:**
-
-1. ESP32 generates PWM signal (0-255 duty cycle)
-2. MOSFET switches LED power on/off rapidly (5000 times/sec)
-3. Higher duty cycle = longer "on" time = brighter LED
-4. Human eye perceives average brightness (no flicker at 5kHz)
-
-**Benefits over linear dimming:**
-- High efficiency (~95% vs. 60% for resistive dimming)
-- No heat generation in control circuit
-- Smooth brightness control
-
-### 4-Channel Relay Module
-
-**Hardware Type:**
-
-- **Relay type:** Electromechanical (SPDT - Single Pole Double Throw)
-- **Coil voltage:** 5V (controlled by ESP32)
-- **Contact rating:** 10A @ 250VAC / 30VDC per channel
-- **Isolation:** Optical isolation between control and load circuits
-
-**Use Cases:**
-
-1. **Main lighting control:** Switch overhead lights on/off
-2. **HVAC fan control:** Turn ventilation fans on/off
-3. **Auxiliary loads:** Control any high-power device
-4. **Safety interlocks:** Emergency lighting circuits
-
-**Technical Details:**
-
-- **Response time:** ~10ms (mechanical actuation)
-- **Lifetime:** 100,000+ cycles (mechanical relays)
-- **Trigger logic:** Most modules use active-low (relay ON when GPIO LOW). Some modules have jumpers to select active-high or active-low. Check module documentation.
-- **Flyback protection:** Built-in diodes on most modules
-
-**Pin Connections:**
-- IN1-IN4 → GPIO 26, 27, 14, 12 (channel control)
-- VCC → 5V (coil power)
-- GND → GND
-
-**Safety Note:** Always use appropriate wire gauges and fuses when switching high-power AC loads. Follow local electrical codes.
+- 128×64 pixels, I²C (0x3C), 400 kHz
+- Displays local system status and current environmental readings on the environmental node
 
 ### Power Supply System
 
-**Overall System Requirements:**
+| Supply | Specification | Used For |
+|---|---|---|
+| 12 V 2 A regulated PSU | 12 V @ 2 A | Solenoid lock, fan rail |
+| 5 V 3 A regulated PSU | 5 V @ 3 A | ESP32 boards, relay module |
+| LM2596 buck converter | 12 V → 5 V @ 3 A | Supplemental 5 V from 12 V rail |
 
-With the addition of the lighting control system (LED strips and 4-channel relay), the power supply has been upgraded from 12V 2A to **12V 5A** to accommodate the increased load.
+**Power budget (typical operating):**
 
-**Buck Converter Selection:**
-
-LM2596-based modules chosen for:
-- High efficiency (~85%) vs. linear regulators (~40%)
-- Low heat generation (important in enclosed model)
-- Adjustable output (potentiometer tuning)
-- Overcurrent protection (built-in)
-
-**Voltage Tolerances:**
-
-| Component | Nominal | Min | Max | Notes |
-|-----------|---------|-----|-----|-------|
-| ESP32-S3 | 5V (USB) | 4.5V | 5.5V | Or 3.3V on VIN pin |
-| RFID-RC522 | 3.3V | 3.0V | 3.6V | NOT 5V tolerant |
-| BME280 | 3.3V | 1.7V | 3.6V | Logic level |
-| TEMT6000 | 3.3V | 3.0V | 3.6V | Analog sensor |
-| OLED | 3.3-5V | 3.0V | 5.5V | Most modules auto-detect |
-| PWM Dimmer | 5V (logic) | 4.5V | 5.5V | Plus 12V for LED supply |
-| Relay Module | 5V | 4.5V | 5.5V | Coil voltage |
-| Solenoid | 12V | 10V | 14V | Tolerance ±15% |
-| LED Strips | 12V | 11V | 13V | Via dimmer module |
-
-**Power Budget (Total System):**
-
-| Component | Current | Voltage | Power | Duty Cycle |
-|-----------|---------|---------|-------|------------|
-| ESP32 #1 (Door) | 200mA | 5V | 1.0W | 100% |
-| ESP32 #2 (Env) | 200mA | 5V | 1.0W | 100% |
-| ESP32 #3 (Light) | 200mA | 5V | 1.0W | 100% |
-| RFID | 30mA | 3.3V | 0.1W | 100% |
-| BME280 | <1mA | 3.3V | ~0W | 100% |
-| TEMT6000 | <1mA | 3.3V | ~0W | 100% |
-| OLED | 10mA | 3.3V | 0.03W | 100% |
-| PWM Dimmer | 5mA | 5V | 0.025W | 100% |
-| 4-Ch Relay (coils) | 280mA | 5V | 1.4W | 25% (avg) |
-| Solenoid | 200mA | 12V | 2.4W | 10% (avg) |
-| LED Strips | 500mA | 12V | 6.0W | 50% (avg) |
-| **Total** | - | - | **13.0W** | Peak |
-| **Avg** | - | - | **6.9W** | Typical |
-
-**Safety Factor:** 12V 5A = 60W capacity → 60W / 13.0W = **4.6x headroom**
-
-**Note:** Power supply upgraded to 5A to accommodate LED strips and multiple relay channels operating simultaneously.
+| Component | Current | Voltage | Power |
+|---|---|---|---|
+| ESP32-S3 (×1 DevKit, 3 logical nodes) | 200 mA each | 5 V | 3.0 W |
+| RC522 RFID | 30 mA | 3.3 V | 0.1 W |
+| BME280 ×3 | < 1 mA each | 3.3 V | ~0 W |
+| BH1750 ×3 | < 1 mA each | 3.3 V | ~0 W |
+| OLED | 10 mA | 3.3 V | 0.03 W |
+| Relay module | 70 mA | 5 V | 0.35 W |
+| Brushless fans ×3 | ~100 mA each | 5 V | 1.5 W |
+| Solenoid (holding) | 200 mA | 12 V | 2.4 W |
+| **Total (typical)** | | | **~7.4 W** |
 
 ---
 
 ## Software Stack
 
-### Firmware (ESP32)
+### Firmware (ESP32 — Arduino / PlatformIO)
 
-**Development Framework Options:**
+Arduino framework with PlatformIO build system. Three independently deployable firmware projects:
 
-| Framework | Pros | Cons | Our Choice |
-|-----------|------|------|------------|
-| Arduino | Easy, huge library support | Less control, bloated | **Use for MVP** |
-| ESP-IDF | Full hardware control, optimized | Steeper learning curve | Migrate if needed |
-| MicroPython | Rapid prototyping | Slow, high memory use | Too slow |
+1. **`firmware/door-control/`** — RFID access control, relay actuation, mTLS HTTPS
+2. **`firmware/sensor-monitoring/`** — BME280 multi-room temperature reading, MQTT publish, OLED display
+3. **`firmware/lighting-control/`** — BH1750 ambient sensing, MOSFET PWM dimming, relay control, daylight harvesting
 
-**Arduino chosen because:**
-- Extensive RFID/sensor libraries (MFRC522, Adafruit BME280)
-- TLS/HTTPS support via WiFiClientSecure
-- PlatformIO provides professional build system (better than Arduino IDE)
-
-**Key Libraries:**
+Key libraries:
 
 ```cpp
-// Network
-#include <WiFi.h>              // ESP32 WiFi (built-in)
-#include <HTTPClient.h>        // HTTP requests
+#include <WiFi.h>              // ESP32 Wi-Fi (built-in)
 #include <WiFiClientSecure.h>  // TLS/HTTPS
 #include <WebSocketsClient.h>  // WebSocket (links2004 library)
-
-// Sensors & Actuators
+#include <PubSubClient.h>      // MQTT client
 #include <MFRC522.h>           // RFID reader
-#include <Adafruit_BME280.h>   // Temperature sensor
+#include <Adafruit_BME280.h>   // Temperature/humidity/pressure sensor
+#include <BH1750.h>            // Ambient light sensor (I²C)
 #include <Adafruit_SSD1306.h>  // OLED display
-
-// Data handling
 #include <ArduinoJson.h>       // JSON parsing (v6)
-#include <SPI.h>               // Serial Peripheral Interface
-#include <Wire.h>              // I2C (Two-Wire Interface)
 ```
 
-**Firmware Projects:**
+### Backend (Python / FastAPI — Raspberry Pi)
 
-1. **door-control/** - RFID access control with solenoid lock
-2. **sensor-monitoring/** - BME280 environmental data collection
-3. **lighting-control/** - TEMT6000 light sensing with PWM dimming and relay control
+FastAPI selected for native async/await support, auto-generated OpenAPI docs, and Python ecosystem integration.
 
-Each firmware project is independently deployable with its own PlatformIO configuration.
+```
+backend/app/
+├── main.py              # FastAPI app initialization
+├── api/
+│   ├── access.py        # Access control routes
+│   ├── sensors.py       # Sensor data ingestion routes
+│   └── lighting.py      # Lighting control routes
+├── services/
+│   ├── mqtt_client.py   # MQTT broker interface
+│   └── db_client.py     # TimescaleDB interface
+├── models/
+│   └── sensor_data.py   # Database schemas
+└── workers/
+    └── stream_processor.py  # Async event processing
+```
 
-Backend (Python/FastAPI)
-Why FastAPI?
+**Key API endpoints:**
 
-Comparison with alternatives:
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/access/validate` | Validate RFID UID against allowlist |
+| `POST` | `/api/sensors/ingest/environmental` | BME280 temperature data ingestion |
+| `POST` | `/api/sensors/ingest/lighting` | BH1750 ambient light data ingestion |
+| `POST` | `/api/lighting/dimmer/{device_id}` | Set LED brightness (0–100%) |
+| `POST` | `/api/lighting/relay/{device_id}` | Control relay state |
+| `POST` | `/api/lighting/daylight-harvest/{device_id}` | Toggle daylight harvesting |
+| `GET`  | `/api/sensors/history` | Retrieve 24-hour historical data |
+| `WS`   | `/ws` | Real-time dashboard WebSocket stream |
 
-Framework	Request/sec	Async Support	Documentation
-Flask	~1,000	Via extensions	Good
-Django	~500	Limited	Excellent
-FastAPI	~20,000	Native	Auto-generated
-Node.js	~25,000	Native	Goood
-FastAPI wins because:
+**Framework comparison:**
 
-- async/await native: Non-blocking I/O crucial for WebSockets
-- Type hints: Pydantic models catch errors at development time
-- OpenAPI docs: Auto-generates Swagger UI for testing
-- Python ecosystem: Easy integration with scientific libraries (future ML)
+| Framework | Req/sec | Async | Verdict |
+|---|---|---|---|
+| Flask | ~1,000 | Via extensions | — |
+| Django | ~500 | Limited | — |
+| **FastAPI** | **~20,000** | **Native** | **✓ Selected** |
+| Node.js | ~25,000 | Native | — |
 
-Backend Architecture Pattern:
+### Database (TimescaleDB)
 
-Python
+PostgreSQL extension optimized for time-series data. Automatic data partitioning by time enables fast historical queries (24-hour window returned in < 2 s).
 
-    app/
-    ├── main.py           # FastAPI app initialization
-    ├── api/              # HTTP endpoints
-    │   ├── access.py     # Access control routes
-    │   ├── sensors.py    # Sensor data ingestion routes
-    │   └── lighting.py   # Lighting control routes
-    ├── services/         # Business logic
-    │   ├── redis_client.py
-    │   └── db_client.py
-    ├── models/           # Database schemas
-    │   └── sensor_data.py
-    └── workers/          # Background tasks
-        └── stream_processor.py
+### Message Broker (MQTT — Mosquitto)
 
-This follows separation of concerns:
+Runs on Raspberry Pi. ESP32 nodes publish sensor events and subscribe to actuator command topics. Typical end-to-end latency: 10–50 ms.
 
-- API layer: Request validation, response formatting
-- Service layer: Business logic (authorization checks)
-- Workers: Async data processing (database writes)
+### Frontend (React)
 
-**Key API Endpoints:**
+Single-page application. Uses WebSocket connection to backend for live data; HTTP REST for configuration and policy management.
 
-- `POST /api/sensors/ingest/environmental` - BME280 data ingestion
-- `POST /api/sensors/ingest/lighting` - TEMT6000 data ingestion
-- `POST /api/lighting/dimmer/{device_id}` - Set LED brightness
-- `POST /api/lighting/relay/{device_id}` - Control relay state
-- `POST /api/lighting/daylight-harvest/{device_id}` - Toggle daylight harvesting
-- Database (TimescaleDB)
+---
+
+## Verification Plan
+
+### A. Access Control Verification
+
+Swipe known-good and known-bad RFID cards while measuring end-to-end latency (RFID detect → solenoid actuation) via firmware timing logs or oscilloscope.
+
+- **Pass:** Door actuates within 500 ms; denied cards are rejected within 100 ms of policy revocation; 100% of attempts logged with timestamps.
+- **Fail:** Latency > 500 ms, revocation delay > 100 ms, or missing log entries.
+
+### B. HVAC Monitoring and Control Verification
+
+Use sensor timestamps to confirm 1 Hz sampling rate. Monitor steady-state temperature against setpoint.
+
+- **Pass:** Sampling at 1 Hz; temperature regulated within ±0.5 °C of setpoint under steady-state conditions; environmental data displayed on dashboard within 1 s; 24-hour historical data retrievable within 2 s.
+- **Fail:** Sampling below 1 Hz, steady-state error > ±0.5 °C, or data not visible within 1 s.
+
+### C. Lighting Control Verification
+
+Send brightness commands from dashboard; measure response time via firmware logs or oscilloscope on PWM output pin.
+
+- **Pass:** LED brightness changes within 300 ms of manual command; ambient light changes produce automatic brightness adjustment; PWM frequency confirmed at 5 kHz.
+- **Fail:** Response > 300 ms, no automatic adjustment to ambient changes, or incorrect PWM frequency.
+
+### D. Communication and Integration Validation
+
+Run all three subsystems simultaneously for 24 hours.
+
+- **Pass:** All sensor data transmitted, stored, and displayed without loss; dashboard updates within 1 s of measurement; access control, lighting, and environmental monitoring operate concurrently without failures.
+- **Fail:** Any data loss, updates consistently > 1 s, or subsystem failures during combined operation.
+
+---
+
+## Project Management
+
+### Schedule (12 Weeks)
+
+| Phase | Weeks | Focus |
+|---|---|---|
+| 1 | 1–3 | System architecture; backend API + MQTT broker; TimescaleDB schema |
+| 2 | 4–5 | Access control + environmental firmware; frontend dashboard foundation |
+| 3 | 6–7 | Lighting firmware; hardware wiring and bring-up |
+| 4 | 8–10 | Firmware–backend integration; dashboard–backend integration; full system integration |
+| 5 | 11–12 | Latency and requirements verification; debug, hardening, and final demo |
+
+Key milestones: completion of each phase (Weeks 3, 5, 7, 10, 12) and transition from integration to verification at Week 11.
+
+### Team Responsibilities
+
+**Mario Belmonte (MB)** — Primary: backend and web stack (FastAPI, MQTT topics, TimescaleDB schema, React dashboard), Raspberry Pi setup, CI pipeline, access-control / authorization logic, security configuration (TLS certificates, device provisioning), overall backend–ESP32 integration. Secondary: assist with firmware APIs, ESP32–backend communication debugging, documentation and final report.
+
+**Cindy Chen (CC)** — Primary: embedded firmware and hardware integration (ESP32 bring-up, wiring of RFID, BME280, fans, BH1750, dimmers, relays), PID temperature control logic, lighting control logic, system architecture diagrams, requirements mapping, test/validation planning (latency measurements, multi-room behavior, safety checks). Secondary: dashboard UX and control flows, Gantt chart and risk tracking, user-facing documentation.
+
+Both team members share responsibility for requirements refinement, design decisions, integration testing, and presentations/demos.
+
+### Bill of Materials
+
+| Description | Model | Qty | Unit Cost | Total |
+|---|---|---|---|---|
+| 30×30×10 mm 5 V brushless fans | 30x30x10mm 5V | 3 | $6.99 | $20.97 |
+| BME280 temperature/humidity/pressure sensors (HiLetgo GY-BME280-3.3) | GY-BME280-3.3 | 3 | $8.99 | $26.97 |
+| 12 V mini solenoid door lock | 12V mini solenoid | 1 | $16.99 | $16.99 |
+| 5 V 1-channel relay module with optocoupler | 5V 1-CH Relay | 1 | $8.49 | $8.49 |
+| RC522 / MFRC522 RFID reader kit (SPI, 13.56 MHz, with cards) | MFRC522 | 1 | $10.99 | $10.99 |
+| Low-voltage LED PWM dimmers (12 V, knob style) | 12V PWM Dimmer | 3 | $9.99 | $29.97 |
+| Ambient light sensors (BH1750 I²C modules) | BH1750 | 3 | $6.99 | $20.97 |
+| USB wired keyboard (for Raspberry Pi 5) | USB Keyboard | 1 | $8.99 | $8.99 |
+| ESP32-S3 DevKit-style board | ESP32-S3 DevKit | 1 | $30.99 | $30.99 |
+| N-channel logic-level MOSFETs (IRLZ44N, TO-220) | IRLZ44N | 2 packs | $9.99 | $19.98 |
+| Flyback diodes (1N4007, 100 pcs) | 1N4007 | 1 | $5.99 | $5.99 |
+| 12 V 2 A regulated power supply | 12V 2A PSU | 1 | $11.99 | $11.99 |
+| 5 V 3 A regulated power supply | 5V 3A PSU | 1 | $8.39 | $8.39 |
+| LM2596 buck converter module (12 V → 5 V, 3 A) | LM2596 | 1 | $4.00 | $4.00 |
+| **Total** | | | | **$225.68** |
+
+All components are available through Amazon.
+
+### Risk Mitigation
+
+| Risk | Mitigation |
+|---|---|
+| Network/backend availability | Stable Wi-Fi (dedicated AP if needed); Raspberry Pi on wired Ethernet; fail-safe firmware (door stays locked if backend unreachable; fan defaults to safe mode from last valid setpoint) |
+| Multi-room PID stability | Start with conservative gains; 1 Hz sampling; log temperature and fan commands to backend for offline tuning |
+| End-to-end latency | Measure latency in integration tests; add timing logs in firmware and backend; optimize hot paths if measurements approach limits |
+| Hardware/integration reliability | Test each subsystem independently before full integration; keep spare ESP32-S3 and critical parts; maintain single pinout and power-rail reference document |
+
+---
+
+## Related Work
+
+**SmartWatt [10]** targets energy and cost savings through ML-based forecasting and appliance scheduling around solar and grid pricing. Our Smart Home Model treats the building as critical infrastructure — access, environmental control, and lighting are managed through a centralized web-based system, with emphasis on **security, policy enforcement, and real-time responsiveness** rather than energy optimization alone.
+
+Lessons adapted from SmartWatt:
+
+1. **Latency** — SmartWatt reports delays on the order of seconds; we target < 500 ms (access) and < 1 s (environmental/lighting) using WebSockets for live dashboard updates and MQTT for device messaging.
+2. **Sensor and data quality** — We use specified-accuracy sensors (BME280) and TimescaleDB for logged, queryable historical data.
+3. **Asynchronous design** — SmartWatt experienced UI freezes from synchronous heavy work. We use MQTT pub/sub so devices publish events and the backend processes asynchronously; the dashboard receives updates over WebSockets without blocking.
+
+Commercial products (smart locks, thermostats, lighting systems) typically use proprietary ecosystems with distributed local control logic, limiting integration and transparency. Our project provides a **single, web-first control plane** with explicit latency and availability targets and full observability across access, environmental, and lighting state.
+
+---
+
+## Quick Start
+
+See the detailed documentation in the `docs/` directory:
+
+- **[docs/SETUP.md](docs/SETUP.md)** — Hardware assembly, software installation (PlatformIO, Python, Docker), configuration
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Detailed system architecture diagrams
+- **[docs/API.md](docs/API.md)** — Full API reference with example requests
+- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** — Dashboard navigation, adding/revoking RFID cards
+- **[docs/TESTING.md](docs/TESTING.md)** — Running tests for frontend, backend, and firmware
+
+### Prerequisites
+
+- Raspberry Pi 5 (or 4B) running Raspberry Pi OS
+- Python 3.11+ and Docker
+- PlatformIO CLI for ESP32 firmware
+- Node.js 18+ for the frontend dashboard
+
+### Basic Setup
+
+```bash
+# Clone and configure backend
+cd backend
+cp .env.example .env    # fill in secrets
+docker compose up -d    # starts FastAPI, MQTT broker, TimescaleDB
+
+# Build and flash firmware (PlatformIO)
+cd firmware/door-control
+pio run --target upload
+
+# Start the frontend dashboard
+cd frontend
+npm install
+npm run dev
+```
+
+Dashboard is available at `https://raspberrypi.local:8443` (or `http://localhost:3000` in development).
+
+---
+
+## Repository Structure
+
+```
+smartHome/
+├── backend/             # FastAPI backend (Python)
+│   ├── app/             # Application code
+│   ├── alembic/         # Database migrations
+│   ├── requirements.txt
+│   └── README.md
+├── firmware/            # ESP32 firmware (PlatformIO / Arduino)
+│   ├── door-control/    # RFID access control node
+│   ├── sensor-monitoring/  # Environmental monitoring node
+│   └── lighting-control/   # Lighting control node
+├── frontend/            # React dashboard
+├── docs/                # Documentation
+│   ├── SETUP.md
+│   ├── ARCHITECTURE.md
+│   ├── API.md
+│   ├── USER_GUIDE.md
+│   ├── TESTING.md
+│   └── Team_A4_Belmonte_Chen_design_report.pdf
+├── hardware/            # Schematics, PCB files, BOM
+├── infrastructure/      # Docker Compose, certs, deployment
+├── scripts/             # Dev/deployment utility scripts
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+└── LICENSE
+```
+
+---
+
+## References
+
+[1] OASIS, "MQTT Version 3.1.1 Plus Errata 01," OASIS Standard, Dec. 2015. [Online]. Available: https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/
+
+[2] Bosch Sensortec, "BME280 Combined Humidity and Pressure Sensor," Data Sheet, Rev. 1.6, Oct. 2018.
+
+[3] Espressif Systems, "ESP32-S3 Series: 2.4 GHz Wi-Fi and Bluetooth 5 (LE) System-on-Chip," Datasheet, v1.6, 2023.
+
+[4] Rohm Semiconductor, "BH1750FVI Ambient Light Sensor IC," Technical Note, Rev. B, 2013.
+
+[5] NXP Semiconductors, "MFRC522 Standard Performance MIFARE and NTAG Frontend," Data Sheet, Rev. 3.9, 2016.
+
+[6] Timescale, Inc., "TimescaleDB: A Time-Series Database for PostgreSQL," White Paper, 2017. [Online]. Available: https://www.timescale.com/
+
+[7] S. Raposo and contributors, "FastAPI Documentation," [Online]. Available: https://fastapi.tiangolo.com/
+
+[8] Meta Platforms, Inc., "React: A JavaScript Library for Building User Interfaces," [Online]. Available: https://react.dev/
+
+[9] I. Fette and A. Melnikov, "The WebSocket Protocol," RFC 6455, Dec. 2011.
+
+[10] Team SmartWatt, "SmartWatt: Intelligent Residential Energy Management Using Predictive Scheduling," Carnegie Mellon Univ., ECE Capstone Project, Spring 2025. [Online]. Available: https://course.ece.cmu.edu/~ece500/projects/s25-teamd5/
+
+---
+
+*18-500 Design Project Report: A4 — Last updated: February 27, 2026*
