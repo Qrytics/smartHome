@@ -114,11 +114,18 @@ cd smartHome
 
 ### 3.2 Install system dependencies
 
+> **Note:** The `docker-compose-plugin` package is not available in the default Raspberry Pi OS repositories.
+> Use the official Docker convenience script instead — it auto-detects the RPi architecture, adds the
+> correct repositories, and installs Docker Engine together with Docker Compose.
+
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-pip python3-venv docker.io docker-compose-plugin nodejs npm git
-sudo usermod -aG docker qrytics   # allow docker without sudo
-# Log out and back in for the group change to take effect
+sudo apt install -y python3 python3-pip python3-venv nodejs npm git libpq-dev
+
+# Install Docker Engine + Docker Compose via the official convenience script
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER   # allow current user to run docker without sudo
+# Log out and back in (or reboot) for the group change to take effect
 exit
 ```
 
@@ -129,6 +136,10 @@ ssh qrytics@smartHome
 ```
 
 ### 3.3 Set up the Python virtual environment
+
+> **Note:** On ARM architectures (e.g. RPi 5) `psycopg2-binary` may attempt to build from source and
+> require the PostgreSQL development headers (`libpq-dev`) to be present at the OS level.
+> This is already installed in step 3.2 above.
 
 ```bash
 cd ~/smartHome/backend
