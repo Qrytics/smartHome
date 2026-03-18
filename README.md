@@ -95,60 +95,78 @@ Automatic lighting adjustment in response to ambient light reduces energy use an
 
 ## System Architecture
 
-The system consists of three primary layers that communicate through secure network connections.
+The system consists of four ESP32 nodes and three backend layers.
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  Web Dashboard (React)                  │
-│  Access Logs │ Temp Graphs │ Lighting Control │ Policies │
-└────────────────────────┬────────────────────────────────┘
-                   HTTPS / WebSocket
-┌────────────────────────▼────────────────────────────────┐
-│              Backend (Raspberry Pi)                     │
-│  FastAPI Server │ MQTT Broker │ TimescaleDB              │
-│  Rules Engine   │ mTLS Auth  │ Stream Processor         │
-└───────┬─────────────────┬──────────────────┬────────────┘
-   MQTT/mTLS         MQTT/mTLS          MQTT/mTLS
-┌──────▼──────┐  ┌───────▼──────┐  ┌────────▼─────┐
-│  ESP32 #1   │  │   ESP32 #2   │  │   ESP32 #3   │
-│ Access Ctrl │  │ Env Monitor  │  │   Lighting   │
-│ RC522 RFID  │  │ BME280 ×3    │  │ BH1750 ×3    │
-│ Relay+Lock  │  │ OLED Display │  │ PWM Dimmers  │
-└─────────────┘  └──────────────┘  └──────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Web Dashboard (React)                        │
+│   Dashboard │ Lighting │ Access Control │ Analytics │ Settings  │
+└──────────────────────────┬──────────────────────────────────────┘
+                    HTTPS / WebSocket
+┌──────────────────────────▼──────────────────────────────────────┐
+│                Backend (FastAPI + TimescaleDB)                  │
+│   /api/sensors  │  /api/lighting  │  /api/access                │
+│   WebSocket     │  MQTT Broker    │  Redis (cache)              │
+└──────┬──────────────────┬─────────────────┬─────────────────────┘
+  WebSocket            WebSocket         HTTP POST
+┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐  ┌────────────────┐
+│  Room Node  │  │  Room Node  │  │  Room Node  │  │  Door Node     │
+│  ESP32 #1   │  │  ESP32 #2   │  │  ESP32 #3   │  │  ESP32 #4      │
+│ Living Room │  │  Bedroom    │  │  Kitchen    │  │  Entrance      │
+│ ─────────── │  │ ─────────── │  │ ─────────── │  │ ──────────────│
+│ BME280      │  │ BME280      │  │ BME280      │  │ MFRC522 RFID  │
+│ TEMT6000    │  │ TEMT6000    │  │ TEMT6000    │  │ Solenoid Lock  │
+│ PWM Dimmer  │  │ PWM Dimmer  │  │ PWM Dimmer  │  └────────────────┘
+│ Fan Relay   │  │ Fan Relay   │  │ Fan Relay   │
+└─────────────┘  └─────────────┘  └─────────────┘
 ```
 
-### Layer 1 — Physical Edge (ESP32-S3 Nodes)
+### ESP32 Node Summary
 
-Three independent ESP32-S3 nodes handle sensing and actuation:
+| Node | Firmware | Sensors / Actuators | Device ID |
+|------|----------|--------------------|-----------| 
+| ESP32 #1 Room | `firmware/room-node` | BME280, TEMT6000, PWM dimmer, fan relay | `room-node-01` |
+| ESP32 #2 Room | `firmware/room-node` | BME280, TEMT6000, PWM dimmer, fan relay | `room-node-02` |
+| ESP32 #3 Room | `firmware/room-node` | BME280, TEMT6000, PWM dimmer, fan relay | `room-node-03` |
+| ESP32 #4 Door | `firmware/door-control` | MFRC522 RFID, solenoid lock relay | `door-control-01` |
 
-- **Access Control Node:** RC522 RFID reader, relay driver, and 12 V solenoid lock. On card detection, the UID is sent to the backend; the backend evaluates access policy and returns a grant/deny command that actuates the relay.
-- **Environmental Monitoring Node:** Three BME280 temperature/humidity/pressure sensors (one per room) and an OLED display. Readings are transmitted at 1 Hz to the backend for PID processing, storage, and visualization.
-- **Lighting Control Node:** Three BH1750 ambient light sensors (one per room), N-channel MOSFETs (IRLZ44N) as PWM dimmers, and a relay module for high-power loads. Ambient light data drives automatic daylight harvesting; the dashboard enables manual override.
+The **same firmware binary** (`firmware/room-node`) is flashed to all three room ESP32s.
+Only `DEVICE_ROOM_ID` and `DEVICE_ROOM_LABEL` in `src/config.h` differ per room.
 
-### Layer 2 — Backend Services (Raspberry Pi)
+### Layer 1 — Physical Edge (ESP32 Nodes)
 
-- **FastAPI** serves HTTP/WebSocket entry points for the dashboard and REST API.
-- **MQTT broker** (primary) provides asynchronous publish–subscribe messaging between ESP32 nodes and the backend with typical latency of 10–50 ms. This event-driven architecture lets devices publish without waiting for backend processing.
-- **TimescaleDB** persists time-series sensor and event data; supports 24-hour historical queries.
-- **Rules engine** enforces access control policy and generates actuator commands.
-- **Mutual TLS (mTLS)** authenticates every ESP32 device; only devices with a certificate signed by the CA can connect.
+**Room nodes (×3):** Each room ESP32 collects environmental data (BME280), ambient
+light (TEMT6000), and controls a PWM LED dimmer and a fan relay.  Data is streamed
+to the backend via WebSocket every 2 s.  The backend can send dimmer, fan, relay, and
+daylight-harvest commands back to the device in real time.
+
+**Door node (×1):** The door ESP32 reads MFRC522 RFID cards and calls
+`POST /api/access/check` for every scan.  The backend looks up the card in the
+whitelist and returns `granted=true/false`.  On grant, the firmware energises the
+solenoid relay for 3 s then locks again.  All attempts are logged.
+
+### Layer 2 — Backend Services
+
+- **FastAPI** (`backend/`) — HTTP + WebSocket entry points for devices and dashboard.
+- **MQTT broker** — asynchronous publish-subscribe between devices and backend workers.
+- **TimescaleDB** — time-series storage for sensor readings, relay states, fan states, access logs.
+- **Redis** — optional cache for real-time device state.
 
 ### Layer 3 — Web Dashboard (React)
 
-- Real-time temperature graphs per room (WebSocket updates)
-- Real-time ambient light level monitoring
-- Access control logs (granted / denied, timestamped)
-- Lighting control panel (per-room dimmer, relay, daylight harvesting toggle)
-- Policy management (add / revoke RFID cards)
-- Historical analytics (24-hour data window)
+- Real-time sensor charts per room (temperature, humidity, light)
+- Lighting control panel (dimmer slider, relay toggles, daylight harvesting, fan toggle)
+- Access control log (card UID, device, result, timestamp)
+- RFID card management (register / deactivate cards)
+- Analytics (24-hour historical data)
 
 ### Data Flow: Access Control Latency Budget
 
 | Stage | Time |
 |---|---|
 | RFID credential read | ~50 ms |
-| Network transmission (Wi-Fi + MQTT) | ~50 ms |
-| Backend processing (policy lookup) | ~20 ms |
+| Network transmission (Wi-Fi) | ~50 ms |
+| Backend processing (DB lookup) | ~20 ms |
 | Solenoid actuation | ~100 ms |
 | **Total** | **~220 ms** (target: < 500 ms) |
 
@@ -525,6 +543,9 @@ Commercial products (smart locks, thermostats, lighting systems) typically use p
 See the detailed documentation in the `docs/` directory:
 
 - **[docs/SETUP.md](docs/SETUP.md)** — Hardware assembly, software installation (PlatformIO, Python, Docker), configuration
+- **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** — **SSH into the Raspberry Pi**, upload code, start services, access the dashboard
+- **[docs/WIRING.md](docs/WIRING.md)** — Exact pin connections for all 4 ESP32s
+- **[docs/DEMO.md](docs/DEMO.md)** — Step-by-step final demo walkthrough
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Detailed system architecture diagrams
 - **[docs/API.md](docs/API.md)** — Full API reference with example requests
 - **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** — Dashboard navigation, adding/revoking RFID cards
@@ -532,30 +553,75 @@ See the detailed documentation in the `docs/` directory:
 
 ### Prerequisites
 
-- Raspberry Pi 5 (or 4B) running Raspberry Pi OS
 - Python 3.11+ and Docker
-- PlatformIO CLI for ESP32 firmware
+- PlatformIO CLI for ESP32 firmware (`pip install platformio`)
 - Node.js 18+ for the frontend dashboard
 
-### Basic Setup
+### Basic Setup (local development)
 
 ```bash
-# Clone and configure backend
-cd backend
-cp .env.example .env    # fill in secrets
-docker compose up -d    # starts FastAPI, MQTT broker, TimescaleDB
+# 1. Start infrastructure
+cd infrastructure
+docker compose up -d timescaledb mqtt redis
 
-# Build and flash firmware (PlatformIO)
-cd firmware/door-control
+# 2. Configure and start backend
+cd ../backend
+cp .env.example .env    # fill in your settings
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# 3. Flash room-node firmware (repeat for each of 3 room ESP32s)
+cd ../firmware/room-node
+cp include/secrets.h.example include/secrets.h   # add WiFi creds + API_HOST
+# Edit src/config.h to set DEVICE_ROOM_ID and DEVICE_ROOM_LABEL
 pio run --target upload
 
-# Start the frontend dashboard
-cd frontend
+# 4. Flash door-control firmware (door ESP32)
+cd ../door-control
+cp include/secrets.h.example include/secrets.h
+pio run --target upload
+
+# 5. Start the frontend dashboard
+cd ../../frontend
 npm install
-npm run dev
+cp .env.example .env    # set REACT_APP_API_URL=http://localhost:8000
+npm start
 ```
 
-Dashboard is available at `https://raspberrypi.local:8443` (or `http://localhost:3000` in development).
+Dashboard is available at **http://localhost:3000** in development.
+
+### Running on the Raspberry Pi
+
+The backend and dashboard are designed to run on the **Raspberry Pi** (`smartHome`) so all ESP32s can reach them over the local network.
+
+```powershell
+# SSH into the RPi from your laptop (Windows PowerShell / macOS / Linux terminal)
+ssh qrytics@smartHome
+```
+
+Once logged in, pull the latest code and start all services:
+
+```bash
+# On the RPi
+cd ~/smartHome && git pull
+cd infrastructure && docker compose up -d
+cd ../backend && source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Then open the dashboard from any device on the same network:
+
+```
+http://smartHome:3000        ← dashboard
+http://smartHome:8000/docs   ← interactive API explorer
+```
+
+See **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** for the complete guide including:
+- Passwordless SSH setup
+- Uploading code via `scp` / `rsync`
+- Running the backend as a systemd service (auto-start on reboot)
+- SSH port-forwarding to access the dashboard remotely
+- Pointing ESP32 firmware at the RPi IP address
 
 ---
 
@@ -563,23 +629,27 @@ Dashboard is available at `https://raspberrypi.local:8443` (or `http://localhost
 
 ```
 smartHome/
-├── backend/             # FastAPI backend (Python)
-│   ├── app/             # Application code
-│   ├── alembic/         # Database migrations
-│   ├── requirements.txt
-│   └── README.md
-├── firmware/            # ESP32 firmware (PlatformIO / Arduino)
-│   ├── door-control/    # RFID access control node
-│   ├── sensor-monitoring/  # Environmental monitoring node
-│   └── lighting-control/   # Lighting control node
-├── frontend/            # React dashboard
-├── docs/                # Documentation
-│   ├── SETUP.md
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   ├── USER_GUIDE.md
-│   ├── TESTING.md
-│   └── Team_A4_Belmonte_Chen_design_report.pdf
+├── backend/                  # FastAPI backend (Python)
+│   ├── app/
+│   │   ├── api/              # Endpoints: sensors, lighting, access, websocket
+│   │   ├── models/           # SQLAlchemy ORM models
+│   │   ├── schemas/          # Pydantic schemas
+│   │   └── services/         # DB client, WebSocket manager, broker
+│   ├── tests/                # pytest test suite (99 tests)
+│   └── requirements.txt
+├── firmware/                 # ESP32 firmware (PlatformIO / Arduino)
+│   ├── room-node/            # Room ESP32 (BME280 + TEMT6000 + dimmer + fan) ← NEW
+│   ├── door-control/         # Door ESP32 (RFID + solenoid lock)
+│   ├── lighting-control/     # Legacy lighting-only firmware (kept for reference)
+│   └── sensor-monitor/       # Legacy sensor-only firmware (kept for reference)
+├── frontend/                 # React dashboard
+├── docs/                     # Documentation
+│   ├── SETUP.md              # Installation and hardware setup
+│   ├── WIRING.md             # Pin connections for all 4 ESP32s ← NEW
+│   ├── DEMO.md               # Final demo walkthrough ← NEW
+│   ├── TESTING.md            # Test procedures
+│   ├── API.md                # API reference
+│   └── USER_GUIDE.md         # Dashboard user guide
 ├── hardware/            # Schematics, PCB files, BOM
 ├── infrastructure/      # Docker Compose, certs, deployment
 ├── scripts/             # Dev/deployment utility scripts

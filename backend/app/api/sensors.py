@@ -38,6 +38,32 @@ class LightingSensorData(BaseModel):
     relays: Optional[List[bool]] = Field(None, description="Relay states [ch1, ch2, ch3, ch4]")
 
 
+class RoomNodeSensorData(BaseModel):
+    """
+    Combined sensor payload from a room-node ESP32.
+
+    Each room ESP32 reports environmental readings (BME280), ambient light
+    (TEMT6000), dimmer state, fan state, and relay states in a single message.
+    """
+    device_id: str = Field(..., description="Device ID, e.g. 'room-node-01'")
+    room: Optional[str] = Field(None, description="Human-readable room label")
+    timestamp: str = Field(..., description="ISO 8601 or uptime timestamp")
+    # Environmental (BME280)
+    temperature: Optional[float] = Field(None, description="Temperature in °C")
+    humidity: Optional[float] = Field(None, description="Relative humidity %")
+    pressure: Optional[float] = Field(None, description="Atmospheric pressure hPa")
+    # Light (TEMT6000)
+    light_level: Optional[float] = Field(None, ge=0, le=100, description="Light level 0–100 %")
+    light_lux: Optional[float] = Field(None, ge=0, description="Calculated lux")
+    # Lighting control
+    dimmer_brightness: Optional[int] = Field(None, ge=0, le=100, description="Dimmer 0–100 %")
+    daylight_harvest_mode: Optional[bool] = Field(None, description="Auto-dimming enabled")
+    # Fan
+    fan_on: Optional[bool] = Field(None, description="Fan relay state")
+    # Spare relays
+    relays: Optional[List[bool]] = Field(None, description="Relay states [ch1..ch4]")
+
+
 class SensorDataResponse(BaseModel):
     """Response for sensor data ingestion"""
     status: str
@@ -73,7 +99,7 @@ async def ingest_environmental_data(data: EnvironmentalSensorData) -> Dict:
     try:
         await broker.publish(
             channel="sensors/environmental",
-            payload=data.dict(),
+            payload=data.model_dump(),
         )
     except Exception as e:
         # Broker failures should not break ingestion for now; just log.
@@ -111,7 +137,7 @@ async def ingest_lighting_data(data: LightingSensorData) -> Dict:
     
     # Store in database
     try:
-        db_client.insert_lighting_data(data.dict())
+        db_client.insert_lighting_data(data.model_dump())
         
         # Update device status
         db_client.update_device_status(data.device_id, 'online')
@@ -120,7 +146,7 @@ async def ingest_lighting_data(data: LightingSensorData) -> Dict:
         await ws_manager.broadcast_to_clients({
             'type': 'lighting_data',
             'device_id': data.device_id,
-            'data': data.dict()
+            'data': data.model_dump()
         })
         
         print(f"[SENSOR] Lighting data from {data.device_id}:")
@@ -266,3 +292,65 @@ async def get_sensor_history(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve sensor history"
         )
+
+
+# ---------------------------------------------------------------------------
+# Room-node combined ingest endpoint
+# ---------------------------------------------------------------------------
+
+@router.post(
+    "/ingest/room-node",
+    response_model=SensorDataResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Ingest combined room-node sensor data",
+)
+async def ingest_room_node_data(data: RoomNodeSensorData) -> Dict:
+    """
+    Ingest combined sensor data from a room-node ESP32.
+
+    A room-node reports environmental readings (BME280), ambient light
+    (TEMT6000), dimmer state, fan state, and relay states in a single
+    WebSocket message.  This endpoint accepts HTTP POST submissions of
+    that same payload for devices that prefer REST over WebSocket.
+
+    The payload is:
+    1. Published to the message broker so background workers can persist it.
+    2. Broadcast to all connected WebSocket clients for real-time updates.
+    3. Device status is updated to 'online' in the database.
+    """
+    print(f"[SENSOR] Room-node data from {data.device_id} ({data.room}):")
+    print(f"  Temp: {data.temperature}°C  Hum: {data.humidity}%  Press: {data.pressure} hPa")
+    print(f"  Light: {data.light_level}% ({data.light_lux} lux)  Dimmer: {data.dimmer_brightness}%")
+    print(f"  Fan: {data.fan_on}  DH: {data.daylight_harvest_mode}")
+
+    # Publish to broker (fire-and-forget)
+    try:
+        await broker.publish(
+            channel="sensors/room-node",
+            payload=data.model_dump(),
+        )
+    except Exception as exc:
+        print(f"[BROKER] Failed to publish room-node data: {exc}")
+
+    # Broadcast to WebSocket clients
+    try:
+        await ws_manager.broadcast_to_clients({
+            "type": "room_node_data",
+            "device_id": data.device_id,
+            "data": data.model_dump(),
+        })
+    except Exception as exc:
+        print(f"[WS] Failed to broadcast room-node data: {exc}")
+
+    # Update device status (best-effort)
+    try:
+        db_client.update_device_status(data.device_id, "online")
+    except Exception as exc:
+        print(f"[DB] Failed to update device status: {exc}")
+
+    return {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": data.device_id,
+        "timestamp": data.timestamp,
+    }

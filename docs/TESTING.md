@@ -5,14 +5,15 @@ This document describes the testing strategy, procedures, and guidelines for the
 ## Table of Contents
 
 1. [Testing Philosophy](#testing-philosophy)
-2. [Test Types](#test-types)
-3. [Backend Testing](#backend-testing)
-4. [Frontend Testing](#frontend-testing)
-5. [Firmware Testing](#firmware-testing)
-6. [Integration Testing](#integration-testing)
-7. [Performance Testing](#performance-testing)
-8. [Hardware Testing](#hardware-testing)
-9. [CI/CD Pipeline](#cicd-pipeline)
+2. [Modular Hardware-Component Testing](#modular-hardware-component-testing)
+3. [Test Types](#test-types)
+4. [Backend Testing](#backend-testing)
+5. [Frontend Testing](#frontend-testing)
+6. [Firmware Testing](#firmware-testing)
+7. [Integration Testing](#integration-testing)
+8. [Performance Testing](#performance-testing)
+9. [Hardware Testing](#hardware-testing)
+10. [CI/CD Pipeline](#cicd-pipeline)
 
 ## Testing Philosophy
 
@@ -23,8 +24,9 @@ We follow the testing pyramid approach:
 ```
         /\
        /  \         E2E Tests (Few)
-      /____\        - Full system integration
-     /      \       - User scenarios
+      /    \        - Full system integration
+      /____\        - User scenarios
+     /      \
     /        \
    /__________\     Integration Tests (Some)
   /            \    - API endpoints
@@ -46,6 +48,150 @@ We follow the testing pyramid approach:
 2. **Security**: Authentication, authorization, input validation
 3. **Performance**: Latency targets (<500ms access, <1s sensor)
 4. **Reliability**: Error handling, recovery, failsafes
+
+---
+
+## Modular Hardware-Component Testing
+
+The modular test suite lets you test **each hardware component independently** — even when other parts haven't arrived yet.
+
+### Component Markers
+
+| Marker | Hardware | ESP32 | GPIO |
+|--------|----------|-------|------|
+| `bme280` | BME280 environmental sensor | Room nodes ×3 | I2C (GPIO 21/22) |
+| `temt6000` | TEMT6000 ambient light sensor | Room nodes ×3 | ADC GPIO 34 |
+| `dimmer` | PWM LED dimmer module | Room nodes ×3 | GPIO 25 |
+| `fan_relay` | Fan relay module | Room nodes ×3 | GPIO 26 |
+| `rfid` | MFRC522 RFID reader | Door node | SPI (GPIO 5/11/12/13/22) |
+| `solenoid` | Solenoid door-lock relay | Door node | GPIO 4 |
+| `room_node` | Full room-node ESP32 | Room nodes ×3 | all above |
+| `door_node` | Full door-node ESP32 | Door node | RFID + solenoid |
+| `websocket` | WebSocket command delivery | All ESP32s | WiFi |
+
+### Quick Start: Test a Single Component
+
+```bash
+cd backend
+# activate virtualenv first if needed: source venv/bin/activate
+
+# Test only BME280 (temperature/humidity/pressure)
+pytest -m bme280
+
+# Test only RFID reader and solenoid lock
+pytest -m rfid
+
+# Test only the fan relay
+pytest -m fan_relay
+
+# Test the full room-node (all four sensors)
+pytest -m room_node
+
+# Test the full door-node
+pytest -m door_node
+
+# Test WebSocket command delivery
+pytest -m websocket
+```
+
+### Using the Modular Test Runner Script
+
+The convenience script runs a component's tests and automatically generates a JSON + CSV report:
+
+```bash
+# From repo root:
+./scripts/test-module.sh <module> [options]
+
+# Examples
+./scripts/test-module.sh bme280
+./scripts/test-module.sh rfid --verbose
+./scripts/test-module.sh room_node --report-dir /tmp/reports
+./scripts/test-module.sh all                   # run every modular test
+```
+
+Available modules: `bme280`, `temt6000`, `dimmer`, `fan_relay`, `rfid`, `solenoid`, `room_node`, `door_node`, `websocket`, `all`
+
+### Scenario: "My BME280 and ESP32 arrived, but nothing else"
+
+```bash
+./scripts/test-module.sh bme280
+```
+
+Runs 33 tests covering:
+- All valid temperature / humidity / pressure ranges the BME280 can produce
+- Boundary values (min/max sensor specs)
+- Partial payloads (only temperature present)
+- Broker failure tolerance (ESP32 keeps running even if backend drops)
+- Room-node ingest endpoint with BME280-only data
+
+### Scenario: "I have the full room-node hardware"
+
+```bash
+./scripts/test-module.sh room_node
+```
+
+Runs tests for all four room-node components plus three-room scenarios.
+
+### Scenario: "I only have the door hardware"
+
+```bash
+./scripts/test-module.sh door_node
+```
+
+Covers grant/deny flows, fail-secure behaviour, demo sequences.
+
+### Recovering Test Reports
+
+Every test run produces structured reports in `backend/test-reports/`:
+
+```
+test-reports/
+  bme280_20260318T141532Z.json    ← machine-readable, all result details
+  bme280_20260318T141532Z.csv     ← spreadsheet-friendly summary
+```
+
+**JSON structure:**
+```json
+{
+  "session": {
+    "timestamp": "2026-03-18T14:15:32Z",
+    "module": "bme280",
+    "hardware_available": false
+  },
+  "results": [
+    {
+      "test_id": "test_bme280_env_indoor_comfort",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest – indoor_comfort",
+      "status": "passed",
+      "simulated_data": {"temperature": 22.5, "humidity": 55.0, "pressure": 1013.25},
+      "http_status": 202,
+      "response_body": {"status": "accepted", ...},
+      "duration_ms": 3.09
+    }
+  ],
+  "summary": {"total": 33, "passed": 33, "failed": 0, "error": 0}
+}
+```
+
+**CSV columns:** `test_id, component, scenario, status, http_status, duration_ms, error`
+
+The CI pipeline uploads all reports as a **GitHub Actions artifact** named `modular-test-reports` (retained 30 days).  Download it from the workflow run summary to review results from any CI run.
+
+### Combining Markers
+
+```bash
+# Test BME280 and TEMT6000 together (but not dimmer/fan)
+pytest -m "bme280 or temt6000"
+
+# Test everything except integration tests (which need live DB)
+pytest -m "not integration"
+
+# Test only backend-mocked tests (no hardware needed at all)
+pytest -m backend_only
+```
+
+---
 
 ## Test Types
 

@@ -328,3 +328,83 @@ def test_get_device_status_no_state():
     body = response.json()
     # When both cache and db return nothing, current_state is the empty cache dict
     assert body["current_state"] == {} or body["current_state"] is None
+
+
+# ---------------------------------------------------------------------------
+# Fan control
+# ---------------------------------------------------------------------------
+
+
+def test_set_fan_device_not_found():
+    with patch("app.api.lighting.db_client") as mock_db:
+        mock_db.get_device.return_value = None
+        response = client.post(
+            f"/api/lighting/fan/{DEVICE_ID}", json={"fan_on": True}
+        )
+    assert response.status_code == 404
+
+
+def test_set_fan_device_offline():
+    with (
+        patch("app.api.lighting.db_client") as mock_db,
+        patch("app.api.lighting.ws_manager") as mock_ws,
+    ):
+        mock_db.get_device.return_value = MOCK_DEVICE
+        mock_ws.is_device_connected.return_value = False
+        response = client.post(
+            f"/api/lighting/fan/{DEVICE_ID}", json={"fan_on": True}
+        )
+    assert response.status_code == 503
+
+
+def test_set_fan_command_fails():
+    with (
+        patch("app.api.lighting.db_client") as mock_db,
+        patch("app.api.lighting.ws_manager") as mock_ws,
+    ):
+        mock_db.get_device.return_value = MOCK_DEVICE
+        mock_ws.is_device_connected.return_value = True
+        mock_ws.send_fan_command = AsyncMock(return_value=False)
+        response = client.post(
+            f"/api/lighting/fan/{DEVICE_ID}", json={"fan_on": True}
+        )
+    assert response.status_code == 500
+
+
+def test_set_fan_success_on():
+    with (
+        patch("app.api.lighting.db_client") as mock_db,
+        patch("app.api.lighting.ws_manager") as mock_ws,
+    ):
+        mock_db.get_device.return_value = MOCK_DEVICE
+        mock_ws.is_device_connected.return_value = True
+        mock_ws.send_fan_command = AsyncMock(return_value=True)
+        mock_db.insert_fan_state.return_value = True
+
+        response = client.post(
+            f"/api/lighting/fan/{DEVICE_ID}", json={"fan_on": True}
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "success"
+    assert "ON" in body["message"]
+
+
+def test_set_fan_success_off():
+    with (
+        patch("app.api.lighting.db_client") as mock_db,
+        patch("app.api.lighting.ws_manager") as mock_ws,
+    ):
+        mock_db.get_device.return_value = MOCK_DEVICE
+        mock_ws.is_device_connected.return_value = True
+        mock_ws.send_fan_command = AsyncMock(return_value=True)
+        mock_db.insert_fan_state.return_value = True
+
+        response = client.post(
+            f"/api/lighting/fan/{DEVICE_ID}", json={"fan_on": False}
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "OFF" in body["message"]
