@@ -2,7 +2,7 @@ name: Backend CI
 
 on:
   push:
-    branches: [ main, web-changes-v1 ]
+    branches: [ main, web-changes-v1, copilot/refactor-smart-home-setup ]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-tests.yml'

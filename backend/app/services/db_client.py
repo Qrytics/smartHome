@@ -12,7 +12,10 @@ from typing import List, Optional
 from datetime import datetime
 
 from app.config import settings
-from app.models.lighting import Base, LightingSensorData, RelayState, DimmerState, Device
+from app.models.lighting import (
+    Base, LightingSensorData, RelayState, DimmerState, Device,
+    FanState, RFIDCard, AccessLog,
+)
 
 
 class DatabaseClient:
@@ -257,6 +260,175 @@ class DatabaseClient:
                 device.last_seen = datetime.utcnow()
                 return True
             return False
+
+    # -----------------------------------------------------------------------
+    # Fan State Operations
+    # -----------------------------------------------------------------------
+
+    def insert_fan_state(self, device_id: str, fan_on: bool) -> bool:
+        """
+        Record a fan on/off state change.
+
+        Args:
+            device_id: Device identifier
+            fan_on: Fan state (True = on)
+
+        Returns:
+            bool: True if successful
+        """
+        with self.get_session() as session:
+            fan_state = FanState(
+                time=datetime.utcnow(),
+                device_id=device_id,
+                fan_on=fan_on,
+            )
+            session.add(fan_state)
+        return True
+
+    # -----------------------------------------------------------------------
+    # RFID Card Operations
+    # -----------------------------------------------------------------------
+
+    def get_rfid_card(self, card_uid: str) -> Optional[dict]:
+        """
+        Look up an RFID card in the whitelist.
+
+        Args:
+            card_uid: Card UID string
+
+        Returns:
+            dict with card data, or None if not found
+        """
+        with self.get_session() as session:
+            card = session.query(RFIDCard).filter(
+                RFIDCard.card_uid == card_uid
+            ).first()
+            if card:
+                return {
+                    'card_uid': card.card_uid,
+                    'user_id': card.user_id,
+                    'label': card.label,
+                    'active': card.active,
+                }
+            return None
+
+    def upsert_rfid_card(
+        self,
+        card_uid: str,
+        user_id: str,
+        label: Optional[str] = None,
+        active: bool = True,
+    ) -> bool:
+        """
+        Insert or update an RFID card in the whitelist.
+
+        Args:
+            card_uid: Card UID
+            user_id: User identifier
+            label: Optional descriptive label
+            active: Whether the card is active
+
+        Returns:
+            bool: True if successful
+        """
+        with self.get_session() as session:
+            card = session.query(RFIDCard).filter(
+                RFIDCard.card_uid == card_uid
+            ).first()
+            if card:
+                card.user_id = user_id
+                card.label = label
+                card.active = active
+            else:
+                card = RFIDCard(
+                    card_uid=card_uid,
+                    user_id=user_id,
+                    label=label,
+                    active=active,
+                )
+                session.add(card)
+        return True
+
+    def list_rfid_cards(self) -> List[dict]:
+        """
+        Return all RFID cards in the whitelist.
+
+        Returns:
+            List[dict]: List of card records
+        """
+        with self.get_session() as session:
+            cards = session.query(RFIDCard).all()
+            return [
+                {
+                    'card_uid': c.card_uid,
+                    'user_id': c.user_id,
+                    'label': c.label,
+                    'active': c.active,
+                }
+                for c in cards
+            ]
+
+    # -----------------------------------------------------------------------
+    # Access Log Operations
+    # -----------------------------------------------------------------------
+
+    def log_access_attempt(
+        self,
+        card_uid: str,
+        device_id: str,
+        granted: bool,
+        reason: str,
+        timestamp: str,
+    ) -> bool:
+        """
+        Write an access attempt to the audit log.
+
+        Args:
+            card_uid: Scanned card UID
+            device_id: Door control device ID
+            granted: Whether access was granted
+            reason: Human-readable reason
+            timestamp: ISO 8601 timestamp string
+
+        Returns:
+            bool: True if successful
+        """
+        with self.get_session() as session:
+            log = AccessLog(
+                card_uid=card_uid,
+                device_id=device_id,
+                granted=granted,
+                reason=reason,
+                timestamp=datetime.fromisoformat(timestamp.replace('Z', '+00:00')),
+            )
+            session.add(log)
+        return True
+
+    def get_access_logs(self, limit: int = 50) -> List[dict]:
+        """
+        Return the most recent access log entries.
+
+        Args:
+            limit: Maximum number of records to return
+
+        Returns:
+            List[dict]: Access log entries ordered by timestamp descending
+        """
+        with self.get_session() as session:
+            logs = session.query(AccessLog).order_by(
+                AccessLog.timestamp.desc()
+            ).limit(limit).all()
+            return [
+                {
+                    'log_id': log.log_id,
+                    'card_uid': log.card_uid,
+                    'device_id': log.device_id,
+                    'granted': log.granted,
+                    'reason': log.reason,
+                    'timestamp': log.timestamp.isoformat() if log.timestamp else None,
+                }
+                for log in logs
+            ]
 
 
 # Global database client instance

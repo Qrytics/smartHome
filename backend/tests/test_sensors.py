@@ -255,3 +255,84 @@ def test_get_history_db_error():
         response = client.get(f"/api/sensors/history/{DEVICE_ID}")
 
     assert response.status_code == 500
+
+
+# ---------------------------------------------------------------------------
+# Room-node ingest
+# ---------------------------------------------------------------------------
+
+ROOM_NODE_PAYLOAD = {
+    "device_id": "room-node-01",
+    "room": "Living Room",
+    "timestamp": TIMESTAMP,
+    "temperature": 22.5,
+    "humidity": 55.0,
+    "pressure": 1013.25,
+    "light_level": 45.3,
+    "light_lux": 453.0,
+    "dimmer_brightness": 65,
+    "daylight_harvest_mode": True,
+    "fan_on": False,
+    "relays": [False, False, False, False],
+}
+
+
+def test_ingest_room_node_success():
+    """Room-node ingest returns 202 when all services succeed."""
+    with (
+        patch("app.api.sensors.broker") as mock_broker,
+        patch("app.api.sensors.ws_manager") as mock_ws,
+        patch("app.api.sensors.db_client") as mock_db,
+    ):
+        from unittest.mock import AsyncMock
+        mock_broker.publish = AsyncMock(return_value=None)
+        mock_ws.broadcast_to_clients = AsyncMock(return_value=None)
+        mock_db.update_device_status.return_value = True
+
+        response = client.post("/api/sensors/ingest/room-node", json=ROOM_NODE_PAYLOAD)
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "accepted"
+    assert body["device_id"] == "room-node-01"
+
+
+def test_ingest_room_node_broker_failure_still_returns_202():
+    """Room-node ingest still returns 202 when broker fails."""
+    with (
+        patch("app.api.sensors.broker") as mock_broker,
+        patch("app.api.sensors.ws_manager") as mock_ws,
+        patch("app.api.sensors.db_client") as mock_db,
+    ):
+        from unittest.mock import AsyncMock
+        mock_broker.publish = AsyncMock(side_effect=RuntimeError("broker down"))
+        mock_ws.broadcast_to_clients = AsyncMock(return_value=None)
+        mock_db.update_device_status.return_value = True
+
+        response = client.post("/api/sensors/ingest/room-node", json=ROOM_NODE_PAYLOAD)
+
+    assert response.status_code == 202
+
+
+def test_ingest_room_node_missing_required_fields():
+    """Missing required fields returns 422."""
+    response = client.post("/api/sensors/ingest/room-node", json={})
+    assert response.status_code == 422
+
+
+def test_ingest_room_node_minimal_payload():
+    """Only device_id and timestamp are required; optional fields may be absent."""
+    minimal = {"device_id": "room-node-02", "timestamp": TIMESTAMP}
+    with (
+        patch("app.api.sensors.broker") as mock_broker,
+        patch("app.api.sensors.ws_manager") as mock_ws,
+        patch("app.api.sensors.db_client") as mock_db,
+    ):
+        from unittest.mock import AsyncMock
+        mock_broker.publish = AsyncMock(return_value=None)
+        mock_ws.broadcast_to_clients = AsyncMock(return_value=None)
+        mock_db.update_device_status.return_value = True
+
+        response = client.post("/api/sensors/ingest/room-node", json=minimal)
+
+    assert response.status_code == 202

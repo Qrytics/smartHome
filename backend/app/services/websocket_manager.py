@@ -232,6 +232,23 @@ class ConnectionManager:
         }
         return await self.send_to_device(device_id, command)
 
+    async def send_fan_command(self, device_id: str, fan_on: bool) -> bool:
+        """
+        Send fan on/off command to a room-node device.
+
+        Args:
+            device_id: Device identifier
+            fan_on: True = turn fan on, False = turn fan off
+
+        Returns:
+            bool: True if sent successfully
+        """
+        command = {
+            "command": "fan",
+            "value": 1 if fan_on else 0,
+        }
+        return await self.send_to_device(device_id, command)
+
 
 # Global connection manager instance
 ws_manager = ConnectionManager()

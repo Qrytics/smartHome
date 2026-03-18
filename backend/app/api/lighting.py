@@ -1,10 +1,11 @@
 """
-Lighting Control Endpoints
+Lighting and Room Control Endpoints
 
-Handles control commands for lighting devices including:
+Handles control commands for room-node and lighting devices including:
 - Dimmer brightness adjustment
 - Relay switching
 - Daylight harvesting mode toggle
+- Fan on/off control
 """
 
 from fastapi import APIRouter, HTTPException, status
@@ -25,6 +26,11 @@ class RelayControlRequest(BaseModel):
     """Request to control relay state"""
     channel: int = Field(..., ge=1, le=4, description="Relay channel (1-4)")
     state: bool = Field(..., description="Relay state (true=ON, false=OFF)")
+
+
+class FanControlRequest(BaseModel):
+    """Request to control fan state"""
+    fan_on: bool = Field(..., description="Fan state (true=ON, false=OFF)")
 
 
 class DaylightHarvestRequest(BaseModel):
@@ -236,3 +242,51 @@ async def get_device_status(device_id: str) -> Dict:
         "current_state": device_state,
     }
 
+
+
+@router.post("/fan/{device_id}", response_model=ControlResponse)
+async def set_fan_state(device_id: str, request: FanControlRequest) -> Dict:
+    """
+    Control fan state for a room-node device.
+
+    Sends a fan on/off command to the room-node ESP32 via WebSocket and
+    records the state change in the database.
+
+    Args:
+        device_id: Target room-node device identifier
+        request: Fan control request with fan_on flag
+
+    Returns:
+        ControlResponse: Command acknowledgment
+
+    Raises:
+        HTTPException: 404 if device not found, 503 if device offline
+    """
+    device = db_client.get_device(device_id)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device {device_id} not found",
+        )
+
+    if not ws_manager.is_device_connected(device_id):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Device {device_id} is offline",
+        )
+
+    success = await ws_manager.send_fan_command(device_id, request.fan_on)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send fan command to device {device_id}",
+        )
+
+    db_client.insert_fan_state(device_id, request.fan_on)
+
+    state_str = "ON" if request.fan_on else "OFF"
+    return {
+        "status": "success",
+        "message": f"Fan set to {state_str}",
+        "device_id": device_id,
+    }

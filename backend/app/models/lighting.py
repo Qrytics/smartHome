@@ -2,8 +2,8 @@
 SQLAlchemy models for lighting control system
 """
 
-from sqlalchemy import Column, String, Float, Integer, Boolean, CheckConstraint, ForeignKey, TIMESTAMP
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Float, Integer, Boolean, CheckConstraint, ForeignKey, TIMESTAMP, Text
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -87,3 +87,55 @@ class Device(Base):
 
     def __repr__(self):
         return f"<Device(device_id='{self.device_id}', name='{self.name}', status='{self.status}')>"
+
+
+class FanState(Base):
+    """
+    Fan state history table
+    Tracks on/off state of the fan relay on each room-node ESP32.
+    """
+    __tablename__ = 'fan_state'
+
+    time = Column(TIMESTAMP(timezone=True), primary_key=True, nullable=False)
+    device_id = Column(String(50), ForeignKey('devices.device_id', ondelete='CASCADE'),
+                       primary_key=True, nullable=False)
+    fan_on = Column(Boolean, nullable=False)
+
+    def __repr__(self):
+        return f"<FanState(device_id='{self.device_id}', fan_on={self.fan_on})>"
+
+
+class RFIDCard(Base):
+    """
+    RFID card whitelist table
+    Stores authorized card UIDs for the door-control ESP32.
+    """
+    __tablename__ = 'rfid_cards'
+
+    card_uid = Column(String(30), primary_key=True)
+    user_id = Column(String(50), nullable=False)
+    label = Column(String(100))
+    active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<RFIDCard(card_uid='{self.card_uid}', user_id='{self.user_id}', active={self.active})>"
+
+
+class AccessLog(Base):
+    """
+    Access attempt log table
+    Records every RFID scan result for auditing.
+    """
+    __tablename__ = 'access_log'
+
+    log_id = Column(Integer, primary_key=True, autoincrement=True)
+    card_uid = Column(String(30), nullable=False)
+    device_id = Column(String(50), nullable=False)
+    granted = Column(Boolean, nullable=False)
+    reason = Column(Text)
+    timestamp = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
+
+    def __repr__(self):
+        return f"<AccessLog(log_id={self.log_id}, card_uid='{self.card_uid}', granted={self.granted})>"

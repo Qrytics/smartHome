@@ -173,7 +173,63 @@ docker compose ps
 
 ### Firmware Setup
 
-#### Door Control ESP32
+> See [`docs/WIRING.md`](WIRING.md) for detailed pin connections for all four ESP32s.
+
+#### Room Node ESP32 (×3 – one per room)
+
+Each room uses the **same firmware** from `firmware/room-node/`.
+The only difference between rooms is the `DEVICE_ROOM_ID` value in `src/config.h`.
+
+1. **Navigate to project:**
+   ```bash
+   cd firmware/room-node
+   ```
+
+2. **Configure secrets:**
+   ```bash
+   cp include/secrets.h.example include/secrets.h
+   # Edit secrets.h – set WIFI_SSID, WIFI_PASSWORD, API_HOST
+   ```
+
+3. **Set the room ID** – open `src/config.h` and set:
+   ```cpp
+   // Room 1
+   #define DEVICE_ROOM_ID    "room-node-01"
+   #define DEVICE_ROOM_LABEL "Living Room"
+
+   // Room 2
+   // #define DEVICE_ROOM_ID    "room-node-02"
+   // #define DEVICE_ROOM_LABEL "Bedroom"
+
+   // Room 3
+   // #define DEVICE_ROOM_ID    "room-node-03"
+   // #define DEVICE_ROOM_LABEL "Kitchen"
+   ```
+
+4. **Verify hardware connections:**
+   - **BME280:** VCC→3.3V, GND→GND, SDA→GPIO21, SCL→GPIO22 (4.7kΩ pull-ups)
+   - **TEMT6000:** VCC→3.3V, GND→GND, SIG→GPIO34 (10kΩ to GND)
+   - **PWM Dimmer:** IN→GPIO25, VCC→5V, GND→GND
+   - **Fan Relay:** IN→GPIO26, VCC→5V, GND→GND
+
+5. **Build and upload:**
+   ```bash
+   pio run --target upload
+   ```
+
+6. **Monitor serial output:**
+   ```bash
+   pio device monitor
+   ```
+   Expected output:
+   ```
+   [Living Room] Temp: 22.4 °C  Hum: 54 %  Press: 1013 hPa
+     Light: 41 % (413 lux)  Dimmer: 72%  Fan: OFF
+   ```
+
+7. **Repeat steps 3–6** for Room 2 and Room 3, changing the room ID each time.
+
+#### Door Control ESP32 (×1)
 
 1. **Navigate to project:**
    ```bash
@@ -186,71 +242,27 @@ docker compose ps
    # Edit secrets.h with your WiFi credentials and API endpoint
    ```
 
-3. **Build firmware:**
+3. **Verify hardware connections:**
+   - **MFRC522 RFID Reader:** VCC→3.3V, GND→GND, RST→GPIO22, SDA→GPIO5, MOSI→GPIO11, MISO→GPIO13, SCK→GPIO12
+   - **Solenoid Relay:** IN→GPIO4, VCC→5V, GND→GND; solenoid on NO+COM
+   - **Status LED:** GPIO2 via 330Ω resistor
+
+4. **Build firmware:**
    ```bash
    pio run
    ```
 
-4. **Upload to ESP32 (with device connected):**
+5. **Upload to ESP32 (with device connected):**
    ```bash
    pio run --target upload
    ```
 
-5. **Monitor serial output:**
+6. **Monitor serial output:**
    ```bash
    pio device monitor
    ```
 
-#### Sensor Monitor ESP32
-
-1. **Navigate to project:**
-   ```bash
-   cd firmware/sensor-monitor
-   ```
-
-2. **Configure secrets:**
-   ```bash
-   cp include/secrets.h.example include/secrets.h
-   ```
-
-3. **Build and upload:**
-   ```bash
-   pio run --target upload
-   pio device monitor
-   ```
-
-#### Lighting Control ESP32
-
-1. **Navigate to project:**
-   ```bash
-   cd firmware/lighting-control
-   ```
-
-2. **Configure secrets:**
-   ```bash
-   cp include/secrets.h.example include/secrets.h
-   # Edit include/secrets.h with your WiFi credentials and backend IP
-   ```
-
-3. **Verify hardware connections:**
-   - **TEMT6000 Light Sensor:** VCC→3.3V, GND→GND, SIG→GPIO 34
-   - **PWM Dimmer Module:** VCC→5V, GND→GND, SIG→GPIO 25, LED power supply→12V
-   - **4-Channel Relay Module:** VCC→5V, GND→GND, IN1→GPIO 26, IN2→GPIO 27, IN3→GPIO 14, IN4→GPIO 12
-
-4. **Build and upload:**
-   ```bash
-   pio run --target upload
-   pio device monitor
-   ```
-
-5. **Test functionality:**
-   - Observe ambient light readings in serial monitor (updates every 500ms)
-   - Verify PWM dimmer responds to daylight harvesting (brightness adjusts based on ambient light)
-   - Test relay control via WebSocket commands from backend
-
-6. **Calibrate light sensor (optional):**
-   - Adjust `LIGHT_MAX_LUX` in `src/config.h` to match your environment
-   - Typical values: office (300-500 lux), living room (50-150 lux)
+7. **Register RFID cards** with the backend (see [DEMO.md](DEMO.md#step-5--register-rfid-cards)).
 
 ### Infrastructure Setup
 
@@ -267,7 +279,7 @@ docker compose ps
    # Should return: PONG
    
    # Check TimescaleDB
-   docker compose exec timescaledb psql -U smartho me -c "SELECT version();"
+   docker compose exec timescaledb psql -U smarthome -c "SELECT version();"
    ```
 
 3. **View logs:**

@@ -192,6 +192,58 @@ SELECT add_continuous_aggregate_policy('lighting_sensor_data_hourly',
     schedule_interval => INTERVAL '1 hour',
     if_not_exists => TRUE);
 
+-- ============================================================================
+-- Fan State Table (room-node ESP32s)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS fan_state (
+    time TIMESTAMPTZ NOT NULL,
+    device_id VARCHAR(50) NOT NULL,
+    fan_on BOOLEAN NOT NULL,
+    FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+SELECT create_hypertable('fan_state', 'time', if_not_exists => TRUE);
+
+CREATE INDEX IF NOT EXISTS idx_fan_state_device_time
+    ON fan_state (device_id, time DESC);
+
+SELECT add_retention_policy('fan_state', INTERVAL '90 days', if_not_exists => TRUE);
+
+-- ============================================================================
+-- RFID Card Whitelist (door-control ESP32)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS rfid_cards (
+    card_uid   VARCHAR(30) PRIMARY KEY,
+    user_id    VARCHAR(50) NOT NULL,
+    label      VARCHAR(100),
+    active     BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rfid_cards_user
+    ON rfid_cards (user_id);
+
+-- ============================================================================
+-- Access Log (door-control audit trail)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS access_log (
+    log_id    SERIAL PRIMARY KEY,
+    card_uid  VARCHAR(30) NOT NULL,
+    device_id VARCHAR(50) NOT NULL,
+    granted   BOOLEAN NOT NULL,
+    reason    TEXT,
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_access_log_timestamp
+    ON access_log (timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_access_log_device_time
+    ON access_log (device_id, timestamp DESC);
+
 -- Grant permissions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO smart_home_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO smart_home_user;
