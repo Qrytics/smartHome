@@ -1,0 +1,284 @@
+{
+  "session": {
+    "timestamp": "2026-03-18T14:14:16.811940+00:00",
+    "module": "dimmer",
+    "hardware_available": false,
+    "report_generated": "2026-03-18T14:14:16.861354+00:00"
+  },
+  "results": [
+    {
+      "test_id": "test_dimmer_brightness_0",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 0%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 0
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 0%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 3.62
+    },
+    {
+      "test_id": "test_dimmer_brightness_10",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 10%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 10
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 10%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.2
+    },
+    {
+      "test_id": "test_dimmer_brightness_20",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 20%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 20
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 20%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.02
+    },
+    {
+      "test_id": "test_dimmer_brightness_30",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 30%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 30
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 30%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.61
+    },
+    {
+      "test_id": "test_dimmer_brightness_40",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 40%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 40
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 40%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 1.9
+    },
+    {
+      "test_id": "test_dimmer_brightness_50",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 50%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 50
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 50%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 1.92
+    },
+    {
+      "test_id": "test_dimmer_brightness_60",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 60%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 60
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 60%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.09
+    },
+    {
+      "test_id": "test_dimmer_brightness_70",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 70%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 70
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 70%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.34
+    },
+    {
+      "test_id": "test_dimmer_brightness_80",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 80%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 80
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 80%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.01
+    },
+    {
+      "test_id": "test_dimmer_brightness_90",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 90%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 90
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 90%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.09
+    },
+    {
+      "test_id": "test_dimmer_brightness_100",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 100%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 100
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 100%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.18
+    },
+    {
+      "test_id": "test_dimmer_above_100",
+      "component": "dimmer",
+      "scenario": "PWM dimmer brightness 101 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_negative",
+      "component": "dimmer",
+      "scenario": "PWM dimmer brightness \u22121 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_device_not_found",
+      "component": "dimmer",
+      "scenario": "PWM dimmer unknown device \u2192 404",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 404,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_offline",
+      "component": "dimmer",
+      "scenario": "PWM dimmer offline device \u2192 503",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 503,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_command_failure",
+      "component": "dimmer",
+      "scenario": "PWM dimmer WS send fails \u2192 500",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 500,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_dh_toggle_enabled",
+      "component": "dimmer",
+      "scenario": "Daylight harvest toggle \u2192 ENABLED",
+      "status": "passed",
+      "simulated_data": {
+        "daylight_harvest_enabled": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.92
+    },
+    {
+      "test_id": "test_dimmer_dh_toggle_disabled",
+      "component": "dimmer",
+      "scenario": "Daylight harvest toggle \u2192 DISABLED",
+      "status": "passed",
+      "simulated_data": {
+        "daylight_harvest_enabled": false
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.6
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "error": 0
+  }
+}

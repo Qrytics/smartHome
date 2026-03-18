@@ -1,0 +1,661 @@
+{
+  "session": {
+    "timestamp": "2026-03-18T14:14:13.971608+00:00",
+    "module": "bme280_dimmer_fan_relay_room_node_temt6000",
+    "hardware_available": false,
+    "report_generated": "2026-03-18T14:14:14.062006+00:00"
+  },
+  "results": [
+    {
+      "test_id": "test_bme280_env_indoor_comfort",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 indoor_comfort",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 3.08
+    },
+    {
+      "test_id": "test_bme280_env_cold_room",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 cold_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 15.0,
+        "humidity": 40.0,
+        "pressure": 1010.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.86
+    },
+    {
+      "test_id": "test_bme280_env_warm_room",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 warm_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 28.0,
+        "humidity": 70.0,
+        "pressure": 1015.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.55
+    },
+    {
+      "test_id": "test_bme280_env_min_temperature",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 min_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": -40.0,
+        "humidity": 0.0,
+        "pressure": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.68
+    },
+    {
+      "test_id": "test_bme280_env_max_temperature",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 max_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 85.0,
+        "humidity": 100.0,
+        "pressure": 1100.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.48
+    },
+    {
+      "test_id": "test_bme280_env_sea_level_pressure",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 sea_level_pressure",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.66
+    },
+    {
+      "test_id": "test_bme280_env_high_altitude",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 high_altitude",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 10.0,
+        "humidity": 30.0,
+        "pressure": 700.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.53
+    },
+    {
+      "test_id": "test_bme280_partial_temperature_only",
+      "component": "bme280",
+      "scenario": "BME280 partial payload \u2013 temperature only",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.17
+    },
+    {
+      "test_id": "test_bme280_missing_device_id",
+      "component": "bme280",
+      "scenario": "BME280 missing device_id \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_bme280_broker_failure_tolerant",
+      "component": "bme280",
+      "scenario": "BME280 broker failure \u2013 still 202",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.67
+    },
+    {
+      "test_id": "test_bme280_room_node_indoor_comfort",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 indoor_comfort",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.16
+    },
+    {
+      "test_id": "test_bme280_room_node_cold_room",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 cold_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 15.0,
+        "humidity": 40.0,
+        "pressure": 1010.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.16
+    },
+    {
+      "test_id": "test_bme280_room_node_warm_room",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 warm_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 28.0,
+        "humidity": 70.0,
+        "pressure": 1015.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_bme280_room_node_min_temperature",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 min_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": -40.0,
+        "humidity": 0.0,
+        "pressure": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.1
+    },
+    {
+      "test_id": "test_bme280_room_node_max_temperature",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 max_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 85.0,
+        "humidity": 100.0,
+        "pressure": 1100.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.1
+    },
+    {
+      "test_id": "test_bme280_room_node_sea_level_pressure",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 sea_level_pressure",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.06
+    },
+    {
+      "test_id": "test_bme280_room_node_high_altitude",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 high_altitude",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 10.0,
+        "humidity": 30.0,
+        "pressure": 700.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.06
+    },
+    {
+      "test_id": "test_bme280_response_fields",
+      "component": "bme280",
+      "scenario": "BME280 202 response has correct fields",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-01",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "room": "Living Room",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25,
+        "light_level": 45.3,
+        "light_lux": 453.0,
+        "dimmer_brightness": 65,
+        "daylight_harvest_mode": true,
+        "fan_on": false,
+        "relays": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-02",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "room": "Bedroom",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1012.0,
+        "light_level": 10.0,
+        "light_lux": 100.0,
+        "dimmer_brightness": 80,
+        "daylight_harvest_mode": true,
+        "fan_on": true,
+        "relays": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.32
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-03",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-03",
+        "room": "Kitchen",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 25.0,
+        "humidity": 60.0,
+        "pressure": 1014.0,
+        "light_level": 70.0,
+        "light_lux": 700.0,
+        "dimmer_brightness": 30,
+        "daylight_harvest_mode": false,
+        "fan_on": false,
+        "relays": [
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_room_node_partial_bme280_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 bme280_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.89
+    },
+    {
+      "test_id": "test_room_node_partial_temt6000_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 temt6000_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "light_level": 45.0,
+        "light_lux": 450.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.99
+    },
+    {
+      "test_id": "test_room_node_partial_fan_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 fan_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "fan_on": true
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.3
+    },
+    {
+      "test_id": "test_room_node_partial_dimmer_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 dimmer_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "dimmer_brightness": 75,
+        "daylight_harvest_mode": true
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.99
+    },
+    {
+      "test_id": "test_room_node_partial_bme280_and_light",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 bme280_and_light",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "light_level": 30.0,
+        "light_lux": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.01
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-01",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.93
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-02",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.88
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-03",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.9
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-01",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.91
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-02",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.92
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-03",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.93
+    },
+    {
+      "test_id": "test_room_node_device_status_update",
+      "component": "room_node",
+      "scenario": "Device status set to online on ingest",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    }
+  ],
+  "summary": {
+    "total": 33,
+    "passed": 33,
+    "failed": 0,
+    "error": 0
+  }
+}

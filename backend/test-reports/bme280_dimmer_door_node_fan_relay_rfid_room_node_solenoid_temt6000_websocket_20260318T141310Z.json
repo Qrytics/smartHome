@@ -1,0 +1,1697 @@
+{
+  "session": {
+    "timestamp": "2026-03-18T14:13:10.036965+00:00",
+    "module": "bme280_dimmer_door_node_fan_relay_rfid_room_node_solenoid_temt6000_websocket",
+    "hardware_available": false,
+    "report_generated": "2026-03-18T14:13:10.470985+00:00"
+  },
+  "results": [
+    {
+      "test_id": "test_bme280_env_indoor_comfort",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 indoor_comfort",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 3.34
+    },
+    {
+      "test_id": "test_bme280_env_cold_room",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 cold_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 15.0,
+        "humidity": 40.0,
+        "pressure": 1010.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.86
+    },
+    {
+      "test_id": "test_bme280_env_warm_room",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 warm_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 28.0,
+        "humidity": 70.0,
+        "pressure": 1015.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.75
+    },
+    {
+      "test_id": "test_bme280_env_min_temperature",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 min_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": -40.0,
+        "humidity": 0.0,
+        "pressure": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.61
+    },
+    {
+      "test_id": "test_bme280_env_max_temperature",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 max_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 85.0,
+        "humidity": 100.0,
+        "pressure": 1100.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.69
+    },
+    {
+      "test_id": "test_bme280_env_sea_level_pressure",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 sea_level_pressure",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.76
+    },
+    {
+      "test_id": "test_bme280_env_high_altitude",
+      "component": "bme280",
+      "scenario": "BME280 environmental ingest \u2013 high_altitude",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 10.0,
+        "humidity": 30.0,
+        "pressure": 700.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.77
+    },
+    {
+      "test_id": "test_bme280_partial_temperature_only",
+      "component": "bme280",
+      "scenario": "BME280 partial payload \u2013 temperature only",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.72
+    },
+    {
+      "test_id": "test_bme280_missing_device_id",
+      "component": "bme280",
+      "scenario": "BME280 missing device_id \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_bme280_broker_failure_tolerant",
+      "component": "bme280",
+      "scenario": "BME280 broker failure \u2013 still 202",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 1.7
+    },
+    {
+      "test_id": "test_bme280_room_node_indoor_comfort",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 indoor_comfort",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.27
+    },
+    {
+      "test_id": "test_bme280_room_node_cold_room",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 cold_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 15.0,
+        "humidity": 40.0,
+        "pressure": 1010.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.25
+    },
+    {
+      "test_id": "test_bme280_room_node_warm_room",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 warm_room",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 28.0,
+        "humidity": 70.0,
+        "pressure": 1015.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.21
+    },
+    {
+      "test_id": "test_bme280_room_node_min_temperature",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 min_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": -40.0,
+        "humidity": 0.0,
+        "pressure": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.21
+    },
+    {
+      "test_id": "test_bme280_room_node_max_temperature",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 max_temperature",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 85.0,
+        "humidity": 100.0,
+        "pressure": 1100.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.15
+    },
+    {
+      "test_id": "test_bme280_room_node_sea_level_pressure",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 sea_level_pressure",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.85
+    },
+    {
+      "test_id": "test_bme280_room_node_high_altitude",
+      "component": "bme280",
+      "scenario": "BME280 via room-node endpoint \u2013 high_altitude",
+      "status": "passed",
+      "simulated_data": {
+        "temperature": 10.0,
+        "humidity": 30.0,
+        "pressure": 700.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.07
+    },
+    {
+      "test_id": "test_bme280_response_fields",
+      "component": "bme280",
+      "scenario": "BME280 202 response has correct fields",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Environmental sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_brightness_0",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 0%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 0
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 0%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.04
+    },
+    {
+      "test_id": "test_dimmer_brightness_10",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 10%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 10
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 10%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 1.99
+    },
+    {
+      "test_id": "test_dimmer_brightness_20",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 20%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 20
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 20%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 1.96
+    },
+    {
+      "test_id": "test_dimmer_brightness_30",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 30%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 30
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 30%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.15
+    },
+    {
+      "test_id": "test_dimmer_brightness_40",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 40%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 40
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 40%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.07
+    },
+    {
+      "test_id": "test_dimmer_brightness_50",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 50%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 50
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 50%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.07
+    },
+    {
+      "test_id": "test_dimmer_brightness_60",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 60%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 60
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 60%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_dimmer_brightness_70",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 70%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 70
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 70%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.03
+    },
+    {
+      "test_id": "test_dimmer_brightness_80",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 80%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 80
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 80%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.03
+    },
+    {
+      "test_id": "test_dimmer_brightness_90",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 90%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 90
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 90%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.06
+    },
+    {
+      "test_id": "test_dimmer_brightness_100",
+      "component": "dimmer",
+      "scenario": "PWM dimmer set to 100%",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 100
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Dimmer set to 100%",
+        "device_id": "room-node-01"
+      },
+      "error": null,
+      "duration_ms": 2.76
+    },
+    {
+      "test_id": "test_dimmer_above_100",
+      "component": "dimmer",
+      "scenario": "PWM dimmer brightness 101 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_negative",
+      "component": "dimmer",
+      "scenario": "PWM dimmer brightness \u22121 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_device_not_found",
+      "component": "dimmer",
+      "scenario": "PWM dimmer unknown device \u2192 404",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 404,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_offline",
+      "component": "dimmer",
+      "scenario": "PWM dimmer offline device \u2192 503",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 503,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_command_failure",
+      "component": "dimmer",
+      "scenario": "PWM dimmer WS send fails \u2192 500",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 500,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_dimmer_dh_toggle_enabled",
+      "component": "dimmer",
+      "scenario": "Daylight harvest toggle \u2192 ENABLED",
+      "status": "passed",
+      "simulated_data": {
+        "daylight_harvest_enabled": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.92
+    },
+    {
+      "test_id": "test_dimmer_dh_toggle_disabled",
+      "component": "dimmer",
+      "scenario": "Daylight harvest toggle \u2192 DISABLED",
+      "status": "passed",
+      "simulated_data": {
+        "daylight_harvest_enabled": false
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.87
+    },
+    {
+      "test_id": "test_door_node_grant_flow",
+      "component": "door_node",
+      "scenario": "Door grant: Alice's card \u2192 solenoid unlocks",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.136981+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.56
+    },
+    {
+      "test_id": "test_door_node_deny_unknown",
+      "component": "door_node",
+      "scenario": "Door deny: unknown card \u2192 solenoid locked",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "FF:FF:FF:FF:FF:FF"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "card not registered",
+        "card_uid": "FF:FF:FF:FF:FF:FF",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.139326+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.67
+    },
+    {
+      "test_id": "test_door_node_deny_inactive",
+      "component": "door_node",
+      "scenario": "Door deny: deactivated card \u2192 solenoid locked",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:00:DE:AD:BE:EF"
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.52
+    },
+    {
+      "test_id": "test_door_node_fail_secure",
+      "component": "door_node",
+      "scenario": "Fail-secure: DB error \u2192 solenoid stays locked",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "injected_error": "DB connection reset"
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.67
+    },
+    {
+      "test_id": "test_door_node_demo_04A32BF21C80",
+      "component": "door_node",
+      "scenario": "Demo sequence: Alice enters",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "expected_granted": true
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.146302+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.58
+    },
+    {
+      "test_id": "test_door_node_demo_04B73CF32D91",
+      "component": "door_node",
+      "scenario": "Demo sequence: Bob enters",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:B7:3C:F3:2D:91",
+        "expected_granted": true
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:B7:3C:F3:2D:91",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.148847+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.67
+    },
+    {
+      "test_id": "test_door_node_demo_FFFFFFFFFFFF",
+      "component": "door_node",
+      "scenario": "Demo sequence: Intruder denied",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "FF:FF:FF:FF:FF:FF",
+        "expected_granted": false
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "card not registered",
+        "card_uid": "FF:FF:FF:FF:FF:FF",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.151184+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.53
+    },
+    {
+      "test_id": "test_door_node_demo_0400DEADBEEF",
+      "component": "door_node",
+      "scenario": "Demo sequence: Old card denied",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:00:DE:AD:BE:EF",
+        "expected_granted": false
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "card deactivated",
+        "card_uid": "04:00:DE:AD:BE:EF",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.153659+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.61
+    },
+    {
+      "test_id": "test_door_node_demo_04A32BF21C80",
+      "component": "door_node",
+      "scenario": "Demo sequence: Alice re-enters",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "expected_granted": true
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.155986+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.54
+    },
+    {
+      "test_id": "test_door_node_response_fields",
+      "component": "door_node",
+      "scenario": "Response contains all fields needed by ESP32 firmware",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.158321+00:00"
+      },
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_fan_relay_on",
+      "component": "fan_relay",
+      "scenario": "Fan relay \u2192 ON",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Fan set to ON",
+        "device_id": "room-node-03"
+      },
+      "error": null,
+      "duration_ms": 1.99
+    },
+    {
+      "test_id": "test_fan_relay_off",
+      "component": "fan_relay",
+      "scenario": "Fan relay \u2192 OFF",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": false
+      },
+      "http_status": 200,
+      "response_body": {
+        "status": "success",
+        "message": "Fan set to OFF",
+        "device_id": "room-node-03"
+      },
+      "error": null,
+      "duration_ms": 2.62
+    },
+    {
+      "test_id": "test_fan_relay_device_not_found",
+      "component": "fan_relay",
+      "scenario": "Fan relay unknown device \u2192 404",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 404,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_fan_relay_offline",
+      "component": "fan_relay",
+      "scenario": "Fan relay offline device \u2192 503",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 503,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_fan_relay_command_failure",
+      "component": "fan_relay",
+      "scenario": "Fan relay WS send fails \u2192 500",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 500,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_fan_relay_in_room_node_payload_on",
+      "component": "fan_relay",
+      "scenario": "Fan state in room-node payload \u2013 fan_on=True",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.15
+    },
+    {
+      "test_id": "test_fan_relay_in_room_node_payload_off",
+      "component": "fan_relay",
+      "scenario": "Fan state in room-node payload \u2013 fan_on=False",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": false
+      },
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_rfid_authorized_card",
+      "component": "rfid",
+      "scenario": "RFID authorized card \u2192 granted=True",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.179851+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.57
+    },
+    {
+      "test_id": "test_rfid_unknown_card",
+      "component": "rfid",
+      "scenario": "RFID unknown card \u2192 granted=False",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "FF:FF:FF:FF:FF:FF"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "card not registered",
+        "card_uid": "FF:FF:FF:FF:FF:FF",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.182185+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.66
+    },
+    {
+      "test_id": "test_rfid_deactivated_card",
+      "component": "rfid",
+      "scenario": "RFID deactivated card \u2192 granted=False",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:DE:AD:BE:EF:00"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "card deactivated",
+        "card_uid": "04:DE:AD:BE:EF:00",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.184420+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.5
+    },
+    {
+      "test_id": "test_rfid_fail_secure_db_error",
+      "component": "rfid",
+      "scenario": "Fail-secure: DB error \u2192 granted=False (solenoid locked)",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "error": "DB unreachable"
+      },
+      "http_status": 200,
+      "response_body": {
+        "granted": false,
+        "reason": "backend error \u2013 access denied",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.186782+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.66
+    },
+    {
+      "test_id": "test_rfid_log_failure_resilient",
+      "component": "rfid",
+      "scenario": "RFID log failure \u2192 access decision unchanged",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 200,
+      "response_body": {
+        "granted": true,
+        "reason": "authorized",
+        "card_uid": "04:A3:2B:F2:1C:80",
+        "device_id": "door-control-01",
+        "checked_at": "2026-03-18T14:13:10.189036+00:00"
+      },
+      "error": null,
+      "duration_ms": 1.61
+    },
+    {
+      "test_id": "test_rfid_register_card",
+      "component": "rfid",
+      "scenario": "Register new RFID card \u2192 201",
+      "status": "passed",
+      "simulated_data": {
+        "card_uid": "04:B7:3C:F3:2D:91"
+      },
+      "http_status": 201,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_rfid_list_cards",
+      "component": "rfid",
+      "scenario": "List RFID cards whitelist",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_rfid_access_log",
+      "component": "rfid",
+      "scenario": "Access log contains grant + deny entries",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_rfid_missing_card_uid",
+      "component": "rfid",
+      "scenario": "Missing card_uid \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_rfid_register_missing_user",
+      "component": "rfid",
+      "scenario": "Card registration without user_id \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-01",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "room": "Living Room",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25,
+        "light_level": 45.3,
+        "light_lux": 453.0,
+        "dimmer_brightness": 65,
+        "daylight_harvest_mode": true,
+        "fan_on": false,
+        "relays": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.21
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-02",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "room": "Bedroom",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "pressure": 1012.0,
+        "light_level": 10.0,
+        "light_lux": 100.0,
+        "dimmer_brightness": 80,
+        "daylight_harvest_mode": true,
+        "fan_on": true,
+        "relays": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.15
+    },
+    {
+      "test_id": "test_room_node_full_ingest_room-node-03",
+      "component": "room_node",
+      "scenario": "Full combined ingest \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-03",
+        "room": "Kitchen",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 25.0,
+        "humidity": 60.0,
+        "pressure": 1014.0,
+        "light_level": 70.0,
+        "light_lux": 700.0,
+        "dimmer_brightness": 30,
+        "daylight_harvest_mode": false,
+        "fan_on": false,
+        "relays": [
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.06
+    },
+    {
+      "test_id": "test_room_node_partial_bme280_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 bme280_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 22.5,
+        "humidity": 55.0,
+        "pressure": 1013.25
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.75
+    },
+    {
+      "test_id": "test_room_node_partial_temt6000_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 temt6000_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "light_level": 45.0,
+        "light_lux": 450.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.03
+    },
+    {
+      "test_id": "test_room_node_partial_fan_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 fan_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "fan_on": true
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-03",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.02
+    },
+    {
+      "test_id": "test_room_node_partial_dimmer_only",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 dimmer_only",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "dimmer_brightness": 75,
+        "daylight_harvest_mode": true
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-01",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.03
+    },
+    {
+      "test_id": "test_room_node_partial_bme280_and_light",
+      "component": "room_node",
+      "scenario": "Partial room-node payload \u2013 bme280_and_light",
+      "status": "passed",
+      "simulated_data": {
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z",
+        "temperature": 20.0,
+        "humidity": 50.0,
+        "light_level": 30.0,
+        "light_lux": 300.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.02
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-01",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.96
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-02",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.94
+    },
+    {
+      "test_id": "test_room_node_dimmer_room-node-03",
+      "component": "room_node",
+      "scenario": "Dimmer 75%% \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.98
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-01",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Living Room",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.94
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-02",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Bedroom",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.0
+    },
+    {
+      "test_id": "test_room_node_fan_room-node-03",
+      "component": "room_node",
+      "scenario": "Fan ON \u2013 Kitchen",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true
+      },
+      "http_status": 200,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 1.98
+    },
+    {
+      "test_id": "test_room_node_device_status_update",
+      "component": "room_node",
+      "scenario": "Device status set to online on ingest",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_temt6000_room_node_dark_room",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 dark_room",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 2.0,
+        "light_lux": 20.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 3.15
+    },
+    {
+      "test_id": "test_temt6000_room_node_dim_room",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 dim_room",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 20.0,
+        "light_lux": 200.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 32.66
+    },
+    {
+      "test_id": "test_temt6000_room_node_typical_office",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 typical_office",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 45.0,
+        "light_lux": 450.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.23
+    },
+    {
+      "test_id": "test_temt6000_room_node_bright_daylight",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 bright_daylight",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 80.0,
+        "light_lux": 800.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.09
+    },
+    {
+      "test_id": "test_temt6000_room_node_full_scale",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 full_scale",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 100.0,
+        "light_lux": 1000.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.1
+    },
+    {
+      "test_id": "test_temt6000_room_node_zero_lux",
+      "component": "temt6000",
+      "scenario": "TEMT6000 via room-node \u2013 zero_lux",
+      "status": "passed",
+      "simulated_data": {
+        "light_level": 0.0,
+        "light_lux": 0.0
+      },
+      "http_status": 202,
+      "response_body": {
+        "status": "accepted",
+        "message": "Room-node sensor data queued for processing",
+        "device_id": "room-node-02",
+        "timestamp": "2026-01-01T12:00:00Z"
+      },
+      "error": null,
+      "duration_ms": 2.13
+    },
+    {
+      "test_id": "test_temt6000_invalid_above_100",
+      "component": "temt6000",
+      "scenario": "TEMT6000 light_level > 100 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_temt6000_invalid_negative",
+      "component": "temt6000",
+      "scenario": "TEMT6000 light_level < 0 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_temt6000_invalid_lux_negative",
+      "component": "temt6000",
+      "scenario": "TEMT6000 light_lux < 0 \u2192 422",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": 422,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_temt6000_dh_dark_dh_bright_artificial",
+      "component": "temt6000",
+      "scenario": "TEMT6000 daylight harvest \u2013 dark_dh_bright_artificial",
+      "status": "passed",
+      "simulated_data": {
+        "light_lux": 20.0,
+        "dimmer_brightness": 90,
+        "daylight_harvest_mode": true
+      },
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.19
+    },
+    {
+      "test_id": "test_temt6000_dh_medium_dh_medium_artificial",
+      "component": "temt6000",
+      "scenario": "TEMT6000 daylight harvest \u2013 medium_dh_medium_artificial",
+      "status": "passed",
+      "simulated_data": {
+        "light_lux": 400.0,
+        "dimmer_brightness": 60,
+        "daylight_harvest_mode": true
+      },
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.08
+    },
+    {
+      "test_id": "test_temt6000_dh_bright_dh_dim_artificial",
+      "component": "temt6000",
+      "scenario": "TEMT6000 daylight harvest \u2013 bright_dh_dim_artificial",
+      "status": "passed",
+      "simulated_data": {
+        "light_lux": 800.0,
+        "dimmer_brightness": 20,
+        "daylight_harvest_mode": true
+      },
+      "http_status": 202,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 2.03
+    },
+    {
+      "test_id": "test_ws_device_connect",
+      "component": "websocket",
+      "scenario": "Room node connects \u2192 appears in connected devices list",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_device_disconnect",
+      "component": "websocket",
+      "scenario": "Room node disconnects \u2192 removed from connected list",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_multiple_devices",
+      "component": "websocket",
+      "scenario": "Three room nodes connected simultaneously",
+      "status": "passed",
+      "simulated_data": {
+        "connected_count": 3
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_dimmer_command",
+      "component": "websocket",
+      "scenario": "WebSocket dimmer command \u2013 payload verified",
+      "status": "passed",
+      "simulated_data": {
+        "brightness": 75,
+        "sent_payload": {
+          "command": "dimmer",
+          "value": 75
+        }
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_fan_on_command",
+      "component": "websocket",
+      "scenario": "WebSocket fan ON command \u2013 payload verified",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": true,
+        "sent_payload": {
+          "command": "fan",
+          "value": 1
+        }
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_fan_off_command",
+      "component": "websocket",
+      "scenario": "WebSocket fan OFF command \u2013 payload verified",
+      "status": "passed",
+      "simulated_data": {
+        "fan_on": false,
+        "sent_payload": {
+          "command": "fan",
+          "value": 0
+        }
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_relay_command",
+      "component": "websocket",
+      "scenario": "WebSocket relay command \u2013 payload verified",
+      "status": "failed",
+      "simulated_data": {
+        "channel": 1,
+        "state": true,
+        "sent_payload": {
+          "command": "relay1",
+          "value": 1
+        }
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_daylight_harvest_command",
+      "component": "websocket",
+      "scenario": "WebSocket daylight harvest command \u2013 payload verified",
+      "status": "passed",
+      "simulated_data": {
+        "enabled": true,
+        "sent_payload": {
+          "command": "daylight_harvest",
+          "value": 1
+        }
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_command_disconnected_device",
+      "component": "websocket",
+      "scenario": "Command to disconnected device \u2192 False",
+      "status": "passed",
+      "simulated_data": {},
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "test_ws_broadcast",
+      "component": "websocket",
+      "scenario": "Sensor data broadcast to frontend clients",
+      "status": "passed",
+      "simulated_data": {
+        "type": "room_node_data",
+        "device_id": "room-node-01",
+        "data": {
+          "temperature": 22.5
+        },
+        "broadcast_time": "2026-03-18T14:13:10.469360"
+      },
+      "http_status": null,
+      "response_body": {},
+      "error": null,
+      "duration_ms": 0.0
+    }
+  ],
+  "summary": {
+    "total": 100,
+    "passed": 99,
+    "failed": 1,
+    "error": 0
+  }
+}

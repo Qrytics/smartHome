@@ -2,7 +2,7 @@ name: Backend CI
 
 on:
   push:
-    branches: [ main, web-changes-v1, copilot/refactor-smart-home-setup ]
+    branches: [ main, web-changes-v1, copilot/refactor-smart-home-setup, copilot/modular-iot-testing ]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-tests.yml'
@@ -43,10 +43,27 @@ jobs:
         run: |
           pytest --cov=app --cov-report=term-missing --cov-fail-under=50 -q
 
+      - name: Run modular component tests and generate reports
+        working-directory: backend
+        env:
+          PYTHONPATH: .
+        run: |
+          pytest tests/modular/ -q --report-dir test-reports
+          echo "Modular test reports:"
+          ls -lh test-reports/
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
           path: backend/.coverage
+
+      - name: Upload modular test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: modular-test-reports
+          path: backend/test-reports/
+          retention-days: 30
 
