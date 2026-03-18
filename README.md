@@ -543,6 +543,7 @@ Commercial products (smart locks, thermostats, lighting systems) typically use p
 See the detailed documentation in the `docs/` directory:
 
 - **[docs/SETUP.md](docs/SETUP.md)** — Hardware assembly, software installation (PlatformIO, Python, Docker), configuration
+- **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** — **SSH into the Raspberry Pi**, upload code, start services, access the dashboard
 - **[docs/WIRING.md](docs/WIRING.md)** — Exact pin connections for all 4 ESP32s
 - **[docs/DEMO.md](docs/DEMO.md)** — Step-by-step final demo walkthrough
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Detailed system architecture diagrams
@@ -556,7 +557,7 @@ See the detailed documentation in the `docs/` directory:
 - PlatformIO CLI for ESP32 firmware (`pip install platformio`)
 - Node.js 18+ for the frontend dashboard
 
-### Basic Setup
+### Basic Setup (local development)
 
 ```bash
 # 1. Start infrastructure
@@ -588,6 +589,39 @@ npm start
 ```
 
 Dashboard is available at **http://localhost:3000** in development.
+
+### Running on the Raspberry Pi
+
+The backend and dashboard are designed to run on the **Raspberry Pi** (`smartHome`) so all ESP32s can reach them over the local network.
+
+```powershell
+# SSH into the RPi from your laptop (Windows PowerShell / macOS / Linux terminal)
+ssh qrytics@smartHome
+```
+
+Once logged in, pull the latest code and start all services:
+
+```bash
+# On the RPi
+cd ~/smartHome && git pull
+cd infrastructure && docker compose up -d
+cd ../backend && source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Then open the dashboard from any device on the same network:
+
+```
+http://smartHome:3000        ← dashboard
+http://smartHome:8000/docs   ← interactive API explorer
+```
+
+See **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** for the complete guide including:
+- Passwordless SSH setup
+- Uploading code via `scp` / `rsync`
+- Running the backend as a systemd service (auto-start on reboot)
+- SSH port-forwarding to access the dashboard remotely
+- Pointing ESP32 firmware at the RPi IP address
 
 ---
 

@@ -2,6 +2,11 @@
 
 This guide will help you set up the Smart Home project development environment on your local machine.
 
+> **Deploying to the Raspberry Pi?**
+> See **[`docs/RPI_DEPLOYMENT.md`](RPI_DEPLOYMENT.md)** for step-by-step
+> instructions on how to SSH into the RPi (`ssh qrytics@smartHome`), upload
+> code, start all services, and open the dashboard from any device on the network.
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -477,10 +482,11 @@ REACT_APP_ADMIN_PASSWORD=changeme
 
 After completing setup:
 
-1. **Read the architecture documentation:** [docs/ARCHITECTURE.md](ARCHITECTURE.md)
-2. **Review API documentation:** [docs/API.md](API.md)
-3. **Check testing guide:** [docs/TESTING.md](TESTING.md)
-4. **Review contribution guidelines:** [CONTRIBUTING.md](../CONTRIBUTING.md)
+1. **Deploy to the Raspberry Pi:** [docs/RPI_DEPLOYMENT.md](RPI_DEPLOYMENT.md) – SSH in, start services, open the dashboard
+2. **Read the architecture documentation:** [docs/ARCHITECTURE.md](ARCHITECTURE.md)
+3. **Review API documentation:** [docs/API.md](API.md)
+4. **Check testing guide:** [docs/TESTING.md](TESTING.md)
+5. **Review contribution guidelines:** [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## Getting Help
 

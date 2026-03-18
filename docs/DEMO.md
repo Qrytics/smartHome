@@ -74,6 +74,14 @@ pio device monitor        # verify "Waiting for RFID cards..." message
 
 ## Step 3 – Start the Infrastructure
 
+> **Running on Raspberry Pi?**  SSH in first:
+> ```powershell
+> ssh qrytics@smartHome
+> cd ~/smartHome
+> ```
+> Then run all the commands below on the RPi.
+> See [`docs/RPI_DEPLOYMENT.md`](RPI_DEPLOYMENT.md) for the full guide.
+
 ```bash
 cd infrastructure
 docker compose up -d timescaledb mqtt redis

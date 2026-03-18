@@ -237,8 +237,3 @@ def mock_online_ws():
                 p.stop()
 
     return _MockWS()
-
-
-def _ts() -> float:
-    """Current time in milliseconds."""
-    return time.monotonic() * 1000
