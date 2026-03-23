@@ -115,8 +115,8 @@ cd smartHome
 ### 3.2 Install system dependencies
 
 > **Note:** The `docker-compose-plugin` package is not available in the default Raspberry Pi OS repositories.
-> `scripts/rpi-setup.sh` handles everything below automatically, including the known
-> `raspbian trixie 404` APT error (see the note inside the script for details).
+> `scripts/rpi-setup.sh` handles everything below automatically, including Docker installation
+> without triggering the `raspbian trixie 404` APT error.
 
 Run the provided setup script — it is safe to run multiple times:
 
@@ -127,12 +127,13 @@ chmod +x scripts/rpi-setup.sh
 ```
 
 The script:
-1. Removes any APT source that references `download.docker.com/linux/raspbian` (which does not exist for trixie).
+1. Removes any leftover APT source referencing `download.docker.com/linux/raspbian`.
 2. Runs `apt update && apt upgrade -y`.
 3. Installs Python 3, Node.js, npm, git, and libpq-dev.
-4. Installs Docker Engine + Docker Compose via the official convenience script (`https://get.docker.com`).
-5. Post-install: if `get.docker.com` wrote a `raspbian` source, replaces it with `debian` so future `apt update` calls succeed.
-6. Adds the current user to the `docker` group.
+4. Installs Docker Engine + Docker Compose directly from the **Debian** repository
+   (`download.docker.com/linux/debian trixie`) — bypasses `get.docker.com`, which
+   misdetects the OS as `raspbian` on Raspberry Pi OS and writes a broken source entry.
+5. Adds the current user to the `docker` group.
 
 When the script finishes, log out and back in so the `docker` group takes effect:
 
@@ -627,19 +628,25 @@ npm start
 
 ### `apt update` fails with 404 for `download.docker.com/linux/raspbian trixie`
 
-Raspberry Pi OS **trixie** (Debian 13) does not have a Docker package repository under the
-`raspbian` codename. A source entry pointing to that URL will cause every `apt update` to fail:
+Docker does not publish packages under the `raspbian` distribution name for trixie (Debian 13).
+Any APT source entry pointing to that URL will cause `apt update` to fail:
 
 ```
 Err: https://download.docker.com/linux/raspbian trixie Release
      404  Not Found
 ```
 
-This can happen either from a previous manual Docker installation attempt **or** because the
-`get.docker.com` convenience script incorrectly detects the OS as `raspbian` instead of `debian`
-on some Raspberry Pi OS 64-bit images and writes the wrong repository URL.
+**Root cause** — the `get.docker.com` convenience script uses `lsb_release -is` to detect the
+OS. On Raspberry Pi OS it returns `Raspbian`, so the script writes:
+```
+deb [...] https://download.docker.com/linux/raspbian trixie stable
+```
+instead of `debian`. Because the script runs its own `apt-get update` internally and that update
+fails, **Docker is never installed** and the `docker` group is never created, which is why
+`usermod -aG docker $USER` also fails.
 
-**Quickest fix** – run the provided setup script, which handles both cases:
+**Fix** — run `scripts/rpi-setup.sh`, which bypasses `get.docker.com` and adds the Debian
+repository directly:
 
 ```bash
 cd ~/smartHome
@@ -647,27 +654,30 @@ chmod +x scripts/rpi-setup.sh
 ./scripts/rpi-setup.sh
 ```
 
-**Manual fix** – if you need to repair the system without running the full script:
+**Manual fix** — if you need to install Docker without running the full script:
 
 ```bash
-# 1. Remove *any* APT source file referencing the raspbian Docker repo
+# 1. Remove any broken source files referencing 'raspbian'
 sudo grep -rl "download\.docker\.com.*raspbian" /etc/apt/sources.list.d/ 2>/dev/null \
   | xargs -r sudo rm -f
 sudo sed -i '/download\.docker\.com.*raspbian/id' /etc/apt/sources.list
-
-# 2. Remove orphaned keyrings
 sudo rm -f /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.asc
 
-# 3. Re-run apt update
-sudo apt update
-```
+# 2. Add the Debian Docker repository
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg \
+    -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/debian trixie stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-If Docker is already installed and the source points to `raspbian`, replace it with `debian`:
-
-```bash
-sudo sed -i 's|download\.docker\.com/linux/raspbian|download.docker.com/linux/debian|ig' \
-  /etc/apt/sources.list.d/docker.list
+# 3. Install
 sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io \
+    docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER
 ```
 
 ### Docker containers not starting
