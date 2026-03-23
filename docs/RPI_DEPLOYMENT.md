@@ -172,7 +172,7 @@ nano .env   # or use vim / any editor you prefer
 Key variables to set in `.env`:
 
 ```bash
-DATABASE_URL=postgresql://smarthome:password@localhost:5432/smarthome
+DATABASE_URL=postgresql://smart_home_user:changeme@localhost:5432/smart_home
 BROKER_TYPE=mqtt
 MQTT_BROKER_URL=mqtt://localhost:1883
 API_HOST=0.0.0.0
@@ -211,11 +211,11 @@ docker compose up -d timescaledb mqtt redis
 Wait ~15 seconds for TimescaleDB to initialize, then apply the schema:
 
 ```bash
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ~/smartHome/infrastructure/timescaledb/init.sql
 
 # Optional: load sample data
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ~/smartHome/infrastructure/timescaledb/seed.sql
 ```
 

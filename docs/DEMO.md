@@ -91,11 +91,11 @@ Wait ~15 seconds for TimescaleDB to initialise, then apply the schema and seed d
 
 ```bash
 # Apply schema
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ../infrastructure/timescaledb/init.sql
 
 # Load sample data (optional)
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ../infrastructure/timescaledb/seed.sql
 ```
 
@@ -297,6 +297,6 @@ cd infrastructure
 docker compose restart
 
 # Re-apply seed data
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < timescaledb/seed.sql
 ```

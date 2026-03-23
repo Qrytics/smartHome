@@ -969,7 +969,7 @@ Tasks:
  Test database connection from Python:
 Python
 from sqlalchemy import create_engine
-engine = create_engine('postgresql://smarthome:changeme@localhost/smarthome_db')
+engine = create_engine('postgresql://smart_home_user:changeme@localhost/smart_home')
  Populate test data (5 RFID UIDs in whitelist)
 Deliverables:
 

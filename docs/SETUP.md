@@ -284,7 +284,7 @@ The only difference between rooms is the `DEVICE_ROOM_ID` value in `src/config.h
    # Should return: PONG
    
    # Check TimescaleDB
-   docker compose exec timescaledb psql -U smarthome -c "SELECT version();"
+   docker compose exec timescaledb psql -U smart_home_user -c "SELECT version();"
    ```
 
 3. **View logs:**
@@ -303,7 +303,7 @@ The only difference between rooms is the `DEVICE_ROOM_ID` value in `src/config.h
 
 ```bash
 # Database
-DATABASE_URL=postgresql://smarthome:password@localhost:5432/smarthome
+DATABASE_URL=postgresql://smart_home_user:changeme@localhost:5432/smart_home
 
 # Message broker configuration
 BROKER_TYPE=mqtt        # mqtt (default) or redis

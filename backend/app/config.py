@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     ]
     
     # Database Configuration
-    DATABASE_URL: str = "postgresql://smarthome:password@localhost:5432/smarthome"
+    DATABASE_URL: str = "postgresql://smart_home_user:changeme@localhost:5432/smart_home"
     
     # Message Broker Configuration
     # BROKER_TYPE controls which broker implementation the backend will use
