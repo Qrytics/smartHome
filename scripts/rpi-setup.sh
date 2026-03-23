@@ -43,15 +43,22 @@ warn()    { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
 # ---------------------------------------------------------------------------
-# Step 1 – Remove any Docker APT source that references 'raspbian'
+# Step 1 – Remove any broken Docker APT sources
 # ---------------------------------------------------------------------------
-# Docker does not publish packages for the 'raspbian' distribution on trixie
-# (Debian 13).  A stale or incorrectly generated source entry will make every
-# subsequent  apt update  fail with a 404.  We remove such entries from every
-# file that apt reads before touching the package database.
+# Two kinds of broken source are handled:
+#
+# a) Sources that reference download.docker.com/linux/raspbian
+#    Docker does not publish packages for the 'raspbian' distribution on
+#    trixie (Debian 13).  A stale or incorrectly generated source entry will
+#    make every subsequent  apt update  fail with a 404.
+#
+# b) Sources that reference a signed-by keyring path that does not exist.
+#    A previous partial install can leave a docker.list pointing to
+#    /etc/apt/keyrings/docker.asc that was never written (or was deleted).
+#    apt update will error until the broken source is removed.
 
 purge_raspbian_docker_sources() {
-    info "Scanning for Docker APT sources that reference 'raspbian'..."
+    info "Scanning for broken Docker APT sources (raspbian refs or missing keyring)..."
 
     local found=0
 
@@ -71,6 +78,24 @@ purge_raspbian_docker_sources() {
         found=1
     fi
 
+    # --- Docker source files whose signed-by keyring is missing -------------
+    # A previous partial install can leave a docker.list that references a
+    # keyring path that was never written (or was deleted).  apt update will
+    # error on every run until the broken source is removed.  We detect this
+    # by checking whether the path named in the signed-by= option exists.
+    while IFS= read -r -d '' file; do
+        if grep -qi "download\.docker\.com" "$file" 2>/dev/null; then
+            local keyring
+            keyring=$(grep -oE 'signed-by=[^ ]+' "$file" 2>/dev/null \
+                        | cut -d= -f2 | tr -d ']' | head -1)
+            if [[ -n "$keyring" && ! -f "$keyring" ]]; then
+                warn "Removing stale Docker source '$file' — keyring '$keyring' not found"
+                sudo rm -f "$file"
+                found=1
+            fi
+        fi
+    done < <(find /etc/apt/sources.list.d/ -type f -name "*.list" -print0 2>/dev/null)
+
     # --- Orphaned keyring files ---------------------------------------------
     for keyring in /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.asc; do
         if [[ -f "$keyring" ]]; then
@@ -81,7 +106,7 @@ purge_raspbian_docker_sources() {
     done
 
     if [[ $found -eq 0 ]]; then
-        success "No broken Docker 'raspbian' sources found."
+        success "No broken Docker APT sources found."
     else
         success "Stale Docker source entries removed."
     fi
