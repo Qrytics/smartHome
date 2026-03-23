@@ -118,7 +118,17 @@ cd smartHome
 > Use the official Docker convenience script instead — it auto-detects the RPi architecture, adds the
 > correct repositories, and installs Docker Engine together with Docker Compose.
 
+> **Note:** Raspberry Pi OS **trixie** (Debian 13) does not have a Docker package repository for the
+> `raspbian` flavour. If a stale `docker.list` source entry is present from a previous install attempt,
+> `apt update` will fail with a 404. The block below removes it before updating.
+
 ```bash
+# Remove any stale Docker APT repository that causes a 404 on raspbian trixie
+sudo rm -f /etc/apt/sources.list.d/docker.list \
+           /etc/apt/sources.list.d/docker*.list \
+           /etc/apt/keyrings/docker.gpg \
+           /etc/apt/keyrings/docker.asc
+
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y python3 python3-pip python3-venv nodejs npm git libpq-dev
 
@@ -614,6 +624,36 @@ cd ~/smartHome/frontend
 npm start
 ```
 
+### `apt update` fails with 404 for `download.docker.com/linux/raspbian trixie`
+
+Raspberry Pi OS **trixie** (Debian 13) does not have a Docker package repository under the
+`raspbian` codename. A stale `/etc/apt/sources.list.d/docker.list` entry will cause every
+`apt update` run to fail with:
+
+```
+Err: https://download.docker.com/linux/raspbian trixie Release
+     404  Not Found
+```
+
+**Fix** – remove the broken entry and re-run the update:
+
+```bash
+sudo rm -f /etc/apt/sources.list.d/docker.list \
+           /etc/apt/sources.list.d/docker*.list \
+           /etc/apt/keyrings/docker.gpg \
+           /etc/apt/keyrings/docker.asc
+sudo apt update
+```
+
+Then install Docker using the official convenience script (as shown in step 3.2):
+
+```bash
+curl -sSL https://get.docker.com | sh
+```
+
+The convenience script correctly uses the Debian repository instead of the raspbian one,
+so it works on trixie without any further configuration.
+
 ### Docker containers not starting
 
 ```bash
@@ -678,4 +718,4 @@ Use this as a quick reference every time you work on the project:
 
 ---
 
-*Last updated: 2026-03-18*
+*Last updated: 2026-03-23*
