@@ -149,9 +149,11 @@ ssh qrytics@smartHome
 
 ### 3.3 Set up the Python virtual environment
 
-> **Note:** On ARM architectures (e.g. RPi 5) `psycopg2-binary` may attempt to build from source and
-> require the PostgreSQL development headers (`libpq-dev`) to be present at the OS level.
-> This is already installed in step 3.2 above.
+> **Note:** `psycopg2-binary 2.9.9` fails to compile on Python 3.13 because it uses
+> `_PyInterpreterState_Get`, a private API that was removed in Python 3.13. The project
+> requires `psycopg2-binary>=2.9.10` (already in `requirements.txt`), which fixes this and
+> adds proper Python 3.13 support. On ARM64 (aarch64) a pre-built wheel is available;
+> on 32-bit armhf pip may build from source, which is why `libpq-dev` is installed in step 3.2.
 
 ```bash
 cd ~/smartHome/backend

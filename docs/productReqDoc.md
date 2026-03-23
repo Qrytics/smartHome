@@ -706,7 +706,7 @@ Supporting Libraries:
 Library	Purpose	Version
 uvicorn	ASGI server (runs FastAPI)	^0.24.0
 redis-py	Redis client	^5.0.0
-psycopg2-binary	PostgreSQL driver	^2.9.9
+psycopg2-binary	PostgreSQL driver	^2.9.10
 sqlalchemy	ORM for database queries	^2.0.0
 python-jose	JWT token handling	^3.3.0
 cryptography	TLS certificate management	^41.0.0
