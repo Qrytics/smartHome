@@ -10,8 +10,8 @@ psycopg2-binary==2.9.10
 redis==5.0.1
 
 # Data Validation
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.10.6
+pydantic-settings==2.6.1
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0
