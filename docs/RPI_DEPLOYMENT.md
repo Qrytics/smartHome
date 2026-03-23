@@ -115,27 +115,28 @@ cd smartHome
 ### 3.2 Install system dependencies
 
 > **Note:** The `docker-compose-plugin` package is not available in the default Raspberry Pi OS repositories.
-> Use the official Docker convenience script instead — it auto-detects the RPi architecture, adds the
-> correct repositories, and installs Docker Engine together with Docker Compose.
+> `scripts/rpi-setup.sh` handles everything below automatically, including the known
+> `raspbian trixie 404` APT error (see the note inside the script for details).
 
-> **Note:** Raspberry Pi OS **trixie** (Debian 13) does not have a Docker package repository for the
-> `raspbian` flavour. If a stale `docker.list` source entry is present from a previous install attempt,
-> `apt update` will fail with a 404. The block below removes it before updating.
+Run the provided setup script — it is safe to run multiple times:
 
 ```bash
-# Remove any stale Docker APT repository that causes a 404 on raspbian trixie
-sudo rm -f /etc/apt/sources.list.d/docker.list \
-           /etc/apt/sources.list.d/docker*.list \
-           /etc/apt/keyrings/docker.gpg \
-           /etc/apt/keyrings/docker.asc
+cd ~/smartHome
+chmod +x scripts/rpi-setup.sh
+./scripts/rpi-setup.sh
+```
 
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-pip python3-venv nodejs npm git libpq-dev
+The script:
+1. Removes any APT source that references `download.docker.com/linux/raspbian` (which does not exist for trixie).
+2. Runs `apt update && apt upgrade -y`.
+3. Installs Python 3, Node.js, npm, git, and libpq-dev.
+4. Installs Docker Engine + Docker Compose via the official convenience script (`https://get.docker.com`).
+5. Post-install: if `get.docker.com` wrote a `raspbian` source, replaces it with `debian` so future `apt update` calls succeed.
+6. Adds the current user to the `docker` group.
 
-# Install Docker Engine + Docker Compose via the official convenience script
-curl -sSL https://get.docker.com | sh
-sudo usermod -aG docker $USER   # allow current user to run docker without sudo
-# Log out and back in (or reboot) for the group change to take effect
+When the script finishes, log out and back in so the `docker` group takes effect:
+
+```bash
 exit
 ```
 
@@ -627,32 +628,47 @@ npm start
 ### `apt update` fails with 404 for `download.docker.com/linux/raspbian trixie`
 
 Raspberry Pi OS **trixie** (Debian 13) does not have a Docker package repository under the
-`raspbian` codename. A stale `/etc/apt/sources.list.d/docker.list` entry will cause every
-`apt update` run to fail with:
+`raspbian` codename. A source entry pointing to that URL will cause every `apt update` to fail:
 
 ```
 Err: https://download.docker.com/linux/raspbian trixie Release
      404  Not Found
 ```
 
-**Fix** – remove the broken entry and re-run the update:
+This can happen either from a previous manual Docker installation attempt **or** because the
+`get.docker.com` convenience script incorrectly detects the OS as `raspbian` instead of `debian`
+on some Raspberry Pi OS 64-bit images and writes the wrong repository URL.
+
+**Quickest fix** – run the provided setup script, which handles both cases:
 
 ```bash
-sudo rm -f /etc/apt/sources.list.d/docker.list \
-           /etc/apt/sources.list.d/docker*.list \
-           /etc/apt/keyrings/docker.gpg \
-           /etc/apt/keyrings/docker.asc
+cd ~/smartHome
+chmod +x scripts/rpi-setup.sh
+./scripts/rpi-setup.sh
+```
+
+**Manual fix** – if you need to repair the system without running the full script:
+
+```bash
+# 1. Remove *any* APT source file referencing the raspbian Docker repo
+sudo grep -rl "download\.docker\.com.*raspbian" /etc/apt/sources.list.d/ 2>/dev/null \
+  | xargs -r sudo rm -f
+sudo sed -i '/download\.docker\.com.*raspbian/id' /etc/apt/sources.list
+
+# 2. Remove orphaned keyrings
+sudo rm -f /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.asc
+
+# 3. Re-run apt update
 sudo apt update
 ```
 
-Then install Docker using the official convenience script (as shown in step 3.2):
+If Docker is already installed and the source points to `raspbian`, replace it with `debian`:
 
 ```bash
-curl -sSL https://get.docker.com | sh
+sudo sed -i 's|download\.docker\.com/linux/raspbian|download.docker.com/linux/debian|ig' \
+  /etc/apt/sources.list.d/docker.list
+sudo apt update
 ```
-
-The convenience script correctly uses the Debian repository instead of the raspbian one,
-so it works on trixie without any further configuration.
 
 ### Docker containers not starting
 
