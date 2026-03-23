@@ -335,7 +335,7 @@ You can now view smart-home-frontend in the browser.
 >
 > ```bash
 > npm run build
-> npx serve -s build -l 3000
+> npm run serve
 > ```
 
 ### 5.4 Run backend as a systemd service (auto-start on reboot)
