@@ -280,7 +280,7 @@ redis-cli ping
 docker compose ps timescaledb
 
 # Test connection
-psql postgresql://smarthome:password@localhost:5432/smarthome
+psql postgresql://smart_home_user:changeme@localhost:5432/smart_home
 ```
 
 ### Import errors

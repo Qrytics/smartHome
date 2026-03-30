@@ -53,6 +53,12 @@ Frontend runs at [http://localhost:3000](http://localhost:3000).
 npm run build
 ```
 
+To serve the production build locally (no global install needed):
+
+```bash
+npm run serve
+```
+
 ## Lint / format
 
 ```bash

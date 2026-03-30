@@ -115,17 +115,29 @@ cd smartHome
 ### 3.2 Install system dependencies
 
 > **Note:** The `docker-compose-plugin` package is not available in the default Raspberry Pi OS repositories.
-> Use the official Docker convenience script instead — it auto-detects the RPi architecture, adds the
-> correct repositories, and installs Docker Engine together with Docker Compose.
+> `scripts/rpi-setup.sh` handles everything below automatically, including Docker installation
+> without triggering the `raspbian trixie 404` APT error.
+
+Run the provided setup script — it is safe to run multiple times:
 
 ```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-pip python3-venv nodejs npm git libpq-dev
+cd ~/smartHome
+chmod +x scripts/rpi-setup.sh
+./scripts/rpi-setup.sh
+```
 
-# Install Docker Engine + Docker Compose via the official convenience script
-curl -sSL https://get.docker.com | sh
-sudo usermod -aG docker $USER   # allow current user to run docker without sudo
-# Log out and back in (or reboot) for the group change to take effect
+The script:
+1. Removes any leftover APT source referencing `download.docker.com/linux/raspbian`.
+2. Runs `apt update && apt upgrade -y`.
+3. Installs Python 3, Node.js, npm, git, and libpq-dev.
+4. Installs Docker Engine + Docker Compose directly from the **Debian** repository
+   (`download.docker.com/linux/debian trixie`) — bypasses `get.docker.com`, which
+   misdetects the OS as `raspbian` on Raspberry Pi OS and writes a broken source entry.
+5. Adds the current user to the `docker` group.
+
+When the script finishes, log out and back in so the `docker` group takes effect:
+
+```bash
 exit
 ```
 
@@ -137,9 +149,11 @@ ssh qrytics@smartHome
 
 ### 3.3 Set up the Python virtual environment
 
-> **Note:** On ARM architectures (e.g. RPi 5) `psycopg2-binary` may attempt to build from source and
-> require the PostgreSQL development headers (`libpq-dev`) to be present at the OS level.
-> This is already installed in step 3.2 above.
+> **Note:** `psycopg2-binary 2.9.9` fails to compile on Python 3.13 because it uses
+> `_PyInterpreterState_Get`, a private API that was removed in Python 3.13. The project
+> requires `psycopg2-binary>=2.9.10` (already in `requirements.txt`), which fixes this and
+> adds proper Python 3.13 support. On ARM64 (aarch64) a pre-built wheel is available;
+> on 32-bit armhf pip may build from source, which is why `libpq-dev` is installed in step 3.2.
 
 ```bash
 cd ~/smartHome/backend
@@ -158,7 +172,7 @@ nano .env   # or use vim / any editor you prefer
 Key variables to set in `.env`:
 
 ```bash
-DATABASE_URL=postgresql://smarthome:password@localhost:5432/smarthome
+DATABASE_URL=postgresql://smart_home_user:changeme@localhost:5432/smart_home
 BROKER_TYPE=mqtt
 MQTT_BROKER_URL=mqtt://localhost:1883
 API_HOST=0.0.0.0
@@ -197,11 +211,11 @@ docker compose up -d timescaledb mqtt redis
 Wait ~15 seconds for TimescaleDB to initialize, then apply the schema:
 
 ```bash
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ~/smartHome/infrastructure/timescaledb/init.sql
 
 # Optional: load sample data
-docker exec -i smarthome-timescaledb psql -U smarthome smarthome \
+docker exec -i smart-home-timescaledb psql -U smart_home_user smart_home \
   < ~/smartHome/infrastructure/timescaledb/seed.sql
 ```
 
@@ -321,7 +335,7 @@ You can now view smart-home-frontend in the browser.
 >
 > ```bash
 > npm run build
-> npx serve -s build -l 3000
+> npm run serve
 > ```
 
 ### 5.4 Run backend as a systemd service (auto-start on reboot)
@@ -614,6 +628,60 @@ cd ~/smartHome/frontend
 npm start
 ```
 
+### `apt update` fails with 404 for `download.docker.com/linux/raspbian trixie`
+
+Docker does not publish packages under the `raspbian` distribution name for trixie (Debian 13).
+Any APT source entry pointing to that URL will cause `apt update` to fail:
+
+```
+Err: https://download.docker.com/linux/raspbian trixie Release
+     404  Not Found
+```
+
+**Root cause** — the `get.docker.com` convenience script uses `lsb_release -is` to detect the
+OS. On Raspberry Pi OS it returns `Raspbian`, so the script writes:
+```
+deb [...] https://download.docker.com/linux/raspbian trixie stable
+```
+instead of `debian`. Because the script runs its own `apt-get update` internally and that update
+fails, **Docker is never installed** and the `docker` group is never created, which is why
+`usermod -aG docker $USER` also fails.
+
+**Fix** — run `scripts/rpi-setup.sh`, which bypasses `get.docker.com` and adds the Debian
+repository directly:
+
+```bash
+cd ~/smartHome
+chmod +x scripts/rpi-setup.sh
+./scripts/rpi-setup.sh
+```
+
+**Manual fix** — if you need to install Docker without running the full script:
+
+```bash
+# 1. Remove any broken source files referencing 'raspbian'
+sudo grep -rl "download\.docker\.com.*raspbian" /etc/apt/sources.list.d/ 2>/dev/null \
+  | xargs -r sudo rm -f
+sudo sed -i '/download\.docker\.com.*raspbian/id' /etc/apt/sources.list
+sudo rm -f /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.asc
+
+# 2. Add the Debian Docker repository
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg \
+    -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/debian trixie stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 3. Install
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io \
+    docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER
+```
+
 ### Docker containers not starting
 
 ```bash
@@ -678,4 +746,4 @@ Use this as a quick reference every time you work on the project:
 
 ---
 
-*Last updated: 2026-03-18*
+*Last updated: 2026-03-23*

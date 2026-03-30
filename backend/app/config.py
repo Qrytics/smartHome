@@ -6,7 +6,6 @@ with type validation and default values.
 """
 
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -23,13 +22,12 @@ class Settings(BaseSettings):
     API_RELOAD: bool = True
     
     # CORS Configuration
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-    ]
+    # Comma-separated list of allowed origins, e.g.:
+    #   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
     
     # Database Configuration
-    DATABASE_URL: str = "postgresql://smarthome:password@localhost:5432/smarthome"
+    DATABASE_URL: str = "postgresql://smart_home_user:changeme@localhost:5432/smart_home"
     
     # Message Broker Configuration
     # BROKER_TYPE controls which broker implementation the backend will use
