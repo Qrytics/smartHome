@@ -188,12 +188,12 @@ void setupPins() {
   ledcWrite(PWM_CHANNEL, 255);  // start at full brightness
 
   // Fan relay
-  pinMode(FAN_RELAY_PIN, OUTPUT);
   digitalWrite(FAN_RELAY_PIN, FAN_RELAY_ACTIVE_HIGH ? LOW : HIGH);  // fan off
+  pinMode(FAN_RELAY_PIN, OUTPUT);
 
   // Status LED
-  pinMode(STATUS_LED_PIN, OUTPUT);
   digitalWrite(STATUS_LED_PIN, LOW);
+  pinMode(STATUS_LED_PIN, OUTPUT);
 
   Serial.println("[Init] GPIO configured.");
 }

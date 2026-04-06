@@ -41,7 +41,7 @@
 // I2C Pins  (BME280)
 // ============================================================================
 #define I2C_SDA 21
-#define I2C_SCL 22
+#define I2C_SCL 10
 
 // ============================================================================
 // BME280 Sensor
@@ -52,14 +52,14 @@
 // ============================================================================
 // TEMT6000 Ambient Light Sensor  (analog)
 // ============================================================================
-#define LIGHT_SENSOR_PIN  34     // GPIO 34 – ADC1_CH6 (input-only pin)
+#define LIGHT_SENSOR_PIN  4      // GPIO 4 – ADC1_CH3
 #define LIGHT_SAMPLE_COUNT 5     // average N samples per reading
 #define LIGHT_MAX_LUX 1000.0     // full-scale lux for TEMT6000 @ 3.3 V
 
 // ============================================================================
 // PWM Dimmer  (LEDC)
 // ============================================================================
-#define DIMMER_PWM_PIN   25      // GPIO 25 – PWM output
+#define DIMMER_PWM_PIN   38      // GPIO 38 – PWM output
 #define PWM_CHANNEL       0      // LEDC channel
 #define PWM_FREQ       5000      // Hz
 #define PWM_RESOLUTION    8      // bits  (0–255 duty cycle)
@@ -73,7 +73,7 @@
 // ============================================================================
 // Fan Relay
 // ============================================================================
-#define FAN_RELAY_PIN    26      // GPIO 26 – relay IN pin
+#define FAN_RELAY_PIN    39      // GPIO 39 – relay IN pin
 #define FAN_RELAY_ACTIVE_HIGH true   // HIGH = fan ON for most relay modules
 
 // ============================================================================

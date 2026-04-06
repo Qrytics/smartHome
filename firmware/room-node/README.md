@@ -11,10 +11,10 @@ to the backend via WebSocket.
 
 | Component | Interface | Notes |
 |-----------|-----------|-------|
-| BME280 | I2C (SDA=GPIO21, SCL=GPIO22) | Temperature / humidity / pressure |
-| TEMT6000 | Analog (GPIO34) | Ambient light (0–1000 lux) |
-| PWM LED dimmer | GPIO25 | 0–100 % via LEDC (5 kHz, 8-bit) |
-| Fan relay module | GPIO26 | HIGH = fan ON |
+| BME280 | I2C (SDA=GPIO21, SCL=GPIO10) | Temperature / humidity / pressure |
+| TEMT6000 | Analog (GPIO4) | Ambient light (0–1000 lux) |
+| PWM LED dimmer | GPIO38 | 0–100 % via LEDC (5 kHz, 8-bit) |
+| Fan relay module | GPIO39 | HIGH = fan ON |
 | Status LED | GPIO2 | Built-in LED; blinks on errors |
 
 > **Pin summary for room ESP32:**
@@ -22,10 +22,10 @@ to the backend via WebSocket.
 > | Signal | GPIO | Notes |
 > |--------|------|-------|
 > | I2C SDA (BME280) | 21 | Pull-up resistor 4.7 kΩ to 3.3 V |
-> | I2C SCL (BME280) | 22 | Pull-up resistor 4.7 kΩ to 3.3 V |
-> | TEMT6000 SIG | 34 | 10 kΩ resistor to GND on signal line |
-> | Dimmer PWM | 25 | To dimmer module IN |
-> | Fan relay IN | 26 | To relay IN |
+> | I2C SCL (BME280) | 10 | Pull-up resistor 4.7 kΩ to 3.3 V |
+> | TEMT6000 SIG | 4 | 10 kΩ resistor to GND on signal line |
+> | Dimmer PWM | 38 | To dimmer module IN |
+> | Fan relay IN | 39 | Add 10 kΩ pull-down to GND |
 > | Status LED | 2 | Built-in; active HIGH |
 
 ---
@@ -39,7 +39,7 @@ BME280    ESP32-S3
   VCC  →  3.3 V
   GND  →  GND
   SDA  →  GPIO 21
-  SCL  →  GPIO 22
+  SCL  →  GPIO 10
 ```
 
 *Add a 4.7 kΩ pull-up resistor between SDA→3.3 V and SCL→3.3 V if the
@@ -51,14 +51,14 @@ module does not have on-board pull-ups.*
 TEMT6000  ESP32-S3
   VCC  →  3.3 V
   GND  →  GND
-  SIG  →  GPIO 34  (also connect 10 kΩ from SIG to GND)
+  SIG  →  GPIO 4  (also connect 10 kΩ from SIG to GND)
 ```
 
 ### PWM Dimmer → ESP32
 
 ```
 Dimmer Module  ESP32-S3
-  IN  →  GPIO 25
+  IN  →  GPIO 38
   GND →  GND
   VCC →  5 V (or 3.3 V depending on module – check datasheet)
 ```
@@ -67,12 +67,13 @@ Dimmer Module  ESP32-S3
 
 ```
 Relay Module  ESP32-S3
-  IN   →  GPIO 26
+  IN   →  GPIO 39
   VCC  →  5 V  (relay coil power; some modules support 3.3 V)
   GND  →  GND
 ```
 
 Connect the fan to the relay's **NO** (normally-open) and **COM** terminals.
+Add a 10 kOhm pull-down resistor from the relay input pin to GND.
 
 ---
 

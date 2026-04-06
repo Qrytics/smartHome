@@ -30,16 +30,15 @@
 // ============================================================================
 
 // RFID RC522 Module (SPI Interface)
-#define RFID_SS_PIN   5    // Chip Select
-#define RFID_RST_PIN  22   // Reset pin
-
-// Note: SPI pins are fixed on ESP32-S3
-// MOSI = GPIO 11
-// MISO = GPIO 13
-// SCK  = GPIO 12
+#define RFID_SS_PIN    5    // Chip Select
+#define RFID_RST_PIN   16   // Reset pin
+#define RFID_MOSI_PIN  11   // FSPI MOSI
+#define RFID_MISO_PIN  13   // FSPI MISO
+#define RFID_SCK_PIN   12   // FSPI SCK
 
 // Relay Module (for solenoid lock control)
 #define RELAY_PIN     4    // GPIO 4 - Relay control
+#define RELAY_ACTIVE_HIGH true
 
 // Status LED
 #define LED_PIN       2    // GPIO 2 - Built-in LED

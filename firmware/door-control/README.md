@@ -4,7 +4,7 @@ ESP32-S3 firmware for RFID-based access control with electromagnetic lock.
 
 ## Hardware Components
 
-- **ESP32-S3 DevKit** - Main microcontroller
+- **ESP32-S3 DevKitC-1** - Main microcontroller
 - **RC522 RFID Reader** - 13.56 MHz card reader
 - **12V Solenoid Lock** - Electromagnetic door lock
 - **5V Relay Module** - Controls solenoid power
@@ -22,7 +22,7 @@ ESP32-S3 firmware for RFID-based access control with electromagnetic lock.
 | MISO      | GPIO 13      | Master In   |
 | IRQ       | Not connected| Interrupt   |
 | GND       | GND          | Ground      |
-| RST       | GPIO 22      | Reset       |
+| RST       | GPIO 16      | Reset       |
 | 3.3V      | 3.3V         | Power       |
 
 ### Relay Module
@@ -33,12 +33,16 @@ ESP32-S3 firmware for RFID-based access control with electromagnetic lock.
 | VCC       | 5V           | Power       |
 | GND       | GND          | Ground      |
 
+Add a 10 kOhm pull-down resistor from GPIO 4 to GND so the relay stays off during boot.
+
 ### Solenoid Lock
 
 Connected to relay output:
 - **COM** (Common) → 12V Power Supply (+)
 - **NO** (Normally Open) → Solenoid (+)
 - **Solenoid (-)** → 12V Power Supply (-)
+
+Add a flyback diode directly across the solenoid terminals: diode stripe to Solenoid (+), other end to Solenoid (-).
 
 ### Status LED
 

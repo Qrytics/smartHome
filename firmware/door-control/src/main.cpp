@@ -167,7 +167,7 @@ void setupWiFi() {
 
 void setupRFID() {
   Serial.println("Initializing RFID reader...");
-  SPI.begin();
+  SPI.begin(RFID_SCK_PIN, RFID_MISO_PIN, RFID_MOSI_PIN, RFID_SS_PIN);
   rfid.PCD_Init();
   
   // Show RFID reader details
@@ -177,6 +177,8 @@ void setupRFID() {
 
 void setupLock() {
   Serial.println("Initializing lock control...");
+  digitalWrite(RELAY_PIN, RELAY_ACTIVE_HIGH ? LOW : HIGH);
+  digitalWrite(LED_PIN, LOW);
   pinMode(RELAY_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   
@@ -251,11 +253,11 @@ bool checkAccessAuthorization(const String &cardUID) {
 void actuateLock(bool unlock) {
   if (unlock) {
     Serial.println(">>> UNLOCKING DOOR <<<");
-    digitalWrite(RELAY_PIN, HIGH);  // Energize solenoid
+    digitalWrite(RELAY_PIN, (unlock == RELAY_ACTIVE_HIGH) ? HIGH : LOW);
     digitalWrite(LED_PIN, HIGH);    // Turn on LED
   } else {
     Serial.println(">>> LOCKING DOOR <<<");
-    digitalWrite(RELAY_PIN, LOW);   // De-energize solenoid
+    digitalWrite(RELAY_PIN, (unlock == RELAY_ACTIVE_HIGH) ? HIGH : LOW);
     digitalWrite(LED_PIN, LOW);     // Turn off LED
   }
 }
