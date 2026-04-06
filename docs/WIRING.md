@@ -37,7 +37,7 @@ in `config.h` differs.
 | VCC | 3.3 V | |
 | GND | GND | |
 | SDA | GPIO **21** | 4.7 kΩ pull-up to 3.3 V (see note) |
-| SCL | GPIO **9** | 4.7 kΩ pull-up to 3.3 V (see note) |
+| SCL | GPIO **10** | 4.7 kΩ pull-up to 3.3 V (see note) |
 | SDO | GND | Sets I2C address = 0x76 (connect to 3.3 V for 0x77) |
 | CSB | 3.3 V | Selects I2C mode |
 
@@ -50,12 +50,12 @@ ESP32-S3                    BME280
   3.3V ──────────────────── VCC
   GND  ──────────────────── GND
   GPIO21 (SDA) ──[4.7k]─── SDA ──[4.7k]── 3.3V
-  GPIO9  (SCL) ──[4.7k]─── SCL ──[4.7k]── 3.3V
+  GPIO10 (SCL) ──[4.7k]─── SCL ──[4.7k]── 3.3V
                              SDO ──────────── GND   (addr = 0x76)
                              CSB ──────────── 3.3V
 ```
 
-`config.h` values to match: `I2C_SDA 21`, `I2C_SCL 9`
+`config.h` values to match: `I2C_SDA 21`, `I2C_SCL 10`
 
 ### 2. TEMT6000 Ambient Light Sensor — Analog
 
@@ -165,7 +165,7 @@ ESP32-S3
 | GPIO | Function | Direction | config.h Define |
 |------|----------|-----------|-----------------|
 | 21 | I2C SDA (BME280) | Bidirectional | `I2C_SDA` |
-| 9  | I2C SCL (BME280) | Output | `I2C_SCL` |
+| 10 | I2C SCL (BME280) | Output | `I2C_SCL` |
 | 4  | TEMT6000 analog signal | Input (ADC1_CH3) | `LIGHT_SENSOR_PIN` |
 | 38 | PWM dimmer signal | Output (LEDC) | `DIMMER_PWM_PIN` |
 | 39 | Fan relay IN | Output | `FAN_RELAY_PIN` |
@@ -363,8 +363,8 @@ in §2 of the room-node section above.
 ## Quick Checklist Before Power-On
 
 - [ ] All GNDs connected together (ESP32, sensors, relay module, 12 V supply −)
-- [ ] I2C pull-up resistors (4.7 kΩ) on SDA (GPIO 21) and SCL (GPIO 9) — or confirm the BME280 breakout includes them
-- [ ] 10 kΩ pull-down resistor on TEMT6000 SIG line (GPIO 4)
+- [ ] I2C pull-up resistors (4.7 kΩ) on SDA (GPIO 21) and SCL (GPIO 10) — or confirm the BME280 breakout includes them
+- [ ] **10 kΩ pull-down on GPIO 4** (room node TEMT6000 SIG line)
 - [ ] **10 kΩ pull-down on GPIO 39** (room node fan relay IN) — prevents fan spin at boot
 - [ ] **10 kΩ pull-down on GPIO 4** (door node solenoid relay IN) — prevents door unlock at boot
 - [ ] **1N4007 flyback diode** across each fan motor (cathode to Fan +)
