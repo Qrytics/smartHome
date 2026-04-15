@@ -317,7 +317,15 @@ pip install -r requirements.txt
 Then start backend again:
 
 ```bash
+cd ~/smartHome/backend
+source venv/bin/activate
 uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+If you are not in an activated backend shell, use the absolute venv binary:
+
+```bash
+~/smartHome/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir ~/smartHome/backend
 ```
 
 ### 5.2 Restart runtime services cleanly

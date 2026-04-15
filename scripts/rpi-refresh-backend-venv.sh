@@ -33,4 +33,6 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 echo "[OK] Backend venv refresh complete."
-echo "[OK] Next: source venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+echo "[OK] Start backend with either of these:"
+echo "      1) source ~/smartHome/backend/venv/bin/activate && cd ~/smartHome/backend && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+echo "      2) ~/smartHome/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir ~/smartHome/backend"
