@@ -22,12 +22,13 @@ network.
 2. [SSH Into the Raspberry Pi](#2-ssh-into-the-raspberry-pi)
 3. [First-Time Setup on the RPi](#3-first-time-setup-on-the-rpi)
 4. [Uploading / Updating Code on the RPi](#4-uploading--updating-code-on-the-rpi)
-5. [Starting the Backend and Services](#5-starting-the-backend-and-services)
-6. [Accessing the Dashboard](#6-accessing-the-dashboard)
-7. [Pointing ESP32 Firmware at the RPi](#7-pointing-esp32-firmware-at-the-rpi)
-8. [Stopping Services](#8-stopping-services)
-9. [Useful One-Liners and Aliases](#9-useful-one-liners-and-aliases)
-10. [Troubleshooting](#10-troubleshooting)
+5. [Updating an Existing RPi Deployment (Most Common)](#5-updating-an-existing-rpi-deployment-most-common)
+6. [Starting the Backend and Services](#6-starting-the-backend-and-services)
+7. [Accessing the Dashboard](#7-accessing-the-dashboard)
+8. [Pointing ESP32 Firmware at the RPi](#8-pointing-esp32-firmware-at-the-rpi)
+9. [Stopping Services](#9-stopping-services)
+10. [Useful One-Liners and Aliases](#10-useful-one-liners-and-aliases)
+11. [Troubleshooting](#11-troubleshooting)
 
 ---
 
@@ -272,7 +273,88 @@ rsync -avz --exclude='venv/' --exclude='__pycache__/' \
 
 ---
 
-## 5. Starting the Backend and Services
+## 5. Updating an Existing RPi Deployment (Most Common)
+
+If you have already completed first-time setup and just want the Pi to run the
+latest repo code, use this section.
+
+### 5.1 Fast path (safe for repeat use)
+
+```bash
+# On the RPi
+ssh qrytics@smartHome
+cd ~/smartHome
+git pull origin main
+
+# Re-run setup script (safe/idempotent). This refreshes system deps and
+# bootstraps backend/frontend dependencies for post-pull updates.
+./scripts/rpi-setup.sh
+```
+
+### 5.2 Restart runtime services cleanly
+
+```bash
+# Infrastructure
+cd ~/smartHome/infrastructure
+docker compose up -d timescaledb mqtt redis
+
+# Backend (if running as systemd)
+sudo systemctl restart smarthome-backend
+sudo systemctl status smarthome-backend --no-pager
+
+# OR backend (manual mode)
+cd ~/smartHome/backend
+source venv/bin/activate
+pkill -f "uvicorn app.main:app" || true
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+In a second terminal/session:
+
+```bash
+ssh qrytics@smartHome
+cd ~/smartHome/frontend
+# restart dev server if you use npm start
+pkill -f "react-scripts start" || true
+npm start
+```
+
+### 5.3 Post-update verification checklist
+
+```bash
+# On the RPi
+docker compose -f ~/smartHome/infrastructure/docker-compose.yml ps
+curl http://localhost:8000/health
+```
+
+From your laptop:
+
+```bash
+curl http://smartHome:8000/health
+# open in browser:
+# http://smartHome:3000
+# http://smartHome:8000/docs
+```
+
+Confirm:
+- Dashboard loads
+- Live/demo section toggles appear
+- Automation rules page loads
+- API health is `200`
+
+### 5.4 If `git pull` reports conflicts
+
+```bash
+cd ~/smartHome
+git status
+```
+
+If local edits are intentional, commit/stash them before pulling. If the Pi is
+only a deploy target, prefer a clean working tree before each pull.
+
+---
+
+## 6. Starting the Backend and Services
 
 ### 5.1 Start Docker infrastructure
 
@@ -294,8 +376,8 @@ The backend will print:
 
 ```
 Smart Home Backend Starting...
-✓ Database client initialized
-✓ WebSocket manager initialized
+[OK] Database client initialized
+[OK] WebSocket manager initialized
 All services initialized successfully!
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
@@ -381,7 +463,7 @@ sudo journalctl -u smarthome-backend -f
 
 ---
 
-## 6. Accessing the Dashboard
+## 7. Accessing the Dashboard
 
 ### From a laptop / PC on the same network
 
@@ -440,7 +522,7 @@ ssh -L 3000:localhost:3000 -L 8000:localhost:8000 qrytics@smartHome
 
 ---
 
-## 7. Pointing ESP32 Firmware at the RPi
+## 8. Pointing ESP32 Firmware at the RPi
 
 Once the backend is running on the RPi, all four ESP32s need to know the
 RPi's IP address (or hostname) so they can post sensor data and receive
@@ -505,7 +587,7 @@ You should see lines like:
 
 ---
 
-## 8. Stopping Services
+## 9. Stopping Services
 
 ### Stop the backend (if running manually)
 
@@ -544,7 +626,7 @@ if you configured the systemd service).
 
 ---
 
-## 9. Useful One-Liners and Aliases
+## 10. Useful One-Liners and Aliases
 
 Add these to `~/.bashrc` on the RPi for convenience:
 
@@ -593,7 +675,7 @@ smh-ip         # print the RPi's IP address
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 ### "Could not resolve hostname smartHome"
 
@@ -738,12 +820,13 @@ Use this as a quick reference every time you work on the project:
 
 - [ ] `ssh qrytics@smartHome` – log in to the RPi
 - [ ] `cd ~/smartHome && git pull` – pull the latest code
+- [ ] `./scripts/rpi-setup.sh` – refresh dependencies (safe to re-run)
 - [ ] `cd infrastructure && docker compose up -d` – start DB + MQTT + Redis
-- [ ] `cd backend && source venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000` – start API
-- [ ] `cd frontend && npm start` (second SSH tab) – start dashboard
+- [ ] Restart backend (`systemctl restart smarthome-backend` or manual `uvicorn`)
+- [ ] Restart frontend (`npm start` or your production serve command)
 - [ ] Open `http://smartHome:3000` in your browser – view the dashboard
 - [ ] `http://smartHome:8000/docs` – test API endpoints interactively
 
 ---
 
-*Last updated: 2026-03-23*
+*Last updated: 2026-04-15*
