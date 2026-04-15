@@ -291,6 +291,35 @@ git pull origin main
 ./scripts/rpi-setup.sh
 ```
 
+### 5.1.1 If backend dependencies changed, rebuild the backend venv
+
+If `requirements.txt` changed (especially SQLAlchemy / pydantic / FastAPI / uvicorn),
+rebuild the backend virtual environment to avoid stale package conflicts:
+
+```bash
+cd ~/smartHome
+chmod +x scripts/rpi-refresh-backend-venv.sh
+./scripts/rpi-refresh-backend-venv.sh
+```
+
+Equivalent manual steps:
+
+```bash
+cd ~/smartHome/backend
+deactivate 2>/dev/null || true
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Then start backend again:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
 ### 5.2 Restart runtime services cleanly
 
 ```bash
@@ -810,6 +839,42 @@ A previous instance is still running:
 ```bash
 # Find and kill it
 lsof -ti:8000 | xargs kill -9
+```
+
+### SQLAlchemy import crash on Python 3.13
+
+If you see an error like:
+
+```
+AssertionError: Class <class 'sqlalchemy.sql.elements.SQLCoreOperations'> ...
+```
+
+it usually means your backend venv still has an older SQLAlchemy build.
+
+Fix:
+
+```bash
+cd ~/smartHome
+chmod +x scripts/rpi-refresh-backend-venv.sh
+./scripts/rpi-refresh-backend-venv.sh
+
+# Then start backend:
+cd ~/smartHome/backend
+source venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Manual fallback:
+
+```bash
+cd ~/smartHome/backend
+deactivate 2>/dev/null || true
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ---
