@@ -64,6 +64,12 @@
   color: var(--muted);
 }
 
+.glossary-term {
+  text-decoration: underline dotted rgba(255, 255, 255, 0.45);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
 .metric-value {
   margin: 7px 0 0;
   font-size: 28px;
@@ -406,6 +412,7 @@
   border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
   padding: 9px 10px;
+  flex-wrap: wrap;
 }
 
 .table-wrap {
@@ -417,7 +424,7 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 690px;
+  min-width: 560px;
 }
 
 .data-table th,
@@ -555,6 +562,63 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.rule-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rule-block {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  padding: 10px;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  cursor: grab;
+}
+
+.rule-block-type {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.rule-canvas {
+  display: grid;
+  gap: 10px;
+}
+
+.rule-slot {
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rule-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.rule-slot-filled {
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  background: rgba(96, 165, 250, 0.14);
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.rule-inspector {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .form-error {

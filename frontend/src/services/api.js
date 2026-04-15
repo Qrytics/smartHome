@@ -104,6 +104,10 @@ export async function setDaylightHarvestMode(deviceId, enabled) {
     .then(unwrap);
 }
 
+export async function setFanState(deviceId, fanOn) {
+  return api.post(`/api/lighting/fan/${encodeURIComponent(deviceId)}`, { fan_on: fanOn }).then(unwrap);
+}
+
 export async function getDeviceStatus(deviceId) {
   return api.get(`/api/lighting/status/${encodeURIComponent(deviceId)}`).then(unwrap);
 }
@@ -126,6 +130,32 @@ export async function addPolicyCard(payload) {
 
 export async function deletePolicyCard(cardUid) {
   return api.delete(`/api/policies/cards/${encodeURIComponent(cardUid)}`).then(unwrap);
+}
+
+export async function listAutomationRules() {
+  return api.get('/api/rules').then(unwrap);
+}
+
+export async function createAutomationRule(payload) {
+  return api.post('/api/rules', payload).then(unwrap);
+}
+
+export async function updateAutomationRule(ruleId, payload) {
+  return api.put(`/api/rules/${encodeURIComponent(ruleId)}`, payload).then(unwrap);
+}
+
+export async function deleteAutomationRule(ruleId) {
+  return api.delete(`/api/rules/${encodeURIComponent(ruleId)}`).then(unwrap);
+}
+
+export async function toggleAutomationRule(ruleId, enabled) {
+  return api
+    .post(`/api/rules/${encodeURIComponent(ruleId)}/toggle`, { enabled })
+    .then(unwrap);
+}
+
+export async function getDefaultAutomationRuleset() {
+  return api.get('/api/rules/templates/default').then(unwrap);
 }
 
 export function buildWebSocketUrl() {
@@ -163,7 +193,14 @@ const apiService = {
   isHttpError,
   setDaylightHarvestMode,
   setDimmerBrightness,
+  setFanState,
   setRelayState,
+  createAutomationRule,
+  deleteAutomationRule,
+  getDefaultAutomationRuleset,
+  listAutomationRules,
+  toggleAutomationRule,
+  updateAutomationRule,
 };
 
 export default apiService;

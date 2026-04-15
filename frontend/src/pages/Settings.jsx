@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Panel from '../components/common/Panel';
 import StatusBadge from '../components/common/StatusBadge';
+import SectionDataModeToggle from '../components/common/SectionDataModeToggle';
 import { useAuth } from '../contexts/AuthContext';
 import { useSmartHome } from '../contexts/SmartHomeContext';
 
@@ -19,6 +20,9 @@ export default function Settings() {
     usingSyntheticFeed,
     usingPolicyFallback,
     usingAccessFallback,
+    sectionModes,
+    sectionStatus,
+    setSectionMode,
   } = useSmartHome();
   const {
     isAuthenticated,
@@ -88,6 +92,19 @@ export default function Settings() {
                   setDraftDeviceIds((prev) => ({ ...prev, lighting: event.target.value }))
                 }
                 placeholder="lighting-control-01"
+              />
+            </label>
+
+            <label className="field">
+              <span>HVAC device ID</span>
+              <input
+                className="input"
+                type="text"
+                value={draftDeviceIds.hvac}
+                onChange={(event) =>
+                  setDraftDeviceIds((prev) => ({ ...prev, hvac: event.target.value }))
+                }
+                placeholder="room-node-01"
               />
             </label>
 
@@ -203,6 +220,23 @@ export default function Settings() {
               {usingAccessFallback ? 'Local fallback active' : 'Backend endpoint active'}
             </StatusBadge>
           </div>
+          <div className="status-row">
+            <span>Rules engine</span>
+            <StatusBadge tone={sectionStatus.rules?.state === 'error' ? 'danger' : 'success'}>
+              {sectionStatus.rules?.message || 'Ready'}
+            </StatusBadge>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="Section Data Modes" subtitle="Default source mode per dashboard section">
+        <div className="status-list">
+          {Object.entries(sectionModes).map(([key, mode]) => (
+            <div className="status-row" key={key}>
+              <span>{key}</span>
+              <SectionDataModeToggle value={mode} onChange={(nextMode) => setSectionMode(key, nextMode)} />
+            </div>
+          ))}
         </div>
       </Panel>
 

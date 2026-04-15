@@ -3,6 +3,7 @@ import EnvironmentalChart from '../components/charts/EnvironmentalChart';
 import LightingChart from '../components/charts/LightingChart';
 import MetricCard from '../components/common/MetricCard';
 import Panel from '../components/common/Panel';
+import SectionDataModeToggle from '../components/common/SectionDataModeToggle';
 import { useSmartHome } from '../contexts/SmartHomeContext';
 import { downloadCsvFile, mergeSeriesForCsv, rowsToCsv } from '../utils/csv';
 import { computeSeriesStats, filterSeriesByRange, formatTempC } from '../utils/formatters';
@@ -31,6 +32,9 @@ export default function Analytics() {
     loading,
     refreshEnvironmentalHistory,
     refreshLightingHistory,
+    sectionModes,
+    sectionStatus,
+    setSectionMode,
   } = useSmartHome();
   const [rangeKey, setRangeKey] = useState('24h');
   const [customStart, setCustomStart] = useState(
@@ -115,6 +119,14 @@ export default function Analytics() {
         subtitle="Compare environmental and lighting behavior over historical windows"
         actions={
           <div className="button-row">
+            <SectionDataModeToggle
+              value={sectionModes.environmental}
+              onChange={(mode) => setSectionMode('environmental', mode)}
+            />
+            <SectionDataModeToggle
+              value={sectionModes.lighting}
+              onChange={(mode) => setSectionMode('lighting', mode)}
+            />
             <button className="btn btn-ghost btn-small" type="button" onClick={handleExportCsv}>
               Export CSV
             </button>
@@ -212,6 +224,9 @@ export default function Analytics() {
           title="Environmental History"
           subtitle={loading.environmentalHistory ? 'Refreshing environmental history...' : 'Temperature, humidity, and pressure'}
         >
+          {sectionStatus.environmental?.state === 'error' ? (
+            <div className="form-error">Connection Error: environmental history unavailable.</div>
+          ) : null}
           <EnvironmentalChart data={filteredEnvironmental} height={340} />
         </Panel>
 
@@ -219,6 +234,9 @@ export default function Analytics() {
           title="Lighting History"
           subtitle={loading.lightingHistory ? 'Refreshing lighting history...' : 'Ambient level, lux, and dimmer'}
         >
+          {sectionStatus.lighting?.state === 'error' ? (
+            <div className="form-error">Connection Error: lighting history unavailable.</div>
+          ) : null}
           <LightingChart data={filteredLighting} height={340} />
         </Panel>
       </section>

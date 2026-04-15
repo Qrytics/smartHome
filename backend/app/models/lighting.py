@@ -139,3 +139,25 @@ class AccessLog(Base):
 
     def __repr__(self):
         return f"<AccessLog(log_id={self.log_id}, card_uid='{self.card_uid}', granted={self.granted})>"
+
+
+class AutomationRule(Base):
+    """
+    Automation rules table.
+    Stores trigger-condition-action rules for runtime evaluation.
+    """
+    __tablename__ = 'automation_rules'
+
+    rule_id = Column(String(64), primary_key=True)
+    name = Column(String(120), nullable=False)
+    trigger = Column(String(50), nullable=False)
+    comparator = Column(String(10), nullable=False)
+    threshold = Column(Float, nullable=False)
+    action = Column(String(50), nullable=False)
+    action_value = Column(String(64), nullable=True)
+    enabled = Column(Boolean, nullable=False, default=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<AutomationRule(rule_id='{self.rule_id}', trigger='{self.trigger}', action='{self.action}', enabled={self.enabled})>"

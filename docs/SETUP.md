@@ -6,6 +6,10 @@ This guide will help you set up the Smart Home project development environment o
 > See **[`docs/RPI_DEPLOYMENT.md`](RPI_DEPLOYMENT.md)** for step-by-step
 > instructions on how to SSH into the RPi (`ssh qrytics@smartHome`), upload
 > code, start all services, and open the dashboard from any device on the network.
+>
+> For first-time setup on Raspberry Pi, run `scripts/rpi-setup.sh`. It now also
+> bootstraps backend (`backend/venv` + `pip install -r requirements.txt`) and
+> frontend (`npm install`) dependencies so post-`git pull` recovery is faster.
 
 ## Table of Contents
 

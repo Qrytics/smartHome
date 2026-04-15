@@ -5,6 +5,8 @@ import AccessLogTable from '../components/access/AccessLogTable';
 import MetricCard from '../components/common/MetricCard';
 import Panel from '../components/common/Panel';
 import StatusBadge from '../components/common/StatusBadge';
+import SectionDataModeToggle from '../components/common/SectionDataModeToggle';
+import GlossaryTerm from '../components/common/GlossaryTerm';
 import { useSmartHome } from '../contexts/SmartHomeContext';
 import {
   formatLux,
@@ -27,6 +29,9 @@ export default function Dashboard() {
     wsStatus,
     refreshAll,
     loading,
+    sectionModes,
+    sectionStatus,
+    setSectionMode,
   } = useSmartHome();
 
   const recentAccess = accessLogs.slice(0, 8);
@@ -35,25 +40,45 @@ export default function Dashboard() {
     <div className="page-stack">
       <section className="metric-grid">
         <MetricCard
-          label="Temperature"
+          label={
+            <GlossaryTerm
+              term="Temperature"
+              description="Measured air temperature in degrees Celsius from the environmental sensor."
+            />
+          }
           value={latestEnvironmental ? formatTempC(latestEnvironmental.temperature) : '--'}
           subtext={latestEnvironmental ? `Updated ${formatRelativeTime(latestEnvironmental.timestamp)}` : 'Waiting for sensor stream'}
           accent="cyan"
         />
         <MetricCard
-          label="Humidity"
+          label={
+            <GlossaryTerm
+              term="Humidity"
+              description="Relative humidity of the air as a percentage."
+            />
+          }
           value={latestEnvironmental ? formatPercent(latestEnvironmental.humidity, 1) : '--'}
           subtext={latestEnvironmental ? `Pressure ${latestEnvironmental.pressure.toFixed(1)} hPa` : 'No environmental sample yet'}
           accent="amber"
         />
         <MetricCard
-          label="Ambient Light"
+          label={
+            <GlossaryTerm
+              term="Ambient Light"
+              description="Background light level detected by the room light sensor."
+            />
+          }
           value={latestLighting ? formatLux(latestLighting.light_lux, 0) : '--'}
           subtext={latestLighting ? `${formatPercent(latestLighting.light_level, 0)} ambient level` : 'No lighting telemetry yet'}
           accent="green"
         />
         <MetricCard
-          label="Dimmer"
+          label={
+            <GlossaryTerm
+              term="Dimmer"
+              description="Current LED brightness command sent by the lighting controller."
+            />
+          }
           value={latestLighting ? formatPercent(latestLighting.dimmer_brightness, 0) : '--'}
           subtext={
             latestLighting?.daylight_harvest_mode
@@ -68,14 +93,32 @@ export default function Dashboard() {
         <Panel
           title="Environmental Monitoring"
           subtitle="Live temperature, humidity, and pressure telemetry"
+          actions={
+            <SectionDataModeToggle
+              value={sectionModes.environmental}
+              onChange={(mode) => setSectionMode('environmental', mode)}
+            />
+          }
         >
+          {sectionStatus.environmental?.state === 'error' ? (
+            <div className="form-error">Connection Error: environmental telemetry unavailable.</div>
+          ) : null}
           <EnvironmentalChart data={environmentalData} />
         </Panel>
 
         <Panel
           title="Lighting Monitoring"
           subtitle="Ambient light, lux estimation, and dimmer behavior"
+          actions={
+            <SectionDataModeToggle
+              value={sectionModes.lighting}
+              onChange={(mode) => setSectionMode('lighting', mode)}
+            />
+          }
         >
+          {sectionStatus.lighting?.state === 'error' ? (
+            <div className="form-error">Connection Error: lighting telemetry unavailable.</div>
+          ) : null}
           <LightingChart data={lightingData} />
         </Panel>
       </section>
@@ -91,7 +134,7 @@ export default function Dashboard() {
               onClick={() => refreshAll()}
               disabled={loading.health}
             >
-              Refresh
+              Refresh dashboard
             </button>
           }
         >
@@ -117,21 +160,36 @@ export default function Dashboard() {
               </StatusBadge>
             </div>
             <div className="status-row">
-              <span>WebSocket stream</span>
+              <span>
+                <GlossaryTerm
+                  term="WebSocket stream"
+                  description="Real-time channel that pushes live telemetry updates to the dashboard."
+                />
+              </span>
               <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'warning'}>
                 {wsStatus.toUpperCase()}
               </StatusBadge>
             </div>
             <div className="status-row">
-              <span>Connected devices</span>
+              <span>
+                <GlossaryTerm
+                  term="Connected devices"
+                  description="Number of device clients currently connected to the backend."
+                />
+              </span>
               <StatusBadge tone={connectedDevices.length ? 'success' : 'info'}>
-                {connectedDevices.length ? connectedDevices.join(', ') : 'NONE'}
+                {connectedDevices.length ? `${connectedDevices.length} connected` : 'NONE'}
               </StatusBadge>
             </div>
             <div className="status-row">
-              <span>Data source</span>
+              <span>
+                <GlossaryTerm
+                  term="Data source"
+                  description="Whether the panel is currently using live telemetry or simulated demo data."
+                />
+              </span>
               <StatusBadge tone={usingSyntheticFeed ? 'warning' : 'success'}>
-                {usingSyntheticFeed ? 'SYNTHETIC FALLBACK' : 'LIVE STREAM'}
+                {usingSyntheticFeed ? 'SIMULATED DATA' : 'LIVE STREAM'}
               </StatusBadge>
             </div>
             <div className="status-row">
@@ -141,7 +199,19 @@ export default function Dashboard() {
           </div>
         </Panel>
 
-        <Panel title="Recent Access Attempts" subtitle="Latest RFID authorization results">
+        <Panel
+          title="Recent Access Attempts"
+          subtitle="Latest RFID authorization results"
+          actions={
+            <SectionDataModeToggle
+              value={sectionModes.access}
+              onChange={(mode) => setSectionMode('access', mode)}
+            />
+          }
+        >
+          {sectionStatus.access?.state === 'error' ? (
+            <div className="form-error">Connection Error: access logs unavailable.</div>
+          ) : null}
           <AccessLogTable logs={recentAccess} maxRows={8} />
         </Panel>
       </section>

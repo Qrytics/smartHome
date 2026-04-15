@@ -2,23 +2,32 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import {
   addPolicyCard,
   checkAccess,
+  createAutomationRule,
+  deleteAutomationRule,
   deletePolicyCard,
   getAccessLogs,
   getDeviceStatus,
+  getDefaultAutomationRuleset,
   getEnvironmentalReadings,
   getHealthCheck,
+  listAutomationRules,
   getPolicyCards,
   getSensorHistory,
   isHttpError,
+  setFanState,
   setDaylightHarvestMode,
   setDimmerBrightness,
   setRelayState,
+  toggleAutomationRule,
+  updateAutomationRule,
 } from '../services/api';
 import {
   addMockPolicyCard,
   appendMockAccessLog,
   createMockAccessEvent,
   ensureMockStore,
+  generateSeededEnvironmentalSeries,
+  generateSeededLightingSeries,
   generateSyntheticEnvironmentalPoint,
   generateSyntheticLightingPoint,
   getMockAccessLogs,
@@ -29,12 +38,26 @@ import useRealtimeFeed from '../hooks/useRealtimeFeed';
 import { asNumber, toIsoTimestamp } from '../utils/formatters';
 
 const DEVICE_ID_STORE_KEY = 'smarthome.dashboard.deviceIds.v1';
+const SECTION_MODE_STORE_KEY = 'smarthome.dashboard.sectionModes.v1';
 const MAX_DATA_POINTS = 720;
+const DATA_SOURCE_MODES = ['auto', 'real', 'demo'];
+const SECTION_KEYS = ['environmental', 'lighting', 'access', 'policy', 'system', 'hvac', 'rules'];
 
 const DEFAULT_DEVICE_IDS = {
   environmental: 'sensor-monitor-01',
   lighting: 'lighting-control-01',
   door: 'door-control-01',
+  hvac: 'room-node-01',
+};
+
+const DEFAULT_SECTION_MODES = {
+  environmental: 'auto',
+  lighting: 'auto',
+  access: 'auto',
+  policy: 'auto',
+  system: 'auto',
+  hvac: 'auto',
+  rules: 'auto',
 };
 
 const SmartHomeContext = createContext(null);
@@ -55,6 +78,7 @@ function loadDeviceIds() {
       environmental: parsed.environmental || DEFAULT_DEVICE_IDS.environmental,
       lighting: parsed.lighting || DEFAULT_DEVICE_IDS.lighting,
       door: parsed.door || DEFAULT_DEVICE_IDS.door,
+      hvac: parsed.hvac || DEFAULT_DEVICE_IDS.hvac,
     };
   } catch (error) {
     return DEFAULT_DEVICE_IDS;
@@ -66,6 +90,31 @@ function persistDeviceIds(deviceIds) {
     window.localStorage.setItem(DEVICE_ID_STORE_KEY, JSON.stringify(deviceIds));
   } catch (error) {
     // Storage persistence is best-effort only.
+  }
+}
+
+function loadSectionModes() {
+  try {
+    const raw = window.localStorage.getItem(SECTION_MODE_STORE_KEY);
+    if (!raw) return DEFAULT_SECTION_MODES;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return DEFAULT_SECTION_MODES;
+
+    return SECTION_KEYS.reduce((acc, section) => {
+      const mode = parsed[section];
+      acc[section] = DATA_SOURCE_MODES.includes(mode) ? mode : DEFAULT_SECTION_MODES[section];
+      return acc;
+    }, {});
+  } catch (error) {
+    return DEFAULT_SECTION_MODES;
+  }
+}
+
+function persistSectionModes(modes) {
+  try {
+    window.localStorage.setItem(SECTION_MODE_STORE_KEY, JSON.stringify(modes));
+  } catch (error) {
+    // Best-effort persistence only.
   }
 }
 
@@ -161,6 +210,19 @@ function hasEnvironmentalFields(payload) {
 
 export function SmartHomeProvider({ children }) {
   const [deviceIds, setDeviceIdsState] = useState(() => loadDeviceIds());
+  const [sectionModes, setSectionModes] = useState(() => loadSectionModes());
+  const [sectionStatus, setSectionStatus] = useState(() =>
+    SECTION_KEYS.reduce((acc, key) => {
+      acc[key] = {
+        state: 'ok',
+        message: 'Live data connected.',
+        source: 'real',
+        lastSuccessAt: null,
+        lastErrorAt: null,
+      };
+      return acc;
+    }, {})
+  );
   const [health, setHealth] = useState({
     status: 'unknown',
     timestamp: null,
@@ -175,6 +237,14 @@ export function SmartHomeProvider({ children }) {
   const [lightingData, setLightingData] = useState([]);
   const [policyCards, setPolicyCards] = useState([]);
   const [accessLogs, setAccessLogs] = useState([]);
+  const [automationRules, setAutomationRules] = useState([]);
+  const [hvacState, setHvacState] = useState({
+    setpoint_c: 22,
+    temperature_c: null,
+    fan_on: false,
+    control_mode: 'auto',
+    last_update: null,
+  });
   const [usingPolicyFallback, setUsingPolicyFallback] = useState(false);
   const [usingAccessFallback, setUsingAccessFallback] = useState(false);
   const [usingSyntheticFeed, setUsingSyntheticFeed] = useState(false);
@@ -187,6 +257,7 @@ export function SmartHomeProvider({ children }) {
     policies: false,
     accessLogs: false,
     commands: false,
+    rules: false,
   });
 
   const setLoadingFlag = useCallback((key, value) => {
@@ -195,6 +266,44 @@ export function SmartHomeProvider({ children }) {
       [key]: value,
     }));
   }, []);
+
+  const setSectionHealth = useCallback((section, patch) => {
+    setSectionStatus((previous) => {
+      const current = previous[section] || {
+        state: 'ok',
+        message: 'Live data connected.',
+        source: 'real',
+        lastSuccessAt: null,
+        lastErrorAt: null,
+      };
+      return {
+        ...previous,
+        [section]: { ...current, ...patch },
+      };
+    });
+  }, []);
+
+  const shouldUseDemoMode = useCallback(
+    (section, realAvailable) => {
+      const mode = sectionModes[section] || 'auto';
+      if (mode === 'demo') return true;
+      if (mode === 'real') return false;
+      return !realAvailable;
+    },
+    [sectionModes]
+  );
+
+  const markSectionError = useCallback(
+    (section, message) => {
+      setSectionHealth(section, {
+        state: 'error',
+        message: message || 'Connection Error',
+        source: sectionModes[section] === 'demo' ? 'demo' : 'real',
+        lastErrorAt: new Date().toISOString(),
+      });
+    },
+    [sectionModes, setSectionHealth]
+  );
 
   const appendEnvironmentalPoint = useCallback((point) => {
     const normalized = normalizeEnvironmentalPoint(point);
@@ -231,19 +340,31 @@ export function SmartHomeProvider({ children }) {
       const payload = message?.data || message;
       if (!payload || typeof payload !== 'object') return;
 
-      if (hasLightingFields(payload)) {
+      if (hasLightingFields(payload) && sectionModes.lighting !== 'demo') {
         appendLightingPoint(payload);
       }
 
-      if (hasEnvironmentalFields(payload)) {
+      if (hasEnvironmentalFields(payload) && sectionModes.environmental !== 'demo') {
         appendEnvironmentalPoint(payload);
+        setHvacState((previous) => ({
+          ...previous,
+          temperature_c: asNumber(payload.temperature ?? payload.temperature_avg, previous.temperature_c),
+          last_update: new Date().toISOString(),
+        }));
       }
 
-      if (message?.type === 'access_event') {
+      if (message?.type === 'access_event' && sectionModes.access !== 'demo') {
         appendAccessLog(payload);
       }
     },
-    [appendAccessLog, appendEnvironmentalPoint, appendLightingPoint]
+    [
+      appendAccessLog,
+      appendEnvironmentalPoint,
+      appendLightingPoint,
+      sectionModes.access,
+      sectionModes.environmental,
+      sectionModes.lighting,
+    ]
   );
 
   const { status: wsStatus, wsUrl, lastMessageAt } = useRealtimeFeed({
@@ -253,6 +374,24 @@ export function SmartHomeProvider({ children }) {
 
   const refreshHealth = useCallback(async () => {
     setLoadingFlag('health', true);
+    const useDemo = sectionModes.system === 'demo';
+    if (useDemo) {
+      const now = new Date().toISOString();
+      setHealth({
+        status: 'healthy',
+        timestamp: now,
+        services: { redis: 'connected', database: 'connected' },
+      });
+      setApiReachable(true);
+      setSectionHealth('system', {
+        state: 'fallback',
+        message: 'Demo mode enabled for system status.',
+        source: 'demo',
+        lastSuccessAt: now,
+      });
+      setLoadingFlag('health', false);
+      return;
+    }
     try {
       const data = await getHealthCheck();
       setHealth({
@@ -265,6 +404,12 @@ export function SmartHomeProvider({ children }) {
       });
       setApiReachable(true);
       setLastError(null);
+      setSectionHealth('system', {
+        state: 'ok',
+        message: 'Live system status connected.',
+        source: 'real',
+        lastSuccessAt: new Date().toISOString(),
+      });
     } catch (error) {
       setApiReachable(false);
       setHealth({
@@ -276,10 +421,26 @@ export function SmartHomeProvider({ children }) {
         },
       });
       setLastError('Backend API is unreachable. Running in fallback mode where possible.');
+      if (sectionModes.system === 'real') {
+        markSectionError('system', 'Connection Error: system status unavailable.');
+      } else {
+        const now = new Date().toISOString();
+        setHealth({
+          status: 'degraded',
+          timestamp: now,
+          services: { redis: 'unknown', database: 'unknown' },
+        });
+        setSectionHealth('system', {
+          state: 'fallback',
+          message: 'Live status unavailable, using demo summary.',
+          source: 'demo',
+          lastErrorAt: now,
+        });
+      }
     } finally {
       setLoadingFlag('health', false);
     }
-  }, [setLoadingFlag]);
+  }, [markSectionError, sectionModes.system, setLoadingFlag, setSectionHealth]);
 
   const refreshLightingSnapshot = useCallback(async () => {
     try {
@@ -307,6 +468,24 @@ export function SmartHomeProvider({ children }) {
   const refreshLightingHistory = useCallback(
     async (rangeHours = 24) => {
       setLoadingFlag('lightingHistory', true);
+      const useDemo = sectionModes.lighting === 'demo';
+      if (useDemo) {
+        setLightingData((previous) =>
+          capDataPoints(
+            mergeLatestByTimestamp(
+              previous.length >= 240 ? previous : generateSeededLightingSeries(420, 2)
+            )
+          )
+        );
+        setSectionHealth('lighting', {
+          state: 'fallback',
+          message: 'Demo mode enabled for lighting.',
+          source: 'demo',
+          lastSuccessAt: new Date().toISOString(),
+        });
+        setLoadingFlag('lightingHistory', false);
+        return;
+      }
       const endTime = new Date();
       const startTime = new Date(endTime.getTime() - rangeHours * 60 * 60 * 1000);
 
@@ -327,18 +506,55 @@ export function SmartHomeProvider({ children }) {
         if (normalized.length > 0) {
           setLightingData(capDataPoints(mergeLatestByTimestamp(normalized)));
         }
+        setSectionHealth('lighting', {
+          state: 'ok',
+          message: 'Live lighting data connected.',
+          source: 'real',
+          lastSuccessAt: new Date().toISOString(),
+        });
       } catch (error) {
         setLastError('Unable to load lighting history from backend.');
+        if (sectionModes.lighting === 'real') {
+          markSectionError('lighting', 'Connection Error: lighting stream unavailable.');
+        } else {
+          setLightingData((previous) =>
+            capDataPoints(mergeLatestByTimestamp([...previous, generateSyntheticLightingPoint(previous[previous.length - 1])]))
+          );
+          setSectionHealth('lighting', {
+            state: 'fallback',
+            message: 'Live lighting unavailable, using demo data.',
+            source: 'demo',
+            lastErrorAt: new Date().toISOString(),
+          });
+        }
       } finally {
         setLoadingFlag('lightingHistory', false);
       }
     },
-    [deviceIds.lighting, setLoadingFlag]
+    [deviceIds.lighting, markSectionError, sectionModes.lighting, setLoadingFlag, setSectionHealth]
   );
 
   const refreshEnvironmentalHistory = useCallback(
     async (rangeHours = 24) => {
       setLoadingFlag('environmentalHistory', true);
+      const useDemo = sectionModes.environmental === 'demo';
+      if (useDemo) {
+        setEnvironmentalData((previous) =>
+          capDataPoints(
+            mergeLatestByTimestamp(
+              previous.length >= 240 ? previous : generateSeededEnvironmentalSeries(420, 2)
+            )
+          )
+        );
+        setSectionHealth('environmental', {
+          state: 'fallback',
+          message: 'Demo mode enabled for environmental telemetry.',
+          source: 'demo',
+          lastSuccessAt: new Date().toISOString(),
+        });
+        setLoadingFlag('environmentalHistory', false);
+        return;
+      }
       const endTime = new Date();
       const startTime = new Date(endTime.getTime() - rangeHours * 60 * 60 * 1000);
 
@@ -360,34 +576,111 @@ export function SmartHomeProvider({ children }) {
         if (normalized.length > 0) {
           setEnvironmentalData(capDataPoints(mergeLatestByTimestamp(normalized)));
         }
+        setSectionHealth('environmental', {
+          state: 'ok',
+          message: 'Live environmental telemetry connected.',
+          source: 'real',
+          lastSuccessAt: new Date().toISOString(),
+        });
       } catch (error) {
-        // Environmental history is not available on every backend revision.
+        if (sectionModes.environmental === 'real') {
+          markSectionError('environmental', 'Connection Error: environmental stream unavailable.');
+        } else {
+          setEnvironmentalData((previous) =>
+            capDataPoints(
+              mergeLatestByTimestamp([
+                ...previous,
+                generateSyntheticEnvironmentalPoint(previous[previous.length - 1]),
+              ])
+            )
+          );
+          setSectionHealth('environmental', {
+            state: 'fallback',
+            message: 'Live environmental stream unavailable, using demo data.',
+            source: 'demo',
+            lastErrorAt: new Date().toISOString(),
+          });
+        }
       } finally {
         setLoadingFlag('environmentalHistory', false);
       }
     },
-    [deviceIds.environmental, setLoadingFlag]
+    [
+      deviceIds.environmental,
+      markSectionError,
+      sectionModes.environmental,
+      setLoadingFlag,
+      setSectionHealth,
+    ]
   );
 
   const refreshPolicyCards = useCallback(async () => {
     setLoadingFlag('policies', true);
+    if (sectionModes.policy === 'demo') {
+      setPolicyCards(getMockPolicyCards());
+      setUsingPolicyFallback(true);
+      setSectionHealth('policy', {
+        state: 'fallback',
+        message: 'Demo policy cards in use.',
+        source: 'demo',
+        lastSuccessAt: new Date().toISOString(),
+      });
+      setLoadingFlag('policies', false);
+      return;
+    }
     try {
       const response = await getPolicyCards();
       const cards = normalizePolicyCards(response);
       setPolicyCards(cards);
       setUsingPolicyFallback(false);
+      setSectionHealth('policy', {
+        state: 'ok',
+        message: 'Live policy endpoint connected.',
+        source: 'real',
+        lastSuccessAt: new Date().toISOString(),
+      });
     } catch (error) {
-      const fallbackCards = getMockPolicyCards();
-      setPolicyCards(fallbackCards);
-      setUsingPolicyFallback(true);
+      if (sectionModes.policy === 'real') {
+        markSectionError('policy', 'Connection Error: policy endpoint unavailable.');
+      } else {
+        const fallbackCards = getMockPolicyCards();
+        setPolicyCards(fallbackCards);
+        setUsingPolicyFallback(true);
+        setSectionHealth('policy', {
+          state: 'fallback',
+          message: 'Live policy endpoint unavailable, using fallback cards.',
+          source: 'demo',
+          lastErrorAt: new Date().toISOString(),
+        });
+      }
     } finally {
       setLoadingFlag('policies', false);
     }
-  }, [setLoadingFlag]);
+  }, [markSectionError, sectionModes.policy, setLoadingFlag, setSectionHealth]);
 
   const refreshAccessLogs = useCallback(
     async (filters = {}) => {
       setLoadingFlag('accessLogs', true);
+      if (sectionModes.access === 'demo') {
+        const fallback = getMockAccessLogs({
+          limit: filters.limit || 200,
+          offset: filters.offset || 0,
+          search: filters.search,
+          granted: filters.granted,
+          card_uid: filters.card_uid,
+          device_id: filters.device_id,
+        });
+        setAccessLogs(fallback.logs.map(normalizeAccessLog));
+        setUsingAccessFallback(true);
+        setSectionHealth('access', {
+          state: 'fallback',
+          message: 'Demo access logs in use.',
+          source: 'demo',
+          lastSuccessAt: new Date().toISOString(),
+        });
+        setLoadingFlag('accessLogs', false);
+        return;
+      }
 
       try {
         const response = await getAccessLogs({
@@ -408,22 +701,38 @@ export function SmartHomeProvider({ children }) {
 
         setAccessLogs(logs);
         setUsingAccessFallback(false);
-      } catch (error) {
-        const fallback = getMockAccessLogs({
-          limit: filters.limit || 200,
-          offset: filters.offset || 0,
-          search: filters.search,
-          granted: filters.granted,
-          card_uid: filters.card_uid,
-          device_id: filters.device_id,
+        setSectionHealth('access', {
+          state: 'ok',
+          message: 'Live access endpoint connected.',
+          source: 'real',
+          lastSuccessAt: new Date().toISOString(),
         });
-        setAccessLogs(fallback.logs.map(normalizeAccessLog));
-        setUsingAccessFallback(true);
+      } catch (error) {
+        if (sectionModes.access === 'real') {
+          markSectionError('access', 'Connection Error: access endpoint unavailable.');
+        } else {
+          const fallback = getMockAccessLogs({
+            limit: filters.limit || 200,
+            offset: filters.offset || 0,
+            search: filters.search,
+            granted: filters.granted,
+            card_uid: filters.card_uid,
+            device_id: filters.device_id,
+          });
+          setAccessLogs(fallback.logs.map(normalizeAccessLog));
+          setUsingAccessFallback(true);
+          setSectionHealth('access', {
+            state: 'fallback',
+            message: 'Live access endpoint unavailable, using fallback logs.',
+            source: 'demo',
+            lastErrorAt: new Date().toISOString(),
+          });
+        }
       } finally {
         setLoadingFlag('accessLogs', false);
       }
     },
-    [setLoadingFlag]
+    [markSectionError, sectionModes.access, setLoadingFlag, setSectionHealth]
   );
 
   const updateLightingState = useCallback((patch) => {
@@ -546,6 +855,125 @@ export function SmartHomeProvider({ children }) {
     [deviceIds.lighting, setLoadingFlag]
   );
 
+  const setFan = useCallback(
+    async (fanOn) => {
+      setLoadingFlag('commands', true);
+      try {
+        await setFanState(deviceIds.hvac, fanOn);
+        setSectionHealth('hvac', {
+          state: 'ok',
+          message: 'HVAC fan command sent to live device.',
+          source: 'real',
+          lastSuccessAt: new Date().toISOString(),
+        });
+      } catch (error) {
+        if (sectionModes.hvac === 'real') {
+          markSectionError('hvac', 'Connection Error: unable to control HVAC fan.');
+        } else {
+          setSectionHealth('hvac', {
+            state: 'fallback',
+            message: 'HVAC fan command applied in demo mode.',
+            source: 'demo',
+            lastErrorAt: new Date().toISOString(),
+          });
+        }
+      } finally {
+        setHvacState((previous) => ({
+          ...previous,
+          fan_on: Boolean(fanOn),
+          last_update: new Date().toISOString(),
+        }));
+        setLoadingFlag('commands', false);
+      }
+    },
+    [
+      deviceIds.hvac,
+      markSectionError,
+      sectionModes.hvac,
+      setLoadingFlag,
+      setSectionHealth,
+    ]
+  );
+
+  const setHvacSetpoint = useCallback((setpointC) => {
+    setHvacState((previous) => ({
+      ...previous,
+      setpoint_c: asNumber(setpointC, previous.setpoint_c),
+      last_update: new Date().toISOString(),
+    }));
+  }, []);
+
+  const refreshAutomationRules = useCallback(async () => {
+    setLoadingFlag('rules', true);
+    try {
+      const response = await listAutomationRules();
+      const rules = Array.isArray(response?.rules)
+        ? response.rules
+        : Array.isArray(response)
+          ? response
+          : [];
+      setAutomationRules(rules);
+      setSectionHealth('rules', {
+        state: 'ok',
+        message: 'Live automation rules loaded.',
+        source: 'real',
+        lastSuccessAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      setAutomationRules([]);
+      if (sectionModes.rules === 'real') {
+        markSectionError('rules', 'Connection Error: automation rules unavailable.');
+      } else {
+        setSectionHealth('rules', {
+          state: 'fallback',
+          message: 'Rules API unavailable; using local template mode.',
+          source: 'demo',
+          lastErrorAt: new Date().toISOString(),
+        });
+      }
+    } finally {
+      setLoadingFlag('rules', false);
+    }
+  }, [markSectionError, sectionModes.rules, setLoadingFlag, setSectionHealth]);
+
+  const loadDefaultRuleset = useCallback(async () => {
+    const response = await getDefaultAutomationRuleset();
+    const rules = Array.isArray(response?.rules) ? response.rules : [];
+    if (sectionModes.rules !== 'demo') {
+      const existing = new Set(automationRules.map((rule) => rule.name));
+      for (const rule of rules) {
+        if (!existing.has(rule.name)) {
+          await createAutomationRule(rule);
+        }
+      }
+      await refreshAutomationRules();
+    } else {
+      setAutomationRules(rules.map((rule, index) => ({ ...rule, id: `template-${index}` })));
+    }
+    return rules;
+  }, [automationRules, refreshAutomationRules, sectionModes.rules]);
+
+  const saveAutomationRule = useCallback(async (rule) => {
+    if (rule.id) {
+      const updated = await updateAutomationRule(rule.id, rule);
+      await refreshAutomationRules();
+      return updated;
+    }
+    const created = await createAutomationRule(rule);
+    await refreshAutomationRules();
+    return created;
+  }, [refreshAutomationRules]);
+
+  const removeAutomationRule = useCallback(async (ruleId) => {
+    await deleteAutomationRule(ruleId);
+    await refreshAutomationRules();
+  }, [refreshAutomationRules]);
+
+  const setAutomationRuleEnabled = useCallback(async (ruleId, enabled) => {
+    await toggleAutomationRule(ruleId, enabled);
+    await refreshAutomationRules();
+  }, [refreshAutomationRules]);
+
   const createOrCheckAccessEvent = useCallback(
     async (cardUid) => {
       const payload = {
@@ -633,8 +1061,10 @@ export function SmartHomeProvider({ children }) {
       refreshEnvironmentalHistory(24),
       refreshPolicyCards(),
       refreshAccessLogs(),
+      refreshAutomationRules(),
     ]);
   }, [
+    refreshAutomationRules,
     refreshAccessLogs,
     refreshEnvironmentalHistory,
     refreshHealth,
@@ -649,9 +1079,19 @@ export function SmartHomeProvider({ children }) {
         environmental: nextIds.environmental || previous.environmental,
         lighting: nextIds.lighting || previous.lighting,
         door: nextIds.door || previous.door,
+        hvac: nextIds.hvac || previous.hvac,
       };
       persistDeviceIds(merged);
       return merged;
+    });
+  }, []);
+
+  const setSectionMode = useCallback((section, mode) => {
+    if (!SECTION_KEYS.includes(section) || !DATA_SOURCE_MODES.includes(mode)) return;
+    setSectionModes((previous) => {
+      const next = { ...previous, [section]: mode };
+      persistSectionModes(next);
+      return next;
     });
   }, []);
 
@@ -682,28 +1122,43 @@ export function SmartHomeProvider({ children }) {
   }, [refreshAccessLogs]);
 
   useEffect(() => {
-    if (wsStatus === 'connected') {
+    const forceDemo = sectionModes.environmental === 'demo' || sectionModes.lighting === 'demo';
+    if (wsStatus === 'connected' && !forceDemo) {
       setUsingSyntheticFeed(false);
       return undefined;
     }
 
     setUsingSyntheticFeed(true);
+    setEnvironmentalData((previous) =>
+      previous.length >= 200
+        ? previous
+        : capDataPoints(mergeLatestByTimestamp(generateSeededEnvironmentalSeries(420, 2)))
+    );
+    setLightingData((previous) =>
+      previous.length >= 200
+        ? previous
+        : capDataPoints(mergeLatestByTimestamp(generateSeededLightingSeries(420, 2)))
+    );
     const interval = window.setInterval(() => {
-      setEnvironmentalData((previous) => {
-        const nextPoint = generateSyntheticEnvironmentalPoint(previous[previous.length - 1]);
-        return capDataPoints(mergeLatestByTimestamp([...previous, nextPoint]));
-      });
+      if (shouldUseDemoMode('environmental', wsStatus === 'connected')) {
+        setEnvironmentalData((previous) => {
+          const nextPoint = generateSyntheticEnvironmentalPoint(previous[previous.length - 1]);
+          return capDataPoints(mergeLatestByTimestamp([...previous, nextPoint]));
+        });
+      }
 
-      setLightingData((previous) => {
-        const nextPoint = generateSyntheticLightingPoint(previous[previous.length - 1]);
-        return capDataPoints(mergeLatestByTimestamp([...previous, nextPoint]));
-      });
+      if (shouldUseDemoMode('lighting', wsStatus === 'connected')) {
+        setLightingData((previous) => {
+          const nextPoint = generateSyntheticLightingPoint(previous[previous.length - 1]);
+          return capDataPoints(mergeLatestByTimestamp([...previous, nextPoint]));
+        });
+      }
     }, 5000);
 
     return () => {
       window.clearInterval(interval);
     };
-  }, [wsStatus]);
+  }, [sectionModes.environmental, sectionModes.lighting, shouldUseDemoMode, wsStatus]);
 
   const latestEnvironmental = environmentalData[environmentalData.length - 1] || null;
   const latestLighting = lightingData[lightingData.length - 1] || null;
@@ -712,12 +1167,15 @@ export function SmartHomeProvider({ children }) {
     () => ({
       accessLogs,
       apiReachable,
+      automationRules,
       connectedDevices,
       createOrCheckAccessEvent,
       createPolicyCard,
       deviceIds,
       environmentalData,
       health,
+      hvacState,
+      loadDefaultRuleset,
       lastCommand,
       lastError,
       lastMessageAt,
@@ -728,16 +1186,25 @@ export function SmartHomeProvider({ children }) {
       policyCards,
       refreshAccessLogs,
       refreshAll,
+      refreshAutomationRules,
       refreshEnvironmentalHistory,
       refreshHealth,
       refreshLightingHistory,
       refreshLightingSnapshot,
       refreshPolicyCards,
+      removeAutomationRule,
       revokePolicyCard,
+      saveAutomationRule,
       setDaylightHarvest,
       setDeviceIds,
       setDimmer,
+      setFan,
       setRelay,
+      sectionModes,
+      sectionStatus,
+      setHvacSetpoint,
+      setSectionMode,
+      setAutomationRuleEnabled,
       usingAccessFallback,
       usingPolicyFallback,
       usingSyntheticFeed,
@@ -747,12 +1214,15 @@ export function SmartHomeProvider({ children }) {
     [
       accessLogs,
       apiReachable,
+      automationRules,
       connectedDevices,
       createOrCheckAccessEvent,
       createPolicyCard,
       deviceIds,
       environmentalData,
       health,
+      hvacState,
+      loadDefaultRuleset,
       lastCommand,
       lastError,
       lastMessageAt,
@@ -763,16 +1233,25 @@ export function SmartHomeProvider({ children }) {
       policyCards,
       refreshAccessLogs,
       refreshAll,
+      refreshAutomationRules,
       refreshEnvironmentalHistory,
       refreshHealth,
       refreshLightingHistory,
       refreshLightingSnapshot,
       refreshPolicyCards,
+      removeAutomationRule,
       revokePolicyCard,
+      saveAutomationRule,
       setDaylightHarvest,
       setDeviceIds,
       setDimmer,
+      setFan,
       setRelay,
+      sectionModes,
+      sectionStatus,
+      setHvacSetpoint,
+      setSectionMode,
+      setAutomationRuleEnabled,
       usingAccessFallback,
       usingPolicyFallback,
       usingSyntheticFeed,

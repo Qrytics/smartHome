@@ -9,12 +9,14 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 from contextlib import contextmanager
 from typing import List, Optional
+import uuid
 from datetime import datetime
 
 from app.config import settings
 from app.models.lighting import (
     Base, LightingSensorData, RelayState, DimmerState, Device,
     FanState, RFIDCard, AccessLog,
+    AutomationRule,
 )
 
 
@@ -429,6 +431,99 @@ class DatabaseClient:
                 }
                 for log in logs
             ]
+
+    # -----------------------------------------------------------------------
+    # Automation Rules Operations
+    # -----------------------------------------------------------------------
+
+    def list_automation_rules(self) -> List[dict]:
+        with self.get_session() as session:
+            rules = session.query(AutomationRule).order_by(AutomationRule.created_at.asc()).all()
+            return [
+                {
+                    "id": rule.rule_id,
+                    "name": rule.name,
+                    "trigger": rule.trigger,
+                    "comparator": rule.comparator,
+                    "threshold": rule.threshold,
+                    "action": rule.action,
+                    "action_value": rule.action_value,
+                    "enabled": rule.enabled,
+                    "created_at": rule.created_at.isoformat() if rule.created_at else None,
+                    "updated_at": rule.updated_at.isoformat() if rule.updated_at else None,
+                }
+                for rule in rules
+            ]
+
+    def create_automation_rule(self, payload: dict) -> dict:
+        with self.get_session() as session:
+            rule_id = payload.get("id") or f"rule-{uuid.uuid4().hex[:10]}"
+            rule = AutomationRule(
+                rule_id=rule_id,
+                name=payload["name"],
+                trigger=payload["trigger"],
+                comparator=payload["comparator"],
+                threshold=float(payload["threshold"]),
+                action=payload["action"],
+                action_value=str(payload.get("action_value", "")),
+                enabled=bool(payload.get("enabled", True)),
+            )
+            session.add(rule)
+            session.flush()
+            return {
+                "id": rule.rule_id,
+                "name": rule.name,
+                "trigger": rule.trigger,
+                "comparator": rule.comparator,
+                "threshold": rule.threshold,
+                "action": rule.action,
+                "action_value": rule.action_value,
+                "enabled": rule.enabled,
+            }
+
+    def update_automation_rule(self, rule_id: str, payload: dict) -> Optional[dict]:
+        with self.get_session() as session:
+            rule = session.query(AutomationRule).filter(AutomationRule.rule_id == rule_id).first()
+            if not rule:
+                return None
+
+            rule.name = payload.get("name", rule.name)
+            rule.trigger = payload.get("trigger", rule.trigger)
+            rule.comparator = payload.get("comparator", rule.comparator)
+            if "threshold" in payload:
+                rule.threshold = float(payload["threshold"])
+            if "action" in payload:
+                rule.action = payload["action"]
+            if "action_value" in payload:
+                rule.action_value = str(payload["action_value"])
+            if "enabled" in payload:
+                rule.enabled = bool(payload["enabled"])
+            session.flush()
+
+            return {
+                "id": rule.rule_id,
+                "name": rule.name,
+                "trigger": rule.trigger,
+                "comparator": rule.comparator,
+                "threshold": rule.threshold,
+                "action": rule.action,
+                "action_value": rule.action_value,
+                "enabled": rule.enabled,
+            }
+
+    def toggle_automation_rule(self, rule_id: str, enabled: bool) -> Optional[dict]:
+        with self.get_session() as session:
+            rule = session.query(AutomationRule).filter(AutomationRule.rule_id == rule_id).first()
+            if not rule:
+                return None
+            rule.enabled = enabled
+            session.flush()
+            return {"id": rule.rule_id, "enabled": rule.enabled}
+
+    def delete_automation_rule(self, rule_id: str) -> bool:
+        with self.get_session() as session:
+            rows = session.query(AutomationRule).filter(AutomationRule.rule_id == rule_id).delete()
+            return rows > 0
 
 
 # Global database client instance

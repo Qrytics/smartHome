@@ -4,6 +4,7 @@ import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
 import AccessControl from './pages/AccessControl';
 import Analytics from './pages/Analytics';
+import AutomationRules from './pages/AutomationRules';
 import Dashboard from './pages/Dashboard';
 import Lighting from './pages/Lighting';
 import Settings from './pages/Settings';
@@ -38,6 +39,13 @@ function getPageMeta(pathname) {
     };
   }
 
+  if (pathname.startsWith('/automation')) {
+    return {
+      title: 'Automation Rules',
+      subtitle: 'Build and run drag-drop automation rules with RFID and door-lock support.',
+    };
+  }
+
   return {
     title: 'Dashboard',
     subtitle: 'Unified smart-home command center for environment, access, and lighting.',
@@ -59,6 +67,7 @@ function AppLayout() {
             <Route path="/lighting" element={<Lighting />} />
             <Route path="/access" element={<AccessControl />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/automation" element={<AutomationRules />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

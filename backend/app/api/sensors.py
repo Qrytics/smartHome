@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Dict, Optional, List
 from pydantic import BaseModel, Field
 from app.services import db_client, ws_manager, broker
+from app.services.rules_engine import evaluate_and_execute
 
 router = APIRouter()
 
@@ -101,6 +102,13 @@ async def ingest_environmental_data(data: EnvironmentalSensorData) -> Dict:
             channel="sensors/environmental",
             payload=data.model_dump(),
         )
+        await evaluate_and_execute(
+            {
+                "temperature": data.temperature,
+                "humidity": data.humidity,
+                "pressure": data.pressure,
+            }
+        )
     except Exception as e:
         # Broker failures should not break ingestion for now; just log.
         print(f"[BROKER] Failed to publish environmental data: {e}")
@@ -148,6 +156,13 @@ async def ingest_lighting_data(data: LightingSensorData) -> Dict:
             'device_id': data.device_id,
             'data': data.model_dump()
         })
+        await evaluate_and_execute(
+            {
+                "light_lux": data.light_lux,
+                "light_level": data.light_level,
+                "lighting_device_id": data.device_id,
+            }
+        )
         
         print(f"[SENSOR] Lighting data from {data.device_id}:")
         print(f"  Light Level: {data.light_level}% ({data.light_lux} lux)")
@@ -328,6 +343,17 @@ async def ingest_room_node_data(data: RoomNodeSensorData) -> Dict:
         await broker.publish(
             channel="sensors/room-node",
             payload=data.model_dump(),
+        )
+        await evaluate_and_execute(
+            {
+                "temperature": data.temperature,
+                "humidity": data.humidity,
+                "pressure": data.pressure,
+                "light_lux": data.light_lux,
+                "light_level": data.light_level,
+                "hvac_device_id": data.device_id,
+                "lighting_device_id": data.device_id,
+            }
         )
     except Exception as exc:
         print(f"[BROKER] Failed to publish room-node data: {exc}")

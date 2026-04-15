@@ -10,6 +10,13 @@ import {
   YAxis,
 } from 'recharts';
 import { formatShortTime } from '../../utils/formatters';
+import GlossaryTerm from '../common/GlossaryTerm';
+
+const LEGEND_DESCRIPTIONS = {
+  'Temperature (C)': 'Measured air temperature in degrees Celsius.',
+  'Humidity (%)': 'Relative humidity of the air as a percentage.',
+  'Pressure (hPa)': 'Atmospheric pressure in hectopascals.',
+};
 
 export default function EnvironmentalChart({ data, height = 300, showPressure = true }) {
   const chartData = useMemo(
@@ -19,6 +26,10 @@ export default function EnvironmentalChart({ data, height = 300, showPressure = 
         timeLabel: formatShortTime(point.timestamp),
       })),
     [data]
+  );
+
+  const legendFormatter = (value) => (
+    <GlossaryTerm term={value} description={LEGEND_DESCRIPTIONS[value] || 'Environmental metric.'} />
   );
 
   if (!chartData.length) {
@@ -50,7 +61,7 @@ export default function EnvironmentalChart({ data, height = 300, showPressure = 
               color: 'rgba(255,255,255,0.95)',
             }}
           />
-          <Legend />
+          <Legend formatter={legendFormatter} />
           <Line
             yAxisId="temperature"
             type="monotone"

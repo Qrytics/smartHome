@@ -20,6 +20,7 @@ export default function TopBar({ title, subtitle }) {
     usingAccessFallback,
     usingSyntheticFeed,
     lastMessageAt,
+    sectionStatus,
   } = useSmartHome();
 
   return (
@@ -35,11 +36,14 @@ export default function TopBar({ title, subtitle }) {
             API {health?.status?.toUpperCase() || 'UNKNOWN'}
           </StatusBadge>
           <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'warning'}>
-            WS {wsStatus.toUpperCase()}
+            WEBSOCKET {wsStatus.toUpperCase()}
           </StatusBadge>
-          {usingSyntheticFeed ? <StatusBadge tone="info">SIMULATED FEED</StatusBadge> : null}
+          {usingSyntheticFeed ? <StatusBadge tone="info">SIMULATED DATA</StatusBadge> : null}
           {usingPolicyFallback ? <StatusBadge tone="warning">POLICY FALLBACK</StatusBadge> : null}
           {usingAccessFallback ? <StatusBadge tone="warning">ACCESS FALLBACK</StatusBadge> : null}
+          {sectionStatus.rules?.state === 'error' ? (
+            <StatusBadge tone="danger">RULES CONNECTION ERROR</StatusBadge>
+          ) : null}
         </div>
 
         <div className="topbar-auth">

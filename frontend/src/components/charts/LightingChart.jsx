@@ -10,6 +10,13 @@ import {
   YAxis,
 } from 'recharts';
 import { formatShortTime } from '../../utils/formatters';
+import GlossaryTerm from '../common/GlossaryTerm';
+
+const LEGEND_DESCRIPTIONS = {
+  'Ambient (%)': 'Normalized ambient light intensity percentage.',
+  'Ambient (lux)': 'Estimated illuminance measured in lux.',
+  'Dimmer (%)': 'Current commanded dimmer brightness percentage.',
+};
 
 export default function LightingChart({ data, height = 300 }) {
   const chartData = useMemo(
@@ -19,6 +26,10 @@ export default function LightingChart({ data, height = 300 }) {
         timeLabel: formatShortTime(point.timestamp),
       })),
     [data]
+  );
+
+  const legendFormatter = (value) => (
+    <GlossaryTerm term={value} description={LEGEND_DESCRIPTIONS[value] || 'Lighting metric.'} />
   );
 
   if (!chartData.length) {
@@ -50,7 +61,7 @@ export default function LightingChart({ data, height = 300 }) {
               color: 'rgba(255,255,255,0.95)',
             }}
           />
-          <Legend />
+          <Legend formatter={legendFormatter} />
           <Line
             yAxisId="left"
             type="monotone"

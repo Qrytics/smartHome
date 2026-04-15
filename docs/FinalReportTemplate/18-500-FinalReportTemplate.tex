@@ -1,0 +1,301 @@
+\newcommand{\labname}{18-500 Design Review Report Template - 18 January 2022}
+\RequirePackage{rotating} % to get the sidewaysfigure command for rotating figures 90 degrees
+\documentclass[10pt]{article}
+\usepackage[left=0.65in, right=0.65in, top=0.7in, bottom=0.7in]{geometry}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{multicol}
+%\usepackage{pdflscape} 
+\usepackage{float} % To get the H option on figures
+\usepackage[backend=bibtex,
+style=numeric,
+bibencoding=ascii
+]{biblatex}
+\addbibresource{sample.bib}
+\graphicspath{ {./img/} }
+\usepackage{indentfirst}
+
+% LSTLISTINGS PACKAGE (for pseudocode) ======================================
+\usepackage{listings}
+% END LSTLISTINGS PACKAGE ===================================================
+
+% header
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\labname}
+\rhead{Page \thepage{} of \pageref{mylastpagelabel}}
+
+% tables and figures in column
+\makeatletter
+\newenvironment{tablehere}
+  {\def\@captype{table}}
+  {}
+
+\newenvironment{figurehere}
+  {\def\@captype{figure}}
+  {}
+\makeatother
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\begin{document}
+\begin{center}
+    \Huge{\textbf{Capstone Project Name}} \\
+    \vspace*{0.15in}
+    \normalsize{Authors: FirstName LastName, FirstName LastName, FirstName LastName} \\
+    \normalsize{Affiliation: Electrical and Computer Engineering, Carnegie Mellon University}
+\end{center}
+\vspace*{0.05in}
+\begin{multicols*}{2}
+{\small 
+    \textbf{
+        \emph{Abstract}---A system capable of $\ldots$ See both the guidelines on Canvas as well as the Word template for additional information. \\
+        } 
+\par}
+
+{\small
+    \textbf{
+        \emph{Index Terms}---Design, Robot, Sensor (key words or phrases in alphabetical order, use your own words, delete the ones listed as an example) \\
+    }
+\par}
+
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{INTRODUCTION} \label{introduction}
+See both the guidelines on Canvas as well as the Word template for additional information.
+
+You must write something for each of the sections in this template. The Word template has some guidelines on the recommended length for each section.
+
+All teams must either use this Latex template or the Word template provided.
+
+pdflatex template.tex on linux.andrew.cmu.edu compiles this template into a PDF file. Don't forget to run bibtex as it suggests $\ldots$
+
+{\color{red} Differences between the Design Review and Final Report templates are presented using this red highlight.}
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{USE-CASE REQUIREMENTS} \label{use-case-requirements}
+Based on the application or problem you have described in the Introduction (section \ref{introduction}) $\ldots$
+
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{ARCHITECTURE AND/OR PRINCIPLE OF OPERATION} \label{architecture}
+Describe your system architecture and/or principle of operation, but do not be redundant with the System Implementation section \ref{system-implementation}. You will probably need to use figures in this section. 
+
+The next few lines in the Latex template provides a simple example of a two image figure.
+
+\begin{figure}[H]
+\vspace{0.5 in}
+%\includegraphics{img/image1.png}
+
+{\par\centering (a) \par}
+\vspace{0.5 in}
+
+%\includegraphics{img/image2.png}
+{\par\centering (b) \par}
+\caption{System description. (a) overall system. (b) zoom-in of xxxx.}
+\end{figure}
+
+
+The next few lines in the Latex template mimics the figures in the Word template. Please view the word template for a description about block diagrams and the importance of making sure your figures are readable.
+\begin{figure}[H]
+\includegraphics{img/Fig1_NotReadable.png}
+\caption{An unreadable figure.  Consider making it wide enough to span both columns.}
+\label{fig:unreadable-block-diagram} 
+\end{figure}
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.75\textwidth]{img/Fig3_Readable.png}
+\caption{This same figure is placed spanning both columns (actually spanning 0.75 of the two columns).}
+\label{fig:readable-block-diagram} 
+\end{figure*}
+
+If neither Fig.~\ref{fig:unreadable-block-diagram} nor Fig.~\ref{fig:readable-block-diagram} are readable, you can always use Fig.~\ref{fig:full-size-block-diagram} at the end of the document.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{DESIGN REQUIREMENTS} \label{design-requirements}
+Please see the Word template and the guidelines on Canvas for more details about mapping the Use-Case Requirements in section \ref{use-case-requirements} to this section on Design Requirements.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{DESIGN TRADE STUDIES} \label{design-trade-studies}
+Please see the Word template and the guidelines on Canvas for more details about trade studies.
+
+Trade studies of sub-systems can also be included in this section. You should use 
+sections with the \texttt{\\subsection} command to split up this section as dictated
+by content.
+
+%---------------------------------------------------------------------------------------
+\subsection{Design Specification or Subsystem}
+As shown in (1)$\ldots$  which matches the code described in \cite{NACE} we $\ldots$ 
+
+
+\subsection{Another Design Specification or Subsystem}
+Equation (2) $\ldots$, Continue with the next design specification B. Or continue with the trade study for subsystem B.
+
+\subsection{Equation Formatting} \label{equation-formatting}
+The equations are an exception to the prescribed specifications of this template. 
+Getting equations to look good is one of the major reasons to use \LaTeX~in the first
+place.  Use the \texttt{equation} environment so that your equations are
+sequentially numbered.
+\begin{equation}
+    \alpha + \beta = \gamma \label{eq:alpha}
+\end{equation}
+where $\alpha$ is the first variable, $\beta$ is the second variable and $\gamma$ is the result. All variables are in mks units.
+
+Be sure that the symbols in your equation have been defined before or immediately following the equation. Use ``(\ref{eq:alpha})”, not ``Eq.~(\ref{eq:alpha})” or ``equation~(\ref{eq:alpha})”, except at the beginning of a sentence: ``Equation~(\ref{eq:alpha}) is . . .”
+
+%---------------------------------------------------------------------------------------
+\subsection{Figure and Table Formatting}
+Place figures and tables at the top and bottom of columns. Avoid placing them in the 
+middle of columns. Large figures and tables may span across both columns. Figure 
+captions should be below the figures; table heads should appear above the tables. 
+Always locate figures and tables after they are cited in the text. Use the abbreviation 
+“Fig. 1”, even at the beginning of a sentence.
+
+Figure Labels: Use words rather than symbols or abbreviations when writing Figure 
+axis labels to avoid confusing the reader. As an example, write the quantity
+“Magnetization”, or “Magnetization, M”, not just “M”. If including units in the 
+label, present them within parentheses. Do not label axes only with units. 
+In the example, write “Magnetization (A/m)” not just “A/m”. Do not label axes 
+with a ratio of quantities and units. For example, write “Temperature (K)”, 
+not “Temperature/K”.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{SYSTEM IMPLEMENTATION} \label{system-implementation}
+Again please use the guidelines on Canvas and the Word template for what to include in this section. This section should be complementary in content with the Architecture 
+section \ref{architecture} rather than redundant. You can refer back to earlier figures in section \ref{architecture} using Fig.~\ref{fig:unreadable-block-diagram} and Fig.~\ref{fig:readable-block-diagram}.
+
+There should be a subsection for each of the subsystems as shown below.
+\subsection{Subsystem A}
+Description of subsystem A (often helps to include a figure).
+
+\subsection{Subsystem B}
+Description of subsystem B (often helps to include a figure).
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{TEST \& VALIDATION} \label{test-validation}
+Again please use the guidance on Canvas and the Word template for what to include in this section.
+
+\subsection{{\color{red}Results} for Design Specification A}
+Planned test {\color{red} has been replaced by result}.
+
+\subsection{{\color{red}Results} for Design Specification B}
+Continue with testing and validation results for the next design specification.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{PROJECT MANAGEMENT} \label{project-management}
+\subsection{Schedule} \label{schedule}
+Again please use the guidance on Canvas and the Word template for what to include here.
+The schedule is shown in Fig.~\ref{fig:gantt-chart}.
+
+%---------------------------------------------------------------------------------------
+\subsection{Team Member Responsibilities}
+Again please use the guidance on Canvas and the Word template for what to include here.
+
+%---------------------------------------------------------------------------------------
+\subsection{Bill of Materials and Budget} \label{budget}
+Again please use the guidance on Canvas and the Word template for what to include here.
+
+Here is a simple example of a Latex table which you can include in the extra page provided for the BOM and you can refer to as Table~\ref{budget-table}.
+\begin{table*} 
+  \centering
+  \caption{Bill of materials} \label{budget-table}
+  \vspace{6 pt}
+  \begin{tabular}{ l c c c r r }
+     \hline
+     Description & Model \# & Manufacturer & Quantity & Cost @ & Total \\ 
+     \hline
+     part description 1 & 0001 & MyManf & 2 & \$1.99 & \$3.98 \\  
+     part description 2 & 0022 & YourManf & 1 & \$10.02 & \$10.02 \\  
+     \hline
+     &  &  &  &  & \$14.00 \\  
+  \end{tabular}
+\end{table*}
+
+
+%---------------------------------------------------------------------------------------
+\subsection{{\color{red}TechSpark Usage}}
+{\color{red} See guidance on Canvas and Word template for what to include here.}
+
+%---------------------------------------------------------------------------------------
+\subsection{Risk {\color{red}Management}}
+Again please use the guidance on Canvas and the Word template for what to include here. {\color{red}Note Mitigation Plans has now become Management}.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{{\color{red}ETHICAL ISSUES}} \label{ethical-issues}
+{\color{red}See guidance on Canvas and Word template for what to include in this Final Report specific section}.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{RELATED WORK} \label{related-work}
+Again please use the guidance on Canvas and the Word template for what to include here.
+
+%---------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------------
+\section{SUMMARY} \label{summary}
+Again please use the guidance on Canvas and the Word template for what to include here.
+{\color{red}
+Also include two new subsections
+\subsection{Future work}
+See Guidance and Word template.
+
+\subsection{Lessons Learned}
+See Guidance and Word template.
+}
+
+\section*{Glossary of Acronyms}
+Include an alphabetized list of acronyms if you have lots of these included in your document. Otherwise define the acronyms inline.
+\begin{itemize}
+    \item MQTT – Message Queuing Telemetry Transport
+    \item OBD – On-Board Diagnostics
+    \item RPi – Raspberry Pi 
+\end{itemize}
+
+%---------------------------------------------------------------------------------------
+\printbibliography
+Your references should be a very carefully crafted list, cited in the appropriate ways.  Don't merely list a Wikipedia page or a bunch of GitHub URLs.  Note that any code you used in your project does need to be cited.
+\\
+
+You can insert blank pages after the references to add full page figures or tables for
+\begin{itemize}
+\item Architecture and system description figures – if so, make sure you refer to them in section \ref{architecture} or \ref{system-implementation} as appropriate.
+\item Milestone and Schedule chart – if so, make sure you refer to it from section \ref{schedule}.
+\item Budget and Parts list – if so make sure you refer to it from section \ref{budget}.
+\end{itemize}
+
+You are allowed no more than 3 optional pages to ensure any large system diagrams, and your milestones and budget are readable at the end of your document.
+
+
+% This label is used in the header to keep track of the page count.
+\label{mylastpagelabel}
+
+\end{multicols*}
+
+\begin{sidewaysfigure}
+  \includegraphics[height=7.1 in,width=\textwidth,keepaspectratio]{img/Fig3_Readable.png}
+  \caption{A full-page version of the same system block diagram as depicted earlier.}
+  \label{fig:full-size-block-diagram} 
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}
+  \includegraphics[height=7.1in,width=\textwidth,keepaspectratio]{img/Gantt.png}  
+  \caption{Gantt Chart}
+  \label{fig:gantt-chart} 
+\end{sidewaysfigure}
+
+\end{document}
+
+
+
+
+

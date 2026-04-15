@@ -29,6 +29,11 @@ function randomRange(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+function seededNoise(seed) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -247,21 +252,39 @@ export function createMockAccessEvent({ cardUid, deviceId = 'door-control-01', c
 }
 
 export function generateSyntheticEnvironmentalPoint(previous) {
-  const now = new Date().toISOString();
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+  const minuteOfDay = nowDate.getHours() * 60 + nowDate.getMinutes();
+  const cycle = Math.sin((minuteOfDay / 1440) * Math.PI * 2);
+  const micro = Math.sin((nowDate.getSeconds() / 60) * Math.PI * 2);
   const prevTemp = Number(previous?.temperature || 22.4);
   const prevHumidity = Number(previous?.humidity || 46.5);
   const prevPressure = Number(previous?.pressure || 1012.8);
+  const tempTarget = 22 + cycle * 2.4 + micro * 0.25;
+  const humidityTarget = 46 + Math.sin((minuteOfDay / 720) * Math.PI * 2) * 8;
+  const pressureTarget = 1012 + Math.cos((minuteOfDay / 960) * Math.PI * 2) * 4;
 
   return {
     timestamp: now,
-    temperature: Number(clamp(prevTemp + randomRange(-0.2, 0.2), 17, 33).toFixed(2)),
-    humidity: Number(clamp(prevHumidity + randomRange(-0.6, 0.6), 22, 78).toFixed(2)),
-    pressure: Number(clamp(prevPressure + randomRange(-0.4, 0.4), 990, 1038).toFixed(2)),
+    temperature: Number(
+      clamp(prevTemp * 0.72 + tempTarget * 0.28 + randomRange(-0.08, 0.08), 17, 33).toFixed(2)
+    ),
+    humidity: Number(
+      clamp(prevHumidity * 0.7 + humidityTarget * 0.3 + randomRange(-0.2, 0.2), 22, 78).toFixed(2)
+    ),
+    pressure: Number(
+      clamp(prevPressure * 0.84 + pressureTarget * 0.16 + randomRange(-0.12, 0.12), 990, 1038).toFixed(2)
+    ),
   };
 }
 
 export function generateSyntheticLightingPoint(previous) {
-  const now = new Date().toISOString();
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+  const minuteOfDay = nowDate.getHours() * 60 + nowDate.getMinutes();
+  const daylightCurve = Math.max(0, Math.sin(((minuteOfDay - 360) / 840) * Math.PI));
+  const cloud = Math.sin((minuteOfDay / 45) * Math.PI * 2) * 0.12;
+  const observedLight = clamp((daylightCurve + cloud) * 100, 0, 100);
   const prevLightLevel = Number(previous?.light_level || 42);
   const prevLux = Number(previous?.light_lux || 310);
   const prevBrightness = Number(previous?.dimmer_brightness || 64);
@@ -270,8 +293,12 @@ export function generateSyntheticLightingPoint(previous) {
     ? previous.relays.slice(0, 4)
     : [true, false, false, false];
 
-  const nextLight = Number(clamp(prevLightLevel + randomRange(-2.2, 2.2), 0, 100).toFixed(2));
-  const nextLux = Number(clamp(prevLux + randomRange(-28, 28), 0, 1600).toFixed(1));
+  const nextLight = Number(
+    clamp(prevLightLevel * 0.55 + observedLight * 0.45 + randomRange(-1.1, 1.1), 0, 100).toFixed(2)
+  );
+  const nextLux = Number(
+    clamp(prevLux * 0.5 + nextLight * 10.2 + randomRange(-15, 15), 0, 1600).toFixed(1)
+  );
   const targetBrightness = prevDaylight
     ? clamp(100 - nextLight, 8, 96)
     : clamp(prevBrightness + randomRange(-1.5, 1.5), 0, 100);
@@ -284,5 +311,47 @@ export function generateSyntheticLightingPoint(previous) {
     daylight_harvest_mode: prevDaylight,
     relays: prevRelays,
   };
+}
+
+export function generateSeededEnvironmentalSeries(points = 360, intervalMinutes = 2) {
+  const series = [];
+  let previous = null;
+  const now = Date.now();
+  for (let i = points - 1; i >= 0; i -= 1) {
+    const ts = new Date(now - i * intervalMinutes * 60 * 1000);
+    const seed = i * 7.13;
+    const cycle = Math.sin((i / points) * Math.PI * 6);
+    const point = {
+      timestamp: ts.toISOString(),
+      temperature: Number((22 + cycle * 2 + seededNoise(seed) * 0.6 - 0.3).toFixed(2)),
+      humidity: Number((45 + Math.sin((i / points) * Math.PI * 8) * 9 + seededNoise(seed + 1) * 1.4 - 0.7).toFixed(2)),
+      pressure: Number((1012 + Math.cos((i / points) * Math.PI * 4) * 3 + seededNoise(seed + 2) * 0.8 - 0.4).toFixed(2)),
+    };
+    previous = previous ? generateSyntheticEnvironmentalPoint(previous) : point;
+    series.push({ ...previous, timestamp: point.timestamp });
+  }
+  return series;
+}
+
+export function generateSeededLightingSeries(points = 360, intervalMinutes = 2) {
+  const series = [];
+  let previous = null;
+  const now = Date.now();
+  for (let i = points - 1; i >= 0; i -= 1) {
+    const ts = new Date(now - i * intervalMinutes * 60 * 1000);
+    const dayPhase = Math.max(0, Math.sin(((i / points) * Math.PI * 2) - Math.PI / 3));
+    const lightPct = clamp(dayPhase * 92 + (seededNoise(i + 4) * 7 - 3.5), 0, 100);
+    const point = {
+      timestamp: ts.toISOString(),
+      light_level: Number(lightPct.toFixed(2)),
+      light_lux: Number((lightPct * 10 + seededNoise(i + 9) * 24).toFixed(1)),
+      dimmer_brightness: Math.round(clamp(100 - lightPct + (seededNoise(i + 11) * 6 - 3), 0, 100)),
+      daylight_harvest_mode: true,
+      relays: [true, dayPhase < 0.5, false, false],
+    };
+    previous = previous ? generateSyntheticLightingPoint(previous) : point;
+    series.push({ ...previous, timestamp: point.timestamp });
+  }
+  return series;
 }
 

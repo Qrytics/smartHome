@@ -249,6 +249,23 @@ class ConnectionManager:
         }
         return await self.send_to_device(device_id, command)
 
+    async def send_door_lock_command(self, device_id: str, lock: bool) -> bool:
+        """
+        Send door lock/unlock command to a door-control device.
+
+        Args:
+            device_id: Device identifier
+            lock: True to lock, False to unlock
+
+        Returns:
+            bool: True if sent successfully
+        """
+        command = {
+            "command": "door_lock",
+            "value": "lock" if lock else "unlock",
+        }
+        return await self.send_to_device(device_id, command)
+
 
 # Global connection manager instance
 ws_manager = ConnectionManager()

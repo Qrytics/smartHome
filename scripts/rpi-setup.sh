@@ -42,6 +42,8 @@ success() { echo -e "${GREEN}[OK]${NC}    $*"; }
 warn()    { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 # ---------------------------------------------------------------------------
 # Step 1 – Remove any broken Docker APT sources
 # ---------------------------------------------------------------------------
@@ -161,6 +163,28 @@ https://download.docker.com/linux/debian trixie stable" \
     success "Docker Engine and Docker Compose installed."
 }
 
+bootstrap_app_dependencies() {
+    info "Bootstrapping backend/frontend dependencies for demo readiness..."
+
+    if [[ -d "$REPO_ROOT/backend" ]]; then
+        python3 -m venv "$REPO_ROOT/backend/venv"
+        source "$REPO_ROOT/backend/venv/bin/activate"
+        pip install --upgrade pip
+        pip install -r "$REPO_ROOT/backend/requirements.txt"
+        deactivate
+        success "Backend virtualenv and dependencies are ready."
+    else
+        warn "Backend directory not found at $REPO_ROOT/backend; skipping backend bootstrap."
+    fi
+
+    if [[ -d "$REPO_ROOT/frontend" ]]; then
+        (cd "$REPO_ROOT/frontend" && npm install)
+        success "Frontend dependencies installed."
+    else
+        warn "Frontend directory not found at $REPO_ROOT/frontend; skipping frontend bootstrap."
+    fi
+}
+
 # ===========================================================================
 # MAIN
 # ===========================================================================
@@ -203,6 +227,10 @@ else
     warn "ACTION REQUIRED: Log out and back in (or run 'newgrp docker') for"
     warn "the group change to take effect before running  docker compose."
 fi
+
+echo ""
+# 6. Install backend/frontend app dependencies so post-pull setup is one step.
+bootstrap_app_dependencies
 
 echo ""
 echo -e "${GREEN}============================================================${NC}"

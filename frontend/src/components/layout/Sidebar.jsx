@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/lighting', label: 'Lighting', caption: 'Dimmer + relay control' },
   { to: '/access', label: 'Access Control', caption: 'RFID policies + logs' },
   { to: '/analytics', label: 'Analytics', caption: 'History + exports' },
+  { to: '/automation', label: 'Automation Rules', caption: 'Drag/drop rulesets' },
   { to: '/settings', label: 'Settings', caption: 'Devices + auth session' },
 ];
 
@@ -26,7 +27,7 @@ export default function Sidebar() {
           API {apiReachable ? 'ONLINE' : 'DEGRADED'}
         </StatusBadge>
         <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'info'}>
-          WS {wsStatus.toUpperCase()}
+          WebSocket {wsStatus.toUpperCase()}
         </StatusBadge>
       </div>
 

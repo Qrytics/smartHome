@@ -604,6 +604,7 @@ Once logged in, pull the latest code and start all services:
 ```bash
 # On the RPi
 cd ~/smartHome && git pull
+./scripts/rpi-setup.sh   # safe to re-run; installs system deps + backend/frontend deps
 cd infrastructure && docker compose up -d
 cd ../backend && source venv/bin/activate
 uvicorn app.main:app --host 0.0.0.0 --port 8000

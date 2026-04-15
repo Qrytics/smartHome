@@ -3,6 +3,8 @@ import AccessLogTable from '../components/access/AccessLogTable';
 import PolicyManager from '../components/access/PolicyManager';
 import Panel from '../components/common/Panel';
 import StatusBadge from '../components/common/StatusBadge';
+import SectionDataModeToggle from '../components/common/SectionDataModeToggle';
+import GlossaryTerm from '../components/common/GlossaryTerm';
 import { useAuth } from '../contexts/AuthContext';
 import { useSmartHome } from '../contexts/SmartHomeContext';
 import { formatRelativeTime } from '../utils/formatters';
@@ -19,6 +21,9 @@ export default function AccessControl() {
     usingAccessFallback,
     usingPolicyFallback,
     deviceIds,
+    sectionModes,
+    sectionStatus,
+    setSectionMode,
   } = useSmartHome();
   const { isAuthenticated } = useAuth();
 
@@ -69,12 +74,19 @@ export default function AccessControl() {
           subtitle={`Door endpoint: ${deviceIds.door}`}
           actions={
             <div className="row-gap-xs">
+              <SectionDataModeToggle
+                value={sectionModes.policy}
+                onChange={(mode) => setSectionMode('policy', mode)}
+              />
               <StatusBadge tone={isAuthenticated ? 'success' : 'warning'}>
                 {isAuthenticated ? 'Admin session active' : 'Read-only until login'}
               </StatusBadge>
             </div>
           }
         >
+          {sectionStatus.policy?.state === 'error' ? (
+            <div className="form-error">Connection Error: policy endpoint unavailable.</div>
+          ) : null}
           <PolicyManager
             cards={policyCards}
             onAddCard={createPolicyCard}
@@ -107,13 +119,23 @@ export default function AccessControl() {
 
           <div className="status-list">
             <div className="status-row">
-              <span>Access data source</span>
+              <span>
+                <GlossaryTerm
+                  term="Access data source"
+                  description="Indicates whether access logs are from the live backend or fallback demo store."
+                />
+              </span>
               <StatusBadge tone={usingAccessFallback ? 'warning' : 'success'}>
                 {usingAccessFallback ? 'Local fallback log store' : 'Backend access endpoint'}
               </StatusBadge>
             </div>
             <div className="status-row">
-              <span>Total events</span>
+              <span>
+                <GlossaryTerm
+                  term="Total events"
+                  description="Number of access attempts currently loaded in the table."
+                />
+              </span>
               <strong>{accessLogs.length}</strong>
             </div>
             <div className="status-row">
@@ -134,15 +156,24 @@ export default function AccessControl() {
         title="Access Audit Log"
         subtitle="All granted/denied attempts with latency data"
         actions={
-          <button
-            className="btn btn-ghost btn-small"
-            type="button"
-            onClick={() => refreshAccessLogs({ limit: 200 })}
-          >
-            Refresh
-          </button>
+          <div className="button-row">
+            <SectionDataModeToggle
+              value={sectionModes.access}
+              onChange={(mode) => setSectionMode('access', mode)}
+            />
+            <button
+              className="btn btn-ghost btn-small"
+              type="button"
+              onClick={() => refreshAccessLogs({ limit: 200 })}
+            >
+              Refresh logs
+            </button>
+          </div>
         }
       >
+        {sectionStatus.access?.state === 'error' ? (
+          <div className="form-error">Connection Error: access logs unavailable.</div>
+        ) : null}
         <div className="toolbar">
           <label className="field inline">
             <span>Search</span>

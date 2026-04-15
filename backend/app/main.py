@@ -8,7 +8,7 @@ routers, and configuration.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.api import health, sensors, lighting, websocket, access
+from app.api import health, sensors, lighting, websocket, access, rules
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -34,6 +34,7 @@ app.include_router(sensors.router, prefix="/api/sensors", tags=["sensors"])
 app.include_router(lighting.router, prefix="/api/lighting", tags=["lighting"])
 app.include_router(websocket.router, tags=["websocket"])
 app.include_router(access.router, prefix="/api/access", tags=["access"])
+app.include_router(rules.router, prefix="/api/rules", tags=["rules"])
 
 
 @app.on_event("startup")
@@ -50,11 +51,12 @@ async def startup_event():
     
     # Initialize database connection (tables are created by init.sql)
     from app.services import db_client
-    print("✓ Database client initialized")
+    db_client.create_tables()
+    print("[OK] Database client initialized")
     
     # Initialize WebSocket manager
     from app.services import ws_manager
-    print("✓ WebSocket manager initialized")
+    print("[OK] WebSocket manager initialized")
     
     print("All services initialized successfully!")
 
@@ -75,7 +77,7 @@ async def shutdown_event():
     from app.services import db_client
     if hasattr(db_client, 'engine'):
         db_client.engine.dispose()
-        print("✓ Database connections closed")
+        print("[OK] Database connections closed")
     
     print("Shutdown complete.")
 

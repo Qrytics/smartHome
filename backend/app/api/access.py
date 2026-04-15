@@ -14,6 +14,7 @@ from typing import Dict, List, Optional
 from datetime import datetime, timezone
 
 from app.services import db_client
+from app.services.rules_engine import evaluate_and_execute
 
 router = APIRouter()
 
@@ -130,6 +131,13 @@ async def check_access(request: AccessCheckRequest) -> Dict:
         )
     except Exception as exc:
         print(f"[ACCESS] Failed to write access log: {exc}")
+
+    await evaluate_and_execute(
+        {
+            "rfid_denied": not granted,
+            "door_device_id": request.device_id,
+        }
+    )
 
     return {
         "granted": granted,
