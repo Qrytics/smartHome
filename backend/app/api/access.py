@@ -132,12 +132,16 @@ async def check_access(request: AccessCheckRequest) -> Dict:
     except Exception as exc:
         print(f"[ACCESS] Failed to write access log: {exc}")
 
-    await evaluate_and_execute(
-        {
-            "rfid_denied": not granted,
-            "door_device_id": request.device_id,
-        }
-    )
+    try:
+        await evaluate_and_execute(
+            {
+                "rfid_denied": not granted,
+                "door_device_id": request.device_id,
+            }
+        )
+    except Exception as exc:
+        # Rules engine is best-effort; never block access decisions.
+        print(f"[ACCESS] Rules evaluation failed: {exc}")
 
     return {
         "granted": granted,

@@ -51,8 +51,13 @@ async def startup_event():
     
     # Initialize database connection (tables are created by init.sql)
     from app.services import db_client
-    db_client.create_tables()
-    print("[OK] Database client initialized")
+    try:
+        # Best-effort table initialization. Tests and local runs should not fail
+        # startup if Postgres is temporarily unavailable.
+        db_client.create_tables()
+        print("[OK] Database client initialized")
+    except Exception as exc:
+        print(f"[WARN] Database init skipped: {exc}")
     
     # Initialize WebSocket manager
     from app.services import ws_manager

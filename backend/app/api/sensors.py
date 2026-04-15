@@ -102,13 +102,16 @@ async def ingest_environmental_data(data: EnvironmentalSensorData) -> Dict:
             channel="sensors/environmental",
             payload=data.model_dump(),
         )
-        await evaluate_and_execute(
-            {
-                "temperature": data.temperature,
-                "humidity": data.humidity,
-                "pressure": data.pressure,
-            }
-        )
+        try:
+            await evaluate_and_execute(
+                {
+                    "temperature": data.temperature,
+                    "humidity": data.humidity,
+                    "pressure": data.pressure,
+                }
+            )
+        except Exception as exc:
+            print(f"[RULES] Environmental rules evaluation failed: {exc}")
     except Exception as e:
         # Broker failures should not break ingestion for now; just log.
         print(f"[BROKER] Failed to publish environmental data: {e}")
@@ -156,13 +159,16 @@ async def ingest_lighting_data(data: LightingSensorData) -> Dict:
             'device_id': data.device_id,
             'data': data.model_dump()
         })
-        await evaluate_and_execute(
-            {
-                "light_lux": data.light_lux,
-                "light_level": data.light_level,
-                "lighting_device_id": data.device_id,
-            }
-        )
+        try:
+            await evaluate_and_execute(
+                {
+                    "light_lux": data.light_lux,
+                    "light_level": data.light_level,
+                    "lighting_device_id": data.device_id,
+                }
+            )
+        except Exception as exc:
+            print(f"[RULES] Lighting rules evaluation failed: {exc}")
         
         print(f"[SENSOR] Lighting data from {data.device_id}:")
         print(f"  Light Level: {data.light_level}% ({data.light_lux} lux)")
@@ -344,17 +350,20 @@ async def ingest_room_node_data(data: RoomNodeSensorData) -> Dict:
             channel="sensors/room-node",
             payload=data.model_dump(),
         )
-        await evaluate_and_execute(
-            {
-                "temperature": data.temperature,
-                "humidity": data.humidity,
-                "pressure": data.pressure,
-                "light_lux": data.light_lux,
-                "light_level": data.light_level,
-                "hvac_device_id": data.device_id,
-                "lighting_device_id": data.device_id,
-            }
-        )
+        try:
+            await evaluate_and_execute(
+                {
+                    "temperature": data.temperature,
+                    "humidity": data.humidity,
+                    "pressure": data.pressure,
+                    "light_lux": data.light_lux,
+                    "light_level": data.light_level,
+                    "hvac_device_id": data.device_id,
+                    "lighting_device_id": data.device_id,
+                }
+            )
+        except Exception as exc:
+            print(f"[RULES] Room-node rules evaluation failed: {exc}")
     except Exception as exc:
         print(f"[BROKER] Failed to publish room-node data: {exc}")
 
