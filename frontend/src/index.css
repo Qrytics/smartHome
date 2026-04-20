@@ -13,11 +13,12 @@ body,
 body {
   margin: 0;
   font-family:
-    'IBM Plex Sans',
-    'Inter',
-    'Segoe UI',
-    system-ui,
-    -apple-system,
+    'Avenir Next',
+    Avenir,
+    Montserrat,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

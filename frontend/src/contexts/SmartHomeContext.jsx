@@ -17,6 +17,7 @@ import {
   setFanState,
   setDaylightHarvestMode,
   setDimmerBrightness,
+  updatePolicyCard,
   setRelayState,
   toggleAutomationRule,
   updateAutomationRule,
@@ -33,6 +34,7 @@ import {
   getMockAccessLogs,
   getMockPolicyCards,
   removeMockPolicyCard,
+  updateMockPolicyCard,
 } from '../services/mockStore';
 import useRealtimeFeed from '../hooks/useRealtimeFeed';
 import { asNumber, toIsoTimestamp } from '../utils/formatters';
@@ -1053,6 +1055,49 @@ export function SmartHomeProvider({ children }) {
     }
   }, [refreshPolicyCards]);
 
+  const setPolicyCardActive = useCallback(async (cardUid, active, options = {}) => {
+    const payload = { active };
+    if (options.expireNow) {
+      payload.expires_at = new Date().toISOString();
+    }
+    try {
+      await updatePolicyCard(cardUid, payload);
+      await refreshPolicyCards();
+      return { ok: true };
+    } catch (error) {
+      try {
+        updateMockPolicyCard(cardUid, payload);
+        await refreshPolicyCards();
+        setUsingPolicyFallback(true);
+        return { ok: true, fallback: true };
+      } catch (fallbackError) {
+        return { ok: false, error: fallbackError.message || 'Failed to update card status.' };
+      }
+    }
+  }, [refreshPolicyCards]);
+
+  const reactivatePolicyCardWithDuration = useCallback(async (cardUid, durationMinutes) => {
+    const minutes = Number(durationMinutes);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return { ok: false, error: 'Please choose a valid duration.' };
+    }
+    const expiresAt = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+    try {
+      await updatePolicyCard(cardUid, { active: true, expires_at: expiresAt });
+      await refreshPolicyCards();
+      return { ok: true };
+    } catch (error) {
+      try {
+        updateMockPolicyCard(cardUid, { active: true, expires_at: expiresAt });
+        await refreshPolicyCards();
+        setUsingPolicyFallback(true);
+        return { ok: true, fallback: true };
+      } catch (fallbackError) {
+        return { ok: false, error: fallbackError.message || 'Failed to reactivate card.' };
+      }
+    }
+  }, [refreshPolicyCards]);
+
   const refreshAll = useCallback(async () => {
     await Promise.all([
       refreshHealth(),
@@ -1192,8 +1237,10 @@ export function SmartHomeProvider({ children }) {
       refreshLightingHistory,
       refreshLightingSnapshot,
       refreshPolicyCards,
+      reactivatePolicyCardWithDuration,
       removeAutomationRule,
       revokePolicyCard,
+      setPolicyCardActive,
       saveAutomationRule,
       setDaylightHarvest,
       setDeviceIds,
@@ -1239,8 +1286,10 @@ export function SmartHomeProvider({ children }) {
       refreshLightingHistory,
       refreshLightingSnapshot,
       refreshPolicyCards,
+      reactivatePolicyCardWithDuration,
       removeAutomationRule,
       revokePolicyCard,
+      setPolicyCardActive,
       saveAutomationRule,
       setDaylightHarvest,
       setDeviceIds,

@@ -157,6 +157,41 @@ export function removeMockPolicyCard(cardUid) {
   return { status: 'deleted', card_uid: normalized };
 }
 
+export function setMockPolicyCardActive(cardUid, active) {
+  ensureMockStore();
+  const normalized = normalizeCardUid(cardUid);
+  const cards = getMockPolicyCards();
+  const nextCards = cards.map((card) =>
+    card.card_uid === normalized ? { ...card, active: Boolean(active) } : card
+  );
+  const target = nextCards.find((card) => card.card_uid === normalized);
+  if (!target) {
+    throw new Error(`Card ${normalized} not found`);
+  }
+  safeWrite(POLICY_STORE_KEY, nextCards);
+  return target;
+}
+
+export function updateMockPolicyCard(cardUid, patch) {
+  ensureMockStore();
+  const normalized = normalizeCardUid(cardUid);
+  const cards = getMockPolicyCards();
+  const nextCards = cards.map((card) => {
+    if (card.card_uid !== normalized) return card;
+    return {
+      ...card,
+      ...(patch.active !== undefined ? { active: Boolean(patch.active) } : {}),
+      ...(patch.expires_at !== undefined ? { expires_at: patch.expires_at } : {}),
+    };
+  });
+  const target = nextCards.find((card) => card.card_uid === normalized);
+  if (!target) {
+    throw new Error(`Card ${normalized} not found`);
+  }
+  safeWrite(POLICY_STORE_KEY, nextCards);
+  return target;
+}
+
 export function getMockAccessLogs(filters = {}) {
   ensureMockStore();
   const logs = safeRead(ACCESS_LOG_STORE_KEY, []);

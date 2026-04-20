@@ -17,7 +17,9 @@ export default function AccessControl() {
     loading,
     policyCards,
     refreshAccessLogs,
+    reactivatePolicyCardWithDuration,
     revokePolicyCard,
+    setPolicyCardActive,
     usingAccessFallback,
     usingPolicyFallback,
     deviceIds,
@@ -70,7 +72,7 @@ export default function AccessControl() {
     <div className="page-stack">
       <section className="split-grid">
         <Panel
-          title="RFID Policy Management"
+          title="RFID Policy Setup"
           subtitle={`Door endpoint: ${deviceIds.door}`}
           actions={
             <div className="row-gap-xs">
@@ -91,9 +93,12 @@ export default function AccessControl() {
             cards={policyCards}
             onAddCard={createPolicyCard}
             onRemoveCard={revokePolicyCard}
+            onSetActive={setPolicyCardActive}
+            onReactivateWithDuration={reactivatePolicyCardWithDuration}
             canManage={isAuthenticated}
             usingFallback={usingPolicyFallback}
             loading={loading.policies}
+            showTable={false}
           />
         </Panel>
 
@@ -151,6 +156,20 @@ export default function AccessControl() {
           {swipeNotice ? <p className="form-notice">{swipeNotice}</p> : null}
         </Panel>
       </section>
+
+      <Panel title="Policy Cards" subtitle="Active and inactive card assignments">
+        <PolicyManager
+          cards={policyCards}
+          onAddCard={createPolicyCard}
+          onRemoveCard={revokePolicyCard}
+          onSetActive={setPolicyCardActive}
+          onReactivateWithDuration={reactivatePolicyCardWithDuration}
+          canManage={isAuthenticated}
+          usingFallback={usingPolicyFallback}
+          loading={loading.policies}
+          showForm={false}
+        />
+      </Panel>
 
       <Panel
         title="Access Audit Log"

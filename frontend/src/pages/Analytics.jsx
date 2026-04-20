@@ -117,21 +117,6 @@ export default function Analytics() {
       <Panel
         title="Historical Analytics"
         subtitle="Compare environmental and lighting behavior over historical windows"
-        actions={
-          <div className="button-row">
-            <SectionDataModeToggle
-              value={sectionModes.environmental}
-              onChange={(mode) => setSectionMode('environmental', mode)}
-            />
-            <SectionDataModeToggle
-              value={sectionModes.lighting}
-              onChange={(mode) => setSectionMode('lighting', mode)}
-            />
-            <button className="btn btn-ghost btn-small" type="button" onClick={handleExportCsv}>
-              Export CSV
-            </button>
-          </div>
-        }
       >
         <div className="toolbar">
           <label className="field inline">
@@ -223,6 +208,17 @@ export default function Analytics() {
         <Panel
           title="Environmental History"
           subtitle={loading.environmentalHistory ? 'Refreshing environmental history...' : 'Temperature, humidity, and pressure'}
+          actions={
+            <div className="button-row">
+              <SectionDataModeToggle
+                value={sectionModes.environmental}
+                onChange={(mode) => setSectionMode('environmental', mode)}
+              />
+              <button className="btn btn-ghost btn-small" type="button" onClick={handleExportCsv}>
+                Export CSV
+              </button>
+            </div>
+          }
         >
           {sectionStatus.environmental?.state === 'error' ? (
             <div className="form-error">Connection Error: environmental history unavailable.</div>
@@ -233,6 +229,17 @@ export default function Analytics() {
         <Panel
           title="Lighting History"
           subtitle={loading.lightingHistory ? 'Refreshing lighting history...' : 'Ambient level, lux, and dimmer'}
+          actions={
+            <div className="button-row">
+              <SectionDataModeToggle
+                value={sectionModes.lighting}
+                onChange={(mode) => setSectionMode('lighting', mode)}
+              />
+              <button className="btn btn-ghost btn-small" type="button" onClick={handleExportCsv}>
+                Export CSV
+              </button>
+            </div>
+          }
         >
           {sectionStatus.lighting?.state === 'error' ? (
             <div className="form-error">Connection Error: lighting history unavailable.</div>

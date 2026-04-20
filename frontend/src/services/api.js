@@ -132,6 +132,22 @@ export async function deletePolicyCard(cardUid) {
   return api.delete(`/api/policies/cards/${encodeURIComponent(cardUid)}`).then(unwrap);
 }
 
+export async function updatePolicyCard(cardUid, payload) {
+  const encodedUid = encodeURIComponent(cardUid);
+  try {
+    return await api.patch(`/api/policies/cards/${encodedUid}`, payload).then(unwrap);
+  } catch (error) {
+    if (isHttpError(error, 404) || isHttpError(error, 405)) {
+      return api.put(`/api/policies/cards/${encodedUid}`, payload).then(unwrap);
+    }
+    throw error;
+  }
+}
+
+export async function setPolicyCardActive(cardUid, active) {
+  return updatePolicyCard(cardUid, { active });
+}
+
 export async function listAutomationRules() {
   return api.get('/api/rules').then(unwrap);
 }
@@ -191,6 +207,7 @@ const apiService = {
   ingestEnvironmentalData,
   ingestLightingData,
   isHttpError,
+  setPolicyCardActive,
   setDaylightHarvestMode,
   setDimmerBrightness,
   setFanState,
@@ -200,6 +217,7 @@ const apiService = {
   getDefaultAutomationRuleset,
   listAutomationRules,
   toggleAutomationRule,
+  updatePolicyCard,
   updateAutomationRule,
 };
 

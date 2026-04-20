@@ -14,41 +14,41 @@ function getPageMeta(pathname) {
   if (pathname.startsWith('/lighting')) {
     return {
       title: 'Lighting Control',
-      subtitle: 'Manual and daylight-harvest lighting management with live telemetry.',
+      subtitle: 'Control lighting and monitor live telemetry.',
     };
   }
 
   if (pathname.startsWith('/access')) {
     return {
       title: 'Access Control',
-      subtitle: 'Manage RFID policy cards and inspect access audit logs in real time.',
+      subtitle: 'Manage RFID cards and review access logs.',
     };
   }
 
   if (pathname.startsWith('/analytics')) {
     return {
       title: 'Analytics',
-      subtitle: 'Historical telemetry analysis with range filters and CSV export.',
+      subtitle: 'Analyze history with filters and CSV export.',
     };
   }
 
   if (pathname.startsWith('/settings')) {
     return {
       title: 'Settings',
-      subtitle: 'Configure device IDs, admin session access, and runtime diagnostics.',
+      subtitle: 'Configure devices, admin access, and diagnostics.',
     };
   }
 
   if (pathname.startsWith('/automation')) {
     return {
       title: 'Automation Rules',
-      subtitle: 'Build and run drag-drop automation rules with RFID and door-lock support.',
+      subtitle: 'Build drag-drop rules for RFID and door lock.',
     };
   }
 
   return {
     title: 'Dashboard',
-    subtitle: 'Unified smart-home command center for environment, access, and lighting.',
+    subtitle: 'Environment, access, and lighting overview.',
   };
 }
 

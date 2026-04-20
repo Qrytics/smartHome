@@ -3,7 +3,6 @@ import Panel from '../components/common/Panel';
 import StatusBadge from '../components/common/StatusBadge';
 import RulePalette from '../components/rules/RulePalette';
 import RuleCanvas from '../components/rules/RuleCanvas';
-import RuleInspector from '../components/rules/RuleInspector';
 import { useSmartHome } from '../contexts/SmartHomeContext';
 
 const EMPTY_RULE = {
@@ -95,17 +94,30 @@ export default function AutomationRules() {
       <section className="split-grid">
         <Panel title="Rule Builder" subtitle="Drag blocks from left to right">
           <div className="rule-builder-stack">
-            <label className="field rule-builder-name-field">
-              <span>Rule name</span>
-              <input
-                className="input"
-                type="text"
-                value={draftRule.name}
-                onChange={(event) => setDraftRule((previous) => ({ ...previous, name: event.target.value }))}
-                placeholder="Auto dim when room is bright"
-              />
-            </label>
-            <div className="split-grid rule-builder-layout">
+            {!canSave ? (
+              <p className="form-error rule-builder-hint">Complete trigger, condition, and action blocks before saving.</p>
+            ) : null}
+            <div className="rule-builder-name-row">
+              <label className="field rule-builder-name-field">
+                <span>Rule name</span>
+                <input
+                  className="input"
+                  type="text"
+                  value={draftRule.name}
+                  onChange={(event) => setDraftRule((previous) => ({ ...previous, name: event.target.value }))}
+                  placeholder="Auto dim when room is bright"
+                />
+              </label>
+              <button
+                className="btn btn-primary rule-builder-save"
+                type="button"
+                onClick={handleSaveRule}
+                disabled={!canSave || loading.rules}
+              >
+                Save rule
+              </button>
+            </div>
+            <div className="rule-builder-layout">
               <RulePalette />
               <RuleCanvas
                 draftRule={draftRule}
@@ -120,10 +132,8 @@ export default function AutomationRules() {
                 }
               />
             </div>
-            <RuleInspector onSave={handleSaveRule} loading={loading.rules} />
           </div>
           {notice ? <p className="form-notice">{notice}</p> : null}
-          {!canSave ? <p className="form-error">Complete trigger, condition, and action blocks before saving.</p> : null}
         </Panel>
 
         <Panel
@@ -135,8 +145,8 @@ export default function AutomationRules() {
             </button>
           }
         >
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="table-wrap table-wrap--automation-rules">
+            <table className="data-table automation-rules-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -158,12 +168,14 @@ export default function AutomationRules() {
                       <td>{rule.name}</td>
                       <td>{`${rule.trigger} ${rule.comparator} ${rule.threshold} -> ${rule.action}`}</td>
                       <td>
-                        <StatusBadge tone={rule.enabled ? 'success' : 'neutral'}>
-                          {rule.enabled ? 'ENABLED' : 'DISABLED'}
-                        </StatusBadge>
+                        <span className="rule-state-badge-slot">
+                          <StatusBadge tone={rule.enabled ? 'success' : 'neutral'}>
+                            {rule.enabled ? 'ENABLED' : 'DISABLED'}
+                          </StatusBadge>
+                        </span>
                       </td>
                       <td className="align-right">
-                        <div className="button-row">
+                        <div className="button-row rule-actions-column">
                           <button
                             className="btn btn-small btn-ghost"
                             type="button"

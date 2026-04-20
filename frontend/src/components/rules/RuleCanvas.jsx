@@ -23,43 +23,46 @@ export default function RuleCanvas({ draftRule, onDropBlock, onClearSlot, onDraf
   }
 
   return (
-    <div className="rule-canvas">
-      {SLOT_ORDER.map((slot) => {
-        const block = draftRule[slot];
-        return (
-          <div
-            key={slot}
-            className="rule-slot"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => handleDrop(event, slot)}
-          >
-            <div className="rule-slot-header">
-              <strong>{slotTitle(slot)}</strong>
-              {block ? (
-                <button className="btn btn-ghost btn-small" type="button" onClick={() => onClearSlot(slot)}>
-                  Clear
-                </button>
-              ) : null}
+    <div className="rule-canvas-wrap">
+      <h4 className="panel-title rule-builder-column-title">Your rule</h4>
+      <div className="rule-canvas">
+        {SLOT_ORDER.map((slot) => {
+          const block = draftRule[slot];
+          return (
+            <div
+              key={slot}
+              className="rule-slot"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleDrop(event, slot)}
+            >
+              <div className="rule-slot-header">
+                <strong>{slotTitle(slot)}</strong>
+                {block ? (
+                  <button className="btn btn-ghost btn-small" type="button" onClick={() => onClearSlot(slot)}>
+                    Clear
+                  </button>
+                ) : null}
+              </div>
+              <div className="rule-slot-body">
+                {block ? (
+                  <>
+                    <div className="rule-slot-filled">
+                      <span className="rule-block-type">{block.type}</span>
+                      <span>{block.label}</span>
+                    </div>
+                    {slot === 'condition' ? (
+                      <ConditionThresholdEditor draftRule={draftRule} onChange={onDraftChange} />
+                    ) : null}
+                    {slot === 'action' ? <ActionValueEditor draftRule={draftRule} onChange={onDraftChange} /> : null}
+                  </>
+                ) : (
+                  <div className="empty-state rule-slot-empty">Drag a {slot} block here</div>
+                )}
+              </div>
             </div>
-            <div className="rule-slot-body">
-              {block ? (
-                <>
-                  <div className="rule-slot-filled">
-                    <span className="rule-block-type">{block.type}</span>
-                    <span>{block.label}</span>
-                  </div>
-                  {slot === 'condition' ? (
-                    <ConditionThresholdEditor draftRule={draftRule} onChange={onDraftChange} />
-                  ) : null}
-                  {slot === 'action' ? <ActionValueEditor draftRule={draftRule} onChange={onDraftChange} /> : null}
-                </>
-              ) : (
-                <div className="empty-state rule-slot-empty">Drag a {slot} block here</div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

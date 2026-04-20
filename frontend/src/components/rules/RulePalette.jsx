@@ -38,7 +38,7 @@ export default function RulePalette() {
 
   return (
     <div className="rule-palette">
-      <h4 className="panel-title">Block Palette</h4>
+      <h4 className="panel-title rule-builder-column-title">Block Palette</h4>
       <div className="rule-palette-groups">
         {PALETTE_GROUPS.map((group) => (
           <section key={group.title} className="rule-palette-section" aria-labelledby={`palette-${group.title}`}>

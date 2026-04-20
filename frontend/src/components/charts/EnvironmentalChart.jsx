@@ -41,7 +41,7 @@ export default function EnvironmentalChart({ data, height = 300, showPressure = 
       <ResponsiveContainer>
         <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-          <XAxis dataKey="timeLabel" tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 12 }} />
+          <XAxis dataKey="timeLabel" tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 10 }} />
           <YAxis
             yAxisId="temperature"
             tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 12 }}

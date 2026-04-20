@@ -26,7 +26,7 @@ export function formatTimestamp(value) {
 export function formatShortTime(value) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return '--:--';
-  return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return parsed.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
 export function formatRelativeTime(value) {
