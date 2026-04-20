@@ -142,14 +142,14 @@ Use this matrix when only the Raspberry Pi backend and dashboard are connected (
 
 | Requirement from slide | Target | Testability with Pi+Dashboard only | Measured evidence (this environment) | Suggested status |
 |---|---|---|---|---|
-| Dashboard update | < 1 s | Fully testable | `ingest -> /ws/client` update: **19.54 ms** | Green |
-| Historical data query | < 2 s | Fully testable | `/api/sensors/history/...` p95: **7.96 ms** | Green |
-| Unauthorized access rejection | 100% reject | Fully testable | 30/30 denied (`granted=false`), p95: **11.16 ms** | Green |
-| Permission revoke | < 100 ms | Fully testable (software-path) | revoke call + immediate re-check: **17.25 ms**, behavior flips `true -> false` | Green |
-| Sampling rate | 1 Hz | Partially testable | 10/10 accepted at 1 Hz POST cadence | Yellow |
-| Light update | < 1 s | Partially testable | command path + WS delivery measured, no physical lamp observation | Yellow |
-| Brightness control response | < 300 ms | Partially testable | `/api/lighting/dimmer/...` p95: **7.24 ms** | Yellow |
-| Daylight response | < 1 s | Partially testable | `/api/lighting/daylight-harvest/...` p95: **19.10 ms** | Yellow |
+| Dashboard update | < 1 s | Fully testable | Dashboard got the update in **19.54 ms** | Green |
+| Historical data query | < 2 s | Fully testable | History loaded in **7.96 ms** (worst normal run) | Green |
+| Unauthorized access rejection | 100% reject | Fully testable | **30 out of 30** unauthorized cards were denied (**11.16 ms**) | Green |
+| Permission revoke | < 100 ms | Fully testable (software-path) | Card went from **allowed to denied** in **17.25 ms** | Green |
+| Sampling rate | 1 Hz | Partially testable | Sent data once per second and backend accepted **10/10** messages | Yellow |
+| Light update | < 1 s | Partially testable | Backend command/update path is fast, but no real lamp was attached | Yellow |
+| Brightness control response | < 300 ms | Partially testable | Brightness command finished in **7.24 ms** (worst normal run) | Yellow |
+| Daylight response | < 1 s | Partially testable | Daylight mode command finished in **19.10 ms** (worst normal run) | Yellow |
 | Door unlock | < 500 ms | Not testable (without lock hardware) | requires RFID + relay + solenoid HIL | Red |
 | UID detection | < 50 ms | Not testable (without RFID reader) | requires firmware + RC522 timing | Red |
 | System availability | 99.9% uptime | Not testable in short bench run | requires multi-day uptime evidence | Red |
