@@ -23,7 +23,7 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar-status-row">
-        <StatusBadge tone={apiReachable ? 'success' : 'warning'}>
+        <StatusBadge tone={apiReachable ? 'success' : 'orange'}>
           API {apiReachable ? 'ONLINE' : 'DEGRADED'}
         </StatusBadge>
         <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'info'}>

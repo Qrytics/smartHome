@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # Comma-separated list of allowed origins, e.g.:
     #   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
+    # Optional: regex so the dashboard works at http://<any-host>:3000 (Pi hostname, mDNS, LAN IP)
+    # without listing every address. Browsers send Origin on XHR to :8000; if it is not allowed,
+    # /health fails and the UI shows API DEGRADED while WebSocket may still work. Set to empty
+    # string in .env to allow only ALLOWED_ORIGINS (strict).
+    CORS_ORIGIN_REGEX: str = r"^http://[^/]+:3000$"
     
     # Database Configuration
     DATABASE_URL: str = "postgresql://smart_home_user:changeme@localhost:5432/smart_home"

@@ -523,8 +523,7 @@ Use the **checked-in unit files** (paths below assume the repo lives at `~/smart
 - `qrytics` in the `docker` group (so Compose can run without sudo):  
   `sudo usermod -aG docker qrytics` — then **log out and back in** (or reboot) so group membership applies.
 - Backend env: `~/smartHome/backend/.env` exists (from `backend/.env.example`).  
-  Set **`ALLOWED_ORIGINS`** to include every browser origin you use, for example:  
-  `http://172.26.249.249:3000,http://smartHome:3000,http://localhost:3000`
+  The app defaults **`CORS_ORIGIN_REGEX`** so any dashboard at **`http://<host>:3000`** (LAN IP, `smartHome`, etc.) can call the API. You can still extend **`ALLOWED_ORIGINS`** for extra origins if needed.
 - Frontend **production** build: Create React App reads **`frontend/.env.production`** when you run `npm run build`.
 
 ```bash
@@ -532,8 +531,7 @@ cd ~/smartHome/frontend
 cp .env.production.example .env.production
 # Prefer REACT_APP_USE_BROWSER_ORIGIN=true (see example file) so the dashboard always
 # calls http(s)://<same-host-as-the-page>:8000 — works with hostname or LAN IP.
-# Backend CORS: set ALLOWED_ORIGINS in backend/.env to include every origin you use, e.g.
-# http://smartHome:3000,http://192.168.1.50:3000,http://localhost:3000
+# Backend: after git pull, restart smarthome-backend so CORS allows your dashboard origin (see CORS_ORIGIN_REGEX in backend).
 npm install
 npm run build
 ```
@@ -808,20 +806,24 @@ smh-ip         # print the RPi's IP address
 
 ## 11. Troubleshooting
 
-### Dashboard shows **API DEGRADED** but the Pi is fine
+### Dashboard shows **API DEGRADED** but WebSocket is connected
 
-The React build bakes API URLs at compile time. If `.env.production` used `http://smartHome:8000`
-but you open the dashboard as `http://192.168.x.x:3000`, the browser may still request
-`smartHome` for `/health` (DNS fails on your laptop) or hit the wrong host.
+Common cause: **CORS**. The browser sends `Origin: http://smartHome:3000` (or your LAN URL) on
+`/health` and REST calls. If that origin is not allowed, the request fails and the UI sets
+**API DEGRADED**, while **WebSocket** may still connect because it is not subject to the same rules.
+
+`curl http://<pi>:8000/health` from a terminal does **not** send a browser `Origin` header, so it can
+succeed even when the dashboard fails — do not rely on curl alone to debug this.
 
 **Fix**
 
-1. On the Pi, set **`REACT_APP_USE_BROWSER_ORIGIN=true`** in `frontend/.env.production`
-   (see `.env.production.example`), then rebuild and restart the frontend service:
+1. **Pull latest backend** and restart: `sudo systemctl restart smarthome-backend`  
+   Default **`CORS_ORIGIN_REGEX`** in `app/config.py` allows **`http://<any-host>:3000`** for the dashboard.
+2. On the Pi, set **`REACT_APP_USE_BROWSER_ORIGIN=true`** in `frontend/.env.production`, rebuild:
    `cd ~/smartHome/frontend && npm run build && sudo systemctl restart smarthome-frontend`
-2. In **`backend/.env`**, ensure **`ALLOWED_ORIGINS`** lists the exact dashboard URL you use in
-   the browser (including `http://<pi-ip>:3000` if you browse by IP). Restart the backend after edits.
-3. Confirm from your laptop: `curl -sS http://<pi-ip>:8000/health` returns JSON.
+3. If you set **`CORS_ORIGIN_REGEX=`** empty in `backend/.env` (strict mode), add your exact origins to
+   **`ALLOWED_ORIGINS`** instead (e.g. `http://smartHome:3000,http://192.168.1.50:3000`).
+4. In the browser **DevTools → Network**, confirm `GET /health` returns **200** (not blocked/CORS error).
 
 ### "Could not resolve hostname smartHome"
 

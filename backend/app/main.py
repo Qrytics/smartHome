@@ -19,14 +19,17 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Configure CORS middleware (browser dashboard on :3000 must be allowed for /health + REST)
+_cors_kwargs = {
+    "allow_origins": [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()],
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+}
+_cors_regex = (getattr(settings, "CORS_ORIGIN_REGEX", None) or "").strip()
+if _cors_regex:
+    _cors_kwargs["allow_origin_regex"] = _cors_regex
+app.add_middleware(CORSMiddleware, **_cors_kwargs)
 
 # Include routers
 app.include_router(health.router, tags=["health"])

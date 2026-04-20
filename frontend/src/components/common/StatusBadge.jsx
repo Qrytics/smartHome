@@ -6,6 +6,8 @@ const TONE_CLASS = {
   warning: 'badge badge-warning',
   danger: 'badge badge-danger',
   info: 'badge badge-info',
+  /** True orange (not amber/warning) — API degraded, unhealthy backend */
+  orange: 'badge badge-orange',
 };
 
 export default function StatusBadge({ tone = 'neutral', children }) {

@@ -23,6 +23,9 @@ export default function TopBar({ title, subtitle }) {
     sectionStatus,
   } = useSmartHome();
 
+  const apiBadgeTone =
+    apiReachable && health?.status === 'healthy' ? 'success' : 'orange';
+
   return (
     <header className="topbar">
       <div className="topbar-title-wrap">
@@ -32,7 +35,7 @@ export default function TopBar({ title, subtitle }) {
 
       <div className="topbar-controls">
         <div className="topbar-badges">
-          <StatusBadge tone={apiReachable ? 'success' : 'warning'}>
+          <StatusBadge tone={apiBadgeTone}>
             API {health?.status?.toUpperCase() || 'UNKNOWN'}
           </StatusBadge>
           <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'warning'}>

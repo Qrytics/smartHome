@@ -342,6 +342,12 @@
   background: rgba(245, 158, 11, 0.17);
 }
 
+/* Orange-500 family — reads as orange on screen (warning above is amber/yellow) */
+.badge-orange {
+  border-color: rgba(234, 88, 12, 0.65);
+  background: rgba(234, 88, 12, 0.22);
+}
+
 .badge-danger {
   border-color: rgba(251, 113, 133, 0.52);
   background: rgba(251, 113, 133, 0.2);

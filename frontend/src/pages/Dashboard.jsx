@@ -141,7 +141,7 @@ export default function Dashboard() {
           <div className="status-list">
             <div className="status-row">
               <span>Backend health</span>
-              <StatusBadge tone={health.status === 'healthy' ? 'success' : 'warning'}>
+              <StatusBadge tone={health.status === 'healthy' ? 'success' : 'orange'}>
                 {health.status?.toUpperCase() || 'UNKNOWN'}
               </StatusBadge>
             </div>
