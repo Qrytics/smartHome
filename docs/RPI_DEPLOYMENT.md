@@ -530,8 +530,10 @@ Use the **checked-in unit files** (paths below assume the repo lives at `~/smart
 ```bash
 cd ~/smartHome/frontend
 cp .env.production.example .env.production
-# Edit .env.production: REACT_APP_API_URL and REACT_APP_WS_URL must be reachable
-# from your laptop's browser (Pi LAN IP or http://smartHome:8000 if DNS works).
+# Prefer REACT_APP_USE_BROWSER_ORIGIN=true (see example file) so the dashboard always
+# calls http(s)://<same-host-as-the-page>:8000 — works with hostname or LAN IP.
+# Backend CORS: set ALLOWED_ORIGINS in backend/.env to include every origin you use, e.g.
+# http://smartHome:3000,http://192.168.1.50:3000,http://localhost:3000
 npm install
 npm run build
 ```
@@ -805,6 +807,21 @@ smh-ip         # print the RPi's IP address
 ---
 
 ## 11. Troubleshooting
+
+### Dashboard shows **API DEGRADED** but the Pi is fine
+
+The React build bakes API URLs at compile time. If `.env.production` used `http://smartHome:8000`
+but you open the dashboard as `http://192.168.x.x:3000`, the browser may still request
+`smartHome` for `/health` (DNS fails on your laptop) or hit the wrong host.
+
+**Fix**
+
+1. On the Pi, set **`REACT_APP_USE_BROWSER_ORIGIN=true`** in `frontend/.env.production`
+   (see `.env.production.example`), then rebuild and restart the frontend service:
+   `cd ~/smartHome/frontend && npm run build && sudo systemctl restart smarthome-frontend`
+2. In **`backend/.env`**, ensure **`ALLOWED_ORIGINS`** lists the exact dashboard URL you use in
+   the browser (including `http://<pi-ip>:3000` if you browse by IP). Restart the backend after edits.
+3. Confirm from your laptop: `curl -sS http://<pi-ip>:8000/health` returns JSON.
 
 ### "Could not resolve hostname smartHome"
 

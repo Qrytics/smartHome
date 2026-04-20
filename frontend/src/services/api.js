@@ -1,7 +1,32 @@
 import axios from 'axios';
 
 const DEFAULT_API_URL = 'http://localhost:8000';
+const DEFAULT_API_PORT = '8000';
 const DEFAULT_TIMEOUT_MS = 10000;
+
+/**
+ * When true (set in .env.production on the Pi), API + WebSocket hosts are taken from the
+ * browser URL (same hostname as the dashboard, port 8000). That way one build works whether
+ * you open http://smartHome:3000 or http://192.168.x.x:3000 — fixing false "API DEGRADED"
+ * when REACT_APP_API_URL was baked to a hostname your laptop cannot resolve.
+ */
+function isBrowserOriginMode() {
+  const v = process.env.REACT_APP_USE_BROWSER_ORIGIN;
+  return v === '1' || String(v).toLowerCase() === 'true';
+}
+
+function browserOriginApiBase() {
+  if (typeof window === 'undefined') return DEFAULT_API_URL;
+  const { protocol, hostname } = window.location;
+  return `${protocol}//${hostname}:${DEFAULT_API_PORT}`;
+}
+
+function resolveApiBaseUrl() {
+  if (isBrowserOriginMode() && typeof window !== 'undefined') {
+    return normalizeApiBaseUrl(browserOriginApiBase());
+  }
+  return normalizeApiBaseUrl(process.env.REACT_APP_API_URL || DEFAULT_API_URL);
+}
 
 function normalizeApiBaseUrl(rawUrl) {
   const base = (rawUrl || DEFAULT_API_URL).trim().replace(/\/+$/, '');
@@ -17,7 +42,7 @@ function normalizeApiBaseUrl(rawUrl) {
   return base;
 }
 
-export const API_BASE_URL = normalizeApiBaseUrl(process.env.REACT_APP_API_URL);
+export const API_BASE_URL = resolveApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -175,6 +200,11 @@ export async function getDefaultAutomationRuleset() {
 }
 
 export function buildWebSocketUrl() {
+  if (isBrowserOriginMode() && typeof window !== 'undefined') {
+    const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${wsProto}//${window.location.hostname}:${DEFAULT_API_PORT}/ws/client`;
+  }
+
   const rawWsUrl = process.env.REACT_APP_WS_URL?.trim();
   if (rawWsUrl) {
     const trimmed = rawWsUrl.replace(/\/+$/, '');
