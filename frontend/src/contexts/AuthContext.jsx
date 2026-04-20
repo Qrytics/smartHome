@@ -98,9 +98,11 @@ export function AuthProvider({ children }) {
 
     function extendSession() {
       if (!session) return;
+      const currentExpiryMs = new Date(session.expiresAt).getTime();
+      const baseMs = Number.isFinite(currentExpiryMs) ? Math.max(currentExpiryMs, Date.now()) : Date.now();
       const extended = {
         ...session,
-        expiresAt: new Date(Date.now() + SESSION_DURATION_MS).toISOString(),
+        expiresAt: new Date(baseMs + SESSION_DURATION_MS).toISOString(),
       };
       setSession(extended);
       persistSession(extended);
