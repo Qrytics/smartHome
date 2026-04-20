@@ -532,24 +532,24 @@ select.input option {
 
 .table-wrap--automation-rules .automation-rules-table th:nth-child(1),
 .table-wrap--automation-rules .automation-rules-table td:nth-child(1) {
-  width: 22%;
+  width: 20%;
 }
 
 .table-wrap--automation-rules .automation-rules-table th:nth-child(2),
 .table-wrap--automation-rules .automation-rules-table td:nth-child(2) {
-  width: 40%;
+  width: 38%;
   word-break: break-word;
 }
 
 .table-wrap--automation-rules .automation-rules-table th:nth-child(3),
 .table-wrap--automation-rules .automation-rules-table td:nth-child(3) {
-  width: 14%;
+  width: 16%;
   vertical-align: middle;
 }
 
 .table-wrap--automation-rules .automation-rules-table th:nth-child(4),
 .table-wrap--automation-rules .automation-rules-table td:nth-child(4) {
-  width: 24%;
+  width: 26%;
   vertical-align: middle;
 }
 
@@ -601,20 +601,24 @@ select.input option {
 
 .automation-rules-table .rule-state-badge-slot .badge {
   flex: 0 0 auto;
-  min-width: 6.75rem;
+  min-width: 6.25rem;
   justify-content: center;
   box-sizing: border-box;
 }
 
 .automation-rules-table .rule-actions-column {
+  display: grid;
   flex-direction: column;
-  align-items: flex-end;
+  justify-items: end;
+  align-items: stretch;
   flex-wrap: nowrap;
   gap: 8px;
+  width: 100%;
 }
 
 .automation-rules-table .rule-actions-column .btn {
-  min-width: 6.75rem;
+  min-width: 0;
+  width: min(100%, 6.75rem);
   text-align: center;
   box-sizing: border-box;
 }
