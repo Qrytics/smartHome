@@ -32,7 +32,7 @@ export default function TopBar({ title, subtitle }) {
 
       <div className="topbar-controls">
         <div className="topbar-badges">
-          <StatusBadge tone={apiReachable ? 'success' : 'danger'}>
+          <StatusBadge tone={apiReachable ? 'success' : 'warning'}>
             API {health?.status?.toUpperCase() || 'UNKNOWN'}
           </StatusBadge>
           <StatusBadge tone={wsStatus === 'connected' ? 'success' : 'warning'}>
