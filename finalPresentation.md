@@ -136,6 +136,30 @@ Use this on **Slide 9** (Project Management) to satisfy **“WHO did WHAT.”** 
 **Key sentence**
 - "Our grading and validation are tied to explicit measurable thresholds."
 
+### Pi + Dashboard only measurement matrix (slide-ready)
+
+Use this matrix when only the Raspberry Pi backend and dashboard are connected (no physical ESP32 sensors/actuators attached).
+
+| Requirement from slide | Target | Testability with Pi+Dashboard only | Measured evidence (this environment) | Suggested status |
+|---|---|---|---|---|
+| Dashboard update | < 1 s | Fully testable | `ingest -> /ws/client` update: **19.54 ms** | Green |
+| Historical data query | < 2 s | Fully testable | `/api/sensors/history/...` p95: **7.96 ms** | Green |
+| Unauthorized access rejection | 100% reject | Fully testable | 30/30 denied (`granted=false`), p95: **11.16 ms** | Green |
+| Permission revoke | < 100 ms | Fully testable (software-path) | revoke call + immediate re-check: **17.25 ms**, behavior flips `true -> false` | Green |
+| Sampling rate | 1 Hz | Partially testable | 10/10 accepted at 1 Hz POST cadence | Yellow |
+| Light update | < 1 s | Partially testable | command path + WS delivery measured, no physical lamp observation | Yellow |
+| Brightness control response | < 300 ms | Partially testable | `/api/lighting/dimmer/...` p95: **7.24 ms** | Yellow |
+| Daylight response | < 1 s | Partially testable | `/api/lighting/daylight-harvest/...` p95: **19.10 ms** | Yellow |
+| Door unlock | < 500 ms | Not testable (without lock hardware) | requires RFID + relay + solenoid HIL | Red |
+| UID detection | < 50 ms | Not testable (without RFID reader) | requires firmware + RC522 timing | Red |
+| System availability | 99.9% uptime | Not testable in short bench run | requires multi-day uptime evidence | Red |
+| Secure device connection | 200 ms/connection | Not fully testable as security KPI | handshake path exists; production auth/timing needs full HIL runbook | Red |
+
+**Environment note for honesty on slide:** Measurements were taken locally against `127.0.0.1` with backend running and a local SQLite fallback. For command-path tests, an authenticated mock WebSocket device was used to validate routing behavior without physical hardware.
+
+**One-line presenter script:**  
+"With only Pi plus dashboard connected, we can fully verify software-path latency and correctness for 4 requirements, partially verify 4 API/control-path requirements, and 4 remain hardware-in-loop only."
+
 ---
 
 ## Slide 3 - As-Built Architecture (1:00)
