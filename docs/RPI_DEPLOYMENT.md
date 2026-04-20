@@ -179,6 +179,11 @@ MQTT_BROKER_URL=mqtt://localhost:1883
 API_HOST=0.0.0.0
 API_PORT=8000
 ALLOWED_ORIGINS=http://smartHome:3000,http://localhost:3000
+# Strict WebSocket challenge-response secrets
+WS_DEVICE_SECRET=replace-with-strong-shared-secret
+WS_CLIENT_SECRET=replace-with-strong-shared-secret
+WS_AUTH_CHALLENGE_TIMEOUT_SECONDS=8
+WS_AUTH_MAX_SKEW_SECONDS=15
 ```
 
 ### 3.5 Install and configure the frontend
@@ -200,6 +205,9 @@ Set the API URL to the RPi:
 ```bash
 REACT_APP_API_URL=http://smartHome:8000
 REACT_APP_WS_URL=ws://smartHome:8000/ws/client
+# Must match backend WS_CLIENT_SECRET for strict handshake
+REACT_APP_WS_CLIENT_SECRET=replace-with-strong-shared-secret
+REACT_APP_WS_CLIENT_ID=dashboard-client
 ```
 
 ### 3.6 Start infrastructure services (database + MQTT + Redis)
@@ -664,6 +672,13 @@ Edit `include/secrets.h` in each firmware project before uploading:
 #define WIFI_PASSWORD "YourNetworkPassword"
 #define API_HOST      "172.26.1.100"   // ← RPi IP address (or "smartHome")
 #define API_PORT      8000
+```
+
+Then, in each firmware `src/config.h`, set:
+
+```cpp
+// Must match backend WS_DEVICE_SECRET for strict handshake
+#define WS_AUTH_SECRET "replace-with-strong-shared-secret"
 ```
 
 ### 7.3 Flash and monitor (from your laptop with USB-connected ESP32)

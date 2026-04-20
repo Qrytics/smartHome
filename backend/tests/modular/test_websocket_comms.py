@@ -282,3 +282,20 @@ async def test_ws_broadcast_to_clients(report, manager):
 
     ws1.send_text.assert_called_once()
     ws2.send_text.assert_called_once()
+
+
+def test_ws_handshake_signature_validation(report, manager):
+    """Challenge/response signature validates for strict websocket auth."""
+    nonce, issued_at = manager.issue_challenge()
+    canonical = manager._canonical_auth_payload("device", "room-node-01", nonce, issued_at)
+    signature = manager._signature_hex(canonical, "demo-device-secret-change-me")
+    ok, reason = manager.verify_handshake("device", "room-node-01", nonce, issued_at, signature)
+
+    report.record(
+        test_id="test_ws_handshake_signature_validation",
+        component="websocket",
+        scenario="Strict websocket challenge-response signature verification",
+        status="passed" if ok else "failed",
+        simulated_data={"reason": reason},
+    )
+    assert ok is True

@@ -205,3 +205,39 @@ async def test_send_daylight_harvest_command_disabled(manager):
     assert result is True
     sent = json.loads(ws.send_text.call_args[0][0])
     assert sent["value"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Handshake auth helpers
+# ---------------------------------------------------------------------------
+
+
+def test_issue_challenge_and_verify_success(manager):
+    nonce, issued_at = manager.issue_challenge()
+    role = "client"
+    client_id = "dashboard-client"
+    canonical = manager._canonical_auth_payload(role, client_id, nonce, issued_at)
+    signature = manager._signature_hex(canonical, "demo-client-secret-change-me")
+    ok, reason = manager.verify_handshake(role, client_id, nonce, issued_at, signature)
+    assert ok is True
+    assert reason == "ok"
+
+
+def test_verify_handshake_rejects_replay_nonce(manager):
+    nonce, issued_at = manager.issue_challenge()
+    role = "device"
+    client_id = "room-node-01"
+    canonical = manager._canonical_auth_payload(role, client_id, nonce, issued_at)
+    signature = manager._signature_hex(canonical, "demo-device-secret-change-me")
+    first_ok, _ = manager.verify_handshake(role, client_id, nonce, issued_at, signature)
+    second_ok, reason = manager.verify_handshake(role, client_id, nonce, issued_at, signature)
+    assert first_ok is True
+    assert second_ok is False
+    assert reason == "unknown_or_expired_nonce"
+
+
+def test_verify_handshake_rejects_bad_signature(manager):
+    nonce, issued_at = manager.issue_challenge()
+    ok, reason = manager.verify_handshake("client", "dashboard-client", nonce, issued_at, "not-valid")
+    assert ok is False
+    assert reason == "bad_signature"

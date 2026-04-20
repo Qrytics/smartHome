@@ -5,11 +5,15 @@ Manages WebSocket connections for real-time communication with ESP32 devices
 and frontend clients.
 """
 
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 from fastapi import WebSocket
 import json
-import asyncio
 from datetime import datetime
+import hashlib
+import hmac
+import secrets
+import time
+from app.config import settings
 
 
 class ConnectionManager:
@@ -26,6 +30,7 @@ class ConnectionManager:
         
         # Device state cache: {device_id: latest_state}
         self.device_state: Dict[str, dict] = {}
+        self.active_challenges: Dict[str, float] = {}
     
     async def connect_device(self, device_id: str, websocket: WebSocket):
         """
@@ -35,7 +40,6 @@ class ConnectionManager:
             device_id: Device identifier
             websocket: WebSocket connection
         """
-        await websocket.accept()
         self.device_connections[device_id] = websocket
         print(f"[WS] Device connected: {device_id}")
     
@@ -46,9 +50,58 @@ class ConnectionManager:
         Args:
             websocket: WebSocket connection
         """
-        await websocket.accept()
         self.client_connections.add(websocket)
         print(f"[WS] Client connected. Total clients: {len(self.client_connections)}")
+
+    @staticmethod
+    def _canonical_auth_payload(role: str, client_id: str, nonce: str, issued_at: int) -> str:
+        return f"{role}:{client_id}:{nonce}:{issued_at}"
+
+    @staticmethod
+    def _signature_hex(message: str, secret: str) -> str:
+        return hmac.new(secret.encode("utf-8"), message.encode("utf-8"), hashlib.sha256).hexdigest()
+
+    def issue_challenge(self) -> Tuple[str, int]:
+        nonce = secrets.token_hex(16)
+        issued_at = int(time.time())
+        self.active_challenges[nonce] = issued_at + settings.WS_AUTH_CHALLENGE_TIMEOUT_SECONDS
+        self._prune_expired_challenges()
+        return nonce, issued_at
+
+    def _prune_expired_challenges(self):
+        now = time.time()
+        expired = [nonce for nonce, expiry in self.active_challenges.items() if expiry < now]
+        for nonce in expired:
+            self.active_challenges.pop(nonce, None)
+
+    def verify_handshake(
+        self,
+        role: str,
+        client_id: str,
+        nonce: str,
+        issued_at: int,
+        signature: str,
+    ) -> Tuple[bool, str]:
+        now = int(time.time())
+        self._prune_expired_challenges()
+
+        if nonce not in self.active_challenges:
+            return False, "unknown_or_expired_nonce"
+        if abs(now - int(issued_at)) > settings.WS_AUTH_MAX_SKEW_SECONDS:
+            self.active_challenges.pop(nonce, None)
+            return False, "stale_challenge"
+        if role not in ("device", "client"):
+            self.active_challenges.pop(nonce, None)
+            return False, "invalid_role"
+
+        message = self._canonical_auth_payload(role, client_id, nonce, int(issued_at))
+        secret = settings.WS_DEVICE_SECRET if role == "device" else settings.WS_CLIENT_SECRET
+        expected = self._signature_hex(message, secret)
+        self.active_challenges.pop(nonce, None)
+
+        if not hmac.compare_digest(expected, str(signature or "")):
+            return False, "bad_signature"
+        return True, "ok"
     
     def disconnect_device(self, device_id: str):
         """

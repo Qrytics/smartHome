@@ -15,6 +15,7 @@
 #include <WiFi.h>
 #include <WebSocketsClient.h>
 #include <ArduinoJson.h>
+#include <mbedtls/md.h>
 #include "config.h"
 #include "secrets.h"
 
@@ -23,6 +24,7 @@ WebSocketsClient webSocket;
 
 // State variables
 bool wifiConnected = false;
+bool wsAuthenticated = false;
 unsigned long lastLightRead = 0;
 unsigned long lastConnectionAttempt = 0;
 
@@ -49,6 +51,8 @@ void sendSensorData();
 void processCommand(String command, int value);
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length);
 String getISOTimestamp();
+String hmacSha256Hex(const String& message, const String& secret);
+void sendAuthResponse(const String& nonce, long issuedAt);
 
 void setup() {
   Serial.begin(115200);
@@ -253,6 +257,9 @@ void setRelay(int channel, bool state) {
 }
 
 void sendSensorData() {
+  if (!wsAuthenticated) {
+    return;
+  }
   // Build JSON payload
   StaticJsonDocument<384> doc;
   doc["device_id"] = DEVICE_ID;
@@ -313,19 +320,37 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
     case WStype_CONNECTED:
       Serial.println("[WS] Connected!");
       Serial.printf("[WS] URL: %s\n", payload);
+      wsAuthenticated = false;
       break;
       
     case WStype_TEXT:
       Serial.printf("[WS] Received: %s\n", payload);
       
-      // Parse incoming JSON command
-      StaticJsonDocument<256> doc;
-      DeserializationError error = deserializeJson(doc, payload);
+      // Parse incoming JSON command / handshake frames
+      StaticJsonDocument<384> doc;
+      DeserializationError error = deserializeJson(doc, payload, length);
       
       if (!error) {
+        String msgType = doc["type"] | "";
+        if (msgType == "ws_challenge") {
+          String nonce = doc["nonce"] | "";
+          long issuedAt = doc["issued_at"] | 0;
+          sendAuthResponse(nonce, issuedAt);
+          break;
+        }
+        if (msgType == "ws_authenticated") {
+          wsAuthenticated = true;
+          Serial.println("[WS] Authenticated.");
+          break;
+        }
+        if (msgType == "ws_auth_error") {
+          wsAuthenticated = false;
+          Serial.println("[WS] Authentication failed.");
+          break;
+        }
         String cmd = doc["command"] | "";
         int val = doc["value"] | 0;
-        if (cmd.length() > 0) {
+        if (cmd.length() > 0 && wsAuthenticated) {
           processCommand(cmd, val);
         }
       } else {
@@ -346,4 +371,42 @@ String getISOTimestamp() {
   // TODO: Implement NTP time sync for accurate timestamps
   // For now, return a placeholder
   return "2026-02-11T16:00:00.000Z";
+}
+
+String hmacSha256Hex(const String& message, const String& secret) {
+  unsigned char hmacResult[32];
+  const mbedtls_md_info_t* mdInfo = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+  mbedtls_md_context_t ctx;
+  mbedtls_md_init(&ctx);
+  mbedtls_md_setup(&ctx, mdInfo, 1);
+  mbedtls_md_hmac_starts(&ctx, (const unsigned char*)secret.c_str(), secret.length());
+  mbedtls_md_hmac_update(&ctx, (const unsigned char*)message.c_str(), message.length());
+  mbedtls_md_hmac_finish(&ctx, hmacResult);
+  mbedtls_md_free(&ctx);
+
+  char hex[65];
+  for (int i = 0; i < 32; i++) {
+    sprintf(&hex[i * 2], "%02x", hmacResult[i]);
+  }
+  hex[64] = '\0';
+  return String(hex);
+}
+
+void sendAuthResponse(const String& nonce, long issuedAt) {
+  String role = WS_AUTH_ROLE;
+  String clientId = DEVICE_ID;
+  String canonical = role + ":" + clientId + ":" + nonce + ":" + String(issuedAt);
+  String signature = hmacSha256Hex(canonical, WS_AUTH_SECRET);
+
+  StaticJsonDocument<320> authDoc;
+  authDoc["type"] = "ws_auth";
+  authDoc["role"] = role;
+  authDoc["id"] = clientId;
+  authDoc["nonce"] = nonce;
+  authDoc["issued_at"] = issuedAt;
+  authDoc["signature"] = signature;
+
+  String payload;
+  serializeJson(authDoc, payload);
+  webSocket.sendTXT(payload);
 }

@@ -8,6 +8,21 @@ function getReconnectDelayMs(attempt) {
   return Math.min(base, MAX_RECONNECT_DELAY_MS);
 }
 
+async function hmacHex(message, secret) {
+  const encoder = new TextEncoder();
+  const key = await window.crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await window.crypto.subtle.sign('HMAC', key, encoder.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 /**
  * Maintains a resilient WebSocket connection for live telemetry updates.
  */
@@ -64,19 +79,59 @@ export default function useRealtimeFeed({ enabled = true, onMessage }) {
       try {
         const socket = new WebSocket(wsUrl);
         socketRef.current = socket;
+        let authenticated = false;
 
         socket.onopen = () => {
           if (!isMounted) return;
           reconnectAttemptRef.current = 0;
-          setStatus('connected');
+          setStatus('authenticating');
         };
 
-        socket.onmessage = (event) => {
+        socket.onmessage = async (event) => {
           if (!isMounted) return;
-          setLastMessageAt(new Date().toISOString());
 
           try {
             const parsed = JSON.parse(event.data);
+            if (!authenticated && parsed?.type === 'ws_challenge') {
+              const role = 'client';
+              const clientId = process.env.REACT_APP_WS_CLIENT_ID || 'dashboard-client';
+              const secret = process.env.REACT_APP_WS_CLIENT_SECRET || 'demo-client-secret-change-me';
+              const nonce = String(parsed.nonce || '');
+              const issuedAt = Number(parsed.issued_at || 0);
+              const canonical = `${role}:${clientId}:${nonce}:${issuedAt}`;
+              const signature = await hmacHex(canonical, secret);
+
+              socket.send(
+                JSON.stringify({
+                  type: 'ws_auth',
+                  role,
+                  id: clientId,
+                  nonce,
+                  issued_at: issuedAt,
+                  signature,
+                })
+              );
+              return;
+            }
+
+            if (parsed?.type === 'ws_authenticated' && parsed?.status === 'connected') {
+              authenticated = true;
+              setStatus('connected');
+              return;
+            }
+
+            if (parsed?.type === 'ws_auth_error') {
+              setStatus('error');
+              return;
+            }
+
+            if (!authenticated) {
+              setStatus('error');
+              socket.close();
+              return;
+            }
+
+            setLastMessageAt(new Date().toISOString());
             if (typeof onMessage === 'function') {
               onMessage(parsed);
             }

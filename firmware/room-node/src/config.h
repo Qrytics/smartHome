@@ -36,6 +36,8 @@
 // API_HOST is defined in secrets.h
 #define WS_PORT 8000
 #define WS_PATH "/ws"
+#define WS_AUTH_ROLE "device"
+#define WS_AUTH_SECRET "demo-device-secret-change-me"
 
 // ============================================================================
 // I2C Pins  (BME280)

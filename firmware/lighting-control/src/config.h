@@ -18,6 +18,8 @@
 // API_HOST defined in secrets.h
 #define WS_PORT 8000                   // WebSocket port
 #define WS_PATH "/ws"                  // WebSocket path
+#define WS_AUTH_ROLE "device"
+#define WS_AUTH_SECRET "demo-device-secret-change-me"
 
 // GPIO Pin Definitions (ESP32-S3)
 #define LIGHT_SENSOR_PIN 34            // GPIO 34 - TEMT6000 analog input (ADC1_CH6)

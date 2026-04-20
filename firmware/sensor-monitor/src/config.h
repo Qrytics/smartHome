@@ -18,6 +18,8 @@
 // API_HOST defined in secrets.h
 #define WS_PORT 8000                   // WebSocket port
 #define WS_PATH "/ws"                  // WebSocket path
+#define WS_AUTH_ROLE "device"
+#define WS_AUTH_SECRET "demo-device-secret-change-me"
 
 // I2C Pin Definitions (ESP32-S3)
 #define I2C_SDA 21                     // GPIO 21 - I2C Data

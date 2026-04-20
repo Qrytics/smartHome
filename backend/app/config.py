@@ -58,6 +58,12 @@ class Settings(BaseSettings):
     
     # Logging
     LOG_LEVEL: str = "INFO"
+
+    # WebSocket handshake/authentication
+    WS_AUTH_CHALLENGE_TIMEOUT_SECONDS: int = 8
+    WS_AUTH_MAX_SKEW_SECONDS: int = 15
+    WS_DEVICE_SECRET: str = "demo-device-secret-change-me"
+    WS_CLIENT_SECRET: str = "demo-client-secret-change-me"
     
     # Application Settings
     PROJECT_NAME: str = "Smart Home"

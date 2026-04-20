@@ -759,22 +759,29 @@ WebSocket endpoint for ESP32 device connections.
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws');
 
-// First message must include device_id
-ws.onopen = () => {
-  ws.send(JSON.stringify({
-    device_id: 'lighting-control-01'
-  }));
-};
+// Server first sends a challenge packet:
+// {"type":"ws_challenge","role":"device","nonce":"...","issued_at":1710000000,"algo":"hmac-sha256"}
+//
+// Client must reply with signed auth packet before any telemetry:
+// canonical = `${role}:${id}:${nonce}:${issued_at}`
+// signature = HMAC_SHA256_HEX(canonical, WS_DEVICE_SECRET)
+ws.send(JSON.stringify({
+  type: 'ws_auth',
+  role: 'device',
+  id: 'lighting-control-01',
+  nonce: '<nonce-from-challenge>',
+  issued_at: 1710000000,
+  signature: '<hmac-hex>'
+}));
 
 // Receive confirmation
 ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
-  console.log(message); // {status: 'connected', device_id: 'lighting-control-01'}
+  console.log(message); // {type:'ws_authenticated',status:'connected',device_id:'lighting-control-01'}
 };
 
 // Send sensor data
 ws.send(JSON.stringify({
-  device_id: 'lighting-control-01',
   timestamp: '2026-02-11T16:00:00.000Z',
   light_level: 45.3,
   light_lux: 453.0,
@@ -802,9 +809,20 @@ WebSocket endpoint for frontend client connections.
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/client');
 
-ws.onopen = () => {
-  console.log('Connected to Smart Home');
-};
+// Server first sends challenge:
+// {"type":"ws_challenge","role":"client","nonce":"...","issued_at":1710000000,"algo":"hmac-sha256"}
+//
+// Client must respond with signed auth:
+// canonical = `${role}:${id}:${nonce}:${issued_at}`
+// signature = HMAC_SHA256_HEX(canonical, WS_CLIENT_SECRET)
+ws.send(JSON.stringify({
+  type: 'ws_auth',
+  role: 'client',
+  id: 'dashboard-client',
+  nonce: '<nonce-from-challenge>',
+  issued_at: 1710000000,
+  signature: '<hmac-hex>'
+}));
 
 // Receive real-time sensor updates
 ws.onmessage = (event) => {
