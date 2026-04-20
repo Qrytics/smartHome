@@ -1,0 +1,25 @@
+# Smart Home: start Docker Compose stack on boot (TimescaleDB, Redis, MQTT).
+# Install: sudo cp infrastructure/systemd/smarthome-docker.service /etc/systemd/system/
+#         sudo systemctl daemon-reload && sudo systemctl enable --now smarthome-docker
+#
+# Requires user `qrytics` in the `docker` group: sudo usermod -aG docker qrytics
+# Adjust User= / paths if your home directory or repo path differs.
+
+[Unit]
+Description=Smart Home Docker stack (PostgreSQL, Redis, MQTT)
+After=docker.service network-online.target
+Wants=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=qrytics
+Group=docker
+WorkingDirectory=/home/qrytics/smartHome/infrastructure
+# Bring up compose project; containers use restart: unless-stopped in docker-compose.yml
+ExecStart=/usr/bin/docker compose up -d
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

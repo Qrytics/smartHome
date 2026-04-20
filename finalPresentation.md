@@ -6,6 +6,7 @@ Primary references used:
 - `docs/7_FinalPresentationGuidance.pdf`
 - `docs/Team_A4_Belmonte_Chen_design_report.pdf`
 - `docs/Capstone Ghantt Chart - Sheet1.pdf`
+- Weekly status reports (Team, Mario, Cindy): [Team A4 course site](https://course.ece.cmu.edu/~ece500/projects/s26-teama4/)
 - `docs/INTEGRATION_STATUS.md`
 - `docs/INTEGRATION_EVIDENCE.md`
 - `docs/WIRING_AUDIT.md`
@@ -17,7 +18,7 @@ Primary references used:
 
 ### Required constraints
 - Max 12 slides.
-- 12-minute presentation + 2-minute Q&A.
+- 12-minute presentation + Q&A (your instructor template may specify **3 minutes Q&A**; confirm against the slide deck you were given).
 - Slide 1 must contain team name, team number, all team members, presenter.
 - Strong conclusion slide; do not end with a blank "Questions?" slide.
 
@@ -54,6 +55,45 @@ Use this exact throughline:
 4. We have a 4-day, checkpoint-based closure plan.
 
 Do not claim "fully complete hardware integration" until physically validated.
+
+---
+
+## 2b) Work split — what each person did (from weekly status reports)
+
+Use this on **Slide 9** (Project Management) to satisfy **“WHO did WHAT.”** Bullets below summarize recurring themes across [Team A4 weekly reports](https://course.ece.cmu.edu/~ece500/projects/s26-teama4/) (Feb–Apr 2026); wording is aligned with how you already described ownership in the design report and Gantt.
+
+### Mario Belmonte — primary contributions (software / integration / demo UX)
+
+| Area | What you reported doing |
+|---|---|
+| Backend and Pi | Stabilized **Python `venv` and `requirements.txt`** on Raspberry Pi 5 so installs complete cleanly; prepared **config/env** for integration and flashing workflows. |
+| Stack integration | Fixed **database + MQTT** connectivity so backend services communicate reliably; clarified **Docker / service dependencies** in the pipeline. |
+| Documentation and repo | **Refactored** codebase toward the current web-first use case; updated **README** and improved **wiring documentation** for safer bring-up. |
+| Validation | Ran **software pipeline tests** before attaching live hardware; **sorted materials against BOM**; researched **power/grounding and electrical safety** for integration. |
+| Dashboard and demo UX | Improved **dashboard metric legibility**; separated **Demo Mode vs Live Mode**; added **12-hour simulated telemetry** for stakeholder demos; **custom rule creation** (team report 4/18). |
+| Firmware tooling | **Flashed ESP32-S3**, resolved **toolchain/dependency** issues; verified **API ports** via **health checks**. |
+| Deliverables | Built **final presentation slideshow**; started **final written report** (status report 4/18). |
+
+### Cindy Chen — primary contributions (hardware / firmware bring-up / physical demo)
+
+| Area | What she reported doing |
+|---|---|
+| Firmware and bring-up | Focus on **`firmware/room-node`**: sensor init, Wi‑Fi/WebSocket, telemetry, dimmer/fan/relay commands (validation blocked until Pi backend stable — team report 3/21). |
+| Interim demo hardware | **Wired and staged** environmental node (BME280 + BH1750 in interim demo narrative) and **door node** (RC522, relay, solenoid); **staged tests** (I2C/scanner, RFID-only, relay-only, combined authorized UID). |
+| Debug and safety during bring-up | Resolved **breadboard/pin/relay** issues; **relay verified before lock**; **flyback/diode** path emphasized in team narratives; ESP32-S3 pin checks. |
+| Physical model | Built **interim model house**; progressed **final house** via **CAD/laser cutting**, **room-by-room layout**, planning **acrylic** for visibility; **completed model house** for demo context (team + Mario reports 4/18). |
+| Procurement and integration planning | **Ordered** remaining parts for actuation/lighting/fan expansion; **node compatibility / combined-load stress testing**; planned **compact MCU packaging** per room for mounting. |
+
+**Consistency note for slides:** Several weekly reports describe the interim environmental demo node as **BME280 + BH1750**, while other repository documents standardize on **TEMT6000** for ambient light. When you speak or label screenshots, pick **one** story: either “interim bench demo used BH1750 (per status reports), final integration follows `docs/WIRING.md`,” or align all visuals to the final sensor choice so slides do not contradict each other.
+
+### Joint / explicit handoffs (say this in one sentence on Slide 9)
+
+- **Backend stability on the Pi** (Mario) was a prerequisite for confirming **room-node firmware end-to-end** (Cindy) — called out explicitly in the **3/21/2026 team report**.
+- **Integration checkpoint** and **subsystem owners** called out in **4/18/2026 team report** as mitigation for uneven hardware vs software progress.
+
+### One-line speaking script for ownership
+
+"Mario owns the backend, Pi environment, integration plumbing, dashboard demo UX, and validation tooling; Cindy owns embedded bring-up, the physical model house, hardware stress testing, and packaging nodes into the final demo structure. We converge on full-stack integration and latency verification together."
 
 ---
 
@@ -222,7 +262,16 @@ flowchart LR
 
 ## Slide 9 - Project Management: Plan vs Actual (1:00)
 
-Use the Gantt PDF for this slide.
+**Slide title (suggested)**  
+`Schedule, milestones, and who did what`
+
+**Layout (recommended)**  
+- **Left column:** Snapshot of the 5-phase plan from [`docs/Capstone Ghantt Chart - Sheet1.pdf`](docs/Capstone%20Ghantt%20Chart%20-%20Sheet1.pdf) **or** a cropped screenshot (Phases 1–5, Weeks 1–12).
+- **Right column:** Two-column **Mario | Cindy** bullets (3 bullets each max), taken from Section **2b** above — not generic role labels.
+
+**Schedule honesty (from team status reports)**  
+- **4/18/2026 team report:** Overall **a little behind schedule but doable**; blockers reduced (ESP32-S3 flashing, API ports); next focus integration validation and rehearsal.
+- **Mario 4/18:** Personally **lagging behind schedule** but closed major blockers (flash, API connectivity, presentation/report start); **little room left** for final firmware/hardware wiring — align your spoken story with this if asked.
 
 **Include**
 - Original 5 phases (Weeks 1-12).
@@ -231,10 +280,13 @@ Use the Gantt PDF for this slide.
 - What slipped/at risk:
   - full hardware bring-up and complete HIL verification.
 
-**Ownership callout box**
-- Mario: backend/web/integration/security.
-- Cindy: firmware/hardware/testing.
-- Shared: full integration, latency verification, debug/demo prep.
+**Ownership callout box (minimum)**  
+- **Mario:** Pi/`venv`, backend integration (DB+MQTT), wiring docs, dashboard Demo/Live UX, ESP32-S3 flash + API health verification, presentation/report prep.
+- **Cindy:** `room-node` firmware bring-up focus, interim env + door node wiring/staged tests, model house build and final house fabrication, parts orders and node stress testing, room packaging for demo fit.
+- **Shared:** full system integration, latency verification, rehearsal, documentation.
+
+**Visual optional**  
+Small table “Instructor rubric alignment” with one row: **Project Management — WHO did WHAT** → **Slide 9 covers Mario vs Cindy contributions from weekly status reports.**
 
 ---
 
@@ -425,7 +477,7 @@ flowchart TD
 "Beyond technical function, we considered safety and welfare: fail-secure door behavior, relay protection, and power/wiring safety checks. This table shows risks and mitigations."
 
 ### Slide 9 (8:25-9:25)
-"This is plan versus actual from our Gantt. Core software and integration tasks are complete; final hardware closure is the remaining critical path."
+"Our schedule follows five phases through Week 12. Here is how work split in practice: I focused on the Pi backend environment, backend integration fixes, dashboard demo versus live modes, flashing and API verification, and presentation and report prep. Cindy led embedded bring-up for the room and door nodes, staged hardware testing, ordering and stress-testing node configurations, and building and refining the physical model house for demo fit. Together we are closing full-stack integration and latency verification."
 
 ### Slide 10 (9:25-10:10)
 "With four days left, this is our closure schedule with clear exit criteria each day. If hardware closure lags, we lock to the baseline demo path."
@@ -448,5 +500,6 @@ flowchart TD
 - Slide 6 table is accurate and honest.
 - At least one real test output screenshot included.
 - Gantt slide includes original plan and current status.
+- Slide 9 states **who did what** using Section 2b (Mario vs Cindy), tied to weekly status reports.
 - Demo fallback path clearly stated.
 - Practice run lands at 11:30 to 11:45.

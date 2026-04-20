@@ -1,0 +1,29 @@
+# Smart Home React dashboard — serves static production build on port 3000.
+# Install: sudo cp infrastructure/systemd/smarthome-frontend.service /etc/systemd/system/
+#         sudo systemctl daemon-reload && sudo systemctl enable --now smarthome-frontend
+#
+# ONE-TIME before first enable (on the Pi):
+#   cd ~/smartHome/frontend
+#   cp .env.production.example .env.production   # edit URLs for your Pi IP or smartHome hostname
+#   npm install
+#   npm run build
+#
+# Re-run `npm run build` whenever you change .env.production or dashboard API host.
+
+[Unit]
+Description=Smart Home dashboard (serve static build)
+After=network-online.target smarthome-backend.service
+Wants=smarthome-backend.service
+
+[Service]
+Type=simple
+User=qrytics
+Group=qrytics
+WorkingDirectory=/home/qrytics/smartHome/frontend
+# Bind on all interfaces so other machines on the LAN can open http://<pi-ip>:3000
+ExecStart=/home/qrytics/smartHome/frontend/node_modules/.bin/serve -s build -l tcp://0.0.0.0:3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

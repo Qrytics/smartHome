@@ -1,0 +1,24 @@
+# Smart Home FastAPI backend (uvicorn).
+# Install: sudo cp infrastructure/systemd/smarthome-backend.service /etc/systemd/system/
+#         sudo systemctl daemon-reload && sudo systemctl enable --now smarthome-backend
+#
+# Ensure ~/smartHome/backend/.env exists (copy from backend/.env.example) and that
+# ALLOWED_ORIGINS includes your dashboard URL(s), e.g. http://172.26.x.x:3000
+
+[Unit]
+Description=Smart Home FastAPI backend (uvicorn)
+After=network-online.target smarthome-docker.service docker.service
+Wants=smarthome-docker.service docker.service
+
+[Service]
+User=qrytics
+Group=qrytics
+WorkingDirectory=/home/qrytics/smartHome/backend
+Environment=PYTHONPATH=/home/qrytics/smartHome/backend
+EnvironmentFile=-/home/qrytics/smartHome/backend/.env
+ExecStart=/home/qrytics/smartHome/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

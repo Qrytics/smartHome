@@ -1,4 +1,5 @@
 import React from 'react';
+import { ActionValueEditor, ConditionThresholdEditor } from './RuleSlotControls';
 
 const SLOT_ORDER = ['trigger', 'condition', 'action'];
 
@@ -8,7 +9,7 @@ function slotTitle(slot) {
   return 'Action';
 }
 
-export default function RuleCanvas({ draftRule, onDropBlock, onClearSlot }) {
+export default function RuleCanvas({ draftRule, onDropBlock, onClearSlot, onDraftChange }) {
   function handleDrop(event, slot) {
     event.preventDefault();
     const raw = event.dataTransfer.getData('application/x-rule-block');
@@ -40,14 +41,22 @@ export default function RuleCanvas({ draftRule, onDropBlock, onClearSlot }) {
                 </button>
               ) : null}
             </div>
-            {block ? (
-              <div className="rule-slot-filled">
-                <span className="rule-block-type">{block.type}</span>
-                <span>{block.label}</span>
-              </div>
-            ) : (
-              <div className="empty-state">Drag a {slot} block here</div>
-            )}
+            <div className="rule-slot-body">
+              {block ? (
+                <>
+                  <div className="rule-slot-filled">
+                    <span className="rule-block-type">{block.type}</span>
+                    <span>{block.label}</span>
+                  </div>
+                  {slot === 'condition' ? (
+                    <ConditionThresholdEditor draftRule={draftRule} onChange={onDraftChange} />
+                  ) : null}
+                  {slot === 'action' ? <ActionValueEditor draftRule={draftRule} onChange={onDraftChange} /> : null}
+                </>
+              ) : (
+                <div className="empty-state rule-slot-empty">Drag a {slot} block here</div>
+              )}
+            </div>
           </div>
         );
       })}

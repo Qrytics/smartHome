@@ -498,6 +498,83 @@ sudo systemctl status smarthome-backend
 sudo journalctl -u smarthome-backend -f
 ```
 
+### 5.5 Auto-start the full stack (Docker + API + dashboard)
+
+Use the **checked-in unit files** (paths below assume the repo lives at `~/smartHome` on the Pi and the login user is `qrytics`). Adjust paths in the `.service` files if your layout differs.
+
+**What gets started**
+
+| Unit | Purpose |
+|------|---------|
+| `smarthome-docker.service` | `docker compose up -d` in `~/smartHome/infrastructure` (TimescaleDB, Redis, MQTT) |
+| `smarthome-backend.service` | FastAPI (`uvicorn` on `0.0.0.0:8000`) |
+| `smarthome-frontend.service` | Static dashboard via `serve` on `0.0.0.0:3000` |
+
+**0) One-time prerequisites**
+
+- `qrytics` in the `docker` group (so Compose can run without sudo):  
+  `sudo usermod -aG docker qrytics` — then **log out and back in** (or reboot) so group membership applies.
+- Backend env: `~/smartHome/backend/.env` exists (from `backend/.env.example`).  
+  Set **`ALLOWED_ORIGINS`** to include every browser origin you use, for example:  
+  `http://172.26.249.249:3000,http://smartHome:3000,http://localhost:3000`
+- Frontend **production** build: Create React App reads **`frontend/.env.production`** when you run `npm run build`.
+
+```bash
+cd ~/smartHome/frontend
+cp .env.production.example .env.production
+# Edit .env.production: REACT_APP_API_URL and REACT_APP_WS_URL must be reachable
+# from your laptop's browser (Pi LAN IP or http://smartHome:8000 if DNS works).
+npm install
+npm run build
+```
+
+**1) Install systemd units from the repo**
+
+```bash
+cd ~/smartHome
+sudo cp infrastructure/systemd/smarthome-docker.service /etc/systemd/system/
+sudo cp infrastructure/systemd/smarthome-backend.service /etc/systemd/system/
+sudo cp infrastructure/systemd/smarthome-frontend.service /etc/systemd/system/
+sudo systemctl daemon-reload
+```
+
+**2) Stop any manual servers**, then enable everything:
+
+```bash
+# stop manual uvicorn / npm if you started them in terminals
+sudo systemctl enable --now smarthome-docker smarthome-backend smarthome-frontend
+```
+
+**3) Verify**
+
+```bash
+systemctl is-active smarthome-docker smarthome-backend smarthome-frontend
+ss -tlnp | grep -E ':3000|:8000'
+curl -sS http://127.0.0.1:8000/health
+```
+
+**4) Reboot test**
+
+```bash
+sudo reboot
+```
+
+From your laptop: **`http://<pi-ip>:3000`** (dashboard) and **`http://<pi-ip>:8000/docs`** (API).
+
+**Logs**
+
+```bash
+journalctl -u smarthome-docker -u smarthome-backend -u smarthome-frontend -b --no-pager | tail -80
+```
+
+**After you change frontend API URLs**
+
+Re-build and restart the dashboard service:
+
+```bash
+cd ~/smartHome/frontend && npm run build && sudo systemctl restart smarthome-frontend
+```
+
 ---
 
 ## 7. Accessing the Dashboard

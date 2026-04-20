@@ -15,6 +15,13 @@ const EMPTY_RULE = {
   actionValue: '',
 };
 
+function defaultActionValueForKey(actionKey) {
+  if (actionKey === 'set_dimmer') return '50';
+  if (actionKey === 'set_fan') return 'false';
+  if (actionKey === 'set_door_lock') return 'locked';
+  return '';
+}
+
 export default function AutomationRules() {
   const {
     automationRules,
@@ -37,7 +44,13 @@ export default function AutomationRules() {
 
   function handleDropBlock(slot, block) {
     if (!block || block.type !== slot) return;
-    setDraftRule((previous) => ({ ...previous, [slot]: block }));
+    setDraftRule((previous) => {
+      const next = { ...previous, [slot]: block };
+      if (slot === 'action') {
+        next.actionValue = defaultActionValueForKey(block.key);
+      }
+      return next;
+    });
   }
 
   async function handleSaveRule() {
@@ -81,26 +94,47 @@ export default function AutomationRules() {
 
       <section className="split-grid">
         <Panel title="Rule Builder" subtitle="Drag blocks from left to right">
-          <div className="split-grid">
-            <RulePalette />
-            <RuleCanvas
-              draftRule={draftRule}
-              onDropBlock={handleDropBlock}
-              onClearSlot={(slot) => setDraftRule((previous) => ({ ...previous, [slot]: null }))}
-            />
+          <div className="rule-builder-stack">
+            <label className="field rule-builder-name-field">
+              <span>Rule name</span>
+              <input
+                className="input"
+                type="text"
+                value={draftRule.name}
+                onChange={(event) => setDraftRule((previous) => ({ ...previous, name: event.target.value }))}
+                placeholder="Auto dim when room is bright"
+              />
+            </label>
+            <div className="split-grid rule-builder-layout">
+              <RulePalette />
+              <RuleCanvas
+                draftRule={draftRule}
+                onDropBlock={handleDropBlock}
+                onDraftChange={(patch) => setDraftRule((previous) => ({ ...previous, ...patch }))}
+                onClearSlot={(slot) =>
+                  setDraftRule((previous) => ({
+                    ...previous,
+                    [slot]: null,
+                    ...(slot === 'action' ? { actionValue: '' } : {}),
+                  }))
+                }
+              />
+            </div>
+            <RuleInspector onSave={handleSaveRule} loading={loading.rules} />
           </div>
-          <RuleInspector
-            draftRule={draftRule}
-            onChange={setDraftRule}
-            onSave={handleSaveRule}
-            onLoadDefault={handleLoadDefault}
-            loading={loading.rules}
-          />
           {notice ? <p className="form-notice">{notice}</p> : null}
           {!canSave ? <p className="form-error">Complete trigger, condition, and action blocks before saving.</p> : null}
         </Panel>
 
-        <Panel title="Saved Rules" subtitle="Enable, disable, or delete rules">
+        <Panel
+          title="Saved Rules"
+          subtitle="Enable, disable, or delete rules"
+          actions={
+            <button className="btn btn-ghost btn-small" type="button" onClick={handleLoadDefault} disabled={loading.rules}>
+              Load Suggested Ruleset
+            </button>
+          }
+        >
           <div className="table-wrap">
             <table className="data-table">
               <thead>
