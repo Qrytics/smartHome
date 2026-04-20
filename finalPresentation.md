@@ -169,11 +169,17 @@ Use this matrix when only the Raspberry Pi backend and dashboard are connected (
 ```mermaid
 flowchart LR
   WebUI["React Dashboard"] -->|"HTTPS + WebSocket"| Backend["FastAPI Backend"]
+  WebUI -.->|"WS handshake: ws_challenge"| Backend
+  WebUI -.->|"WS auth response: role=client, id, nonce, issued_at, HMAC-SHA256 signature"| Backend
+  Backend -.->|"WS authenticated / auth error"| WebUI
   Backend --> MQTT["MQTT Broker"]
   Backend --> DB["TimescaleDB"]
   Room1["Room Node 01"] -->|"WS telemetry"| Backend
   Room2["Room Node 02"] -->|"WS telemetry"| Backend
   Room3["Room Node 03"] -->|"WS telemetry"| Backend
+  Room1 -.->|"WS handshake + ws_auth (device signature)"| Backend
+  Room2 -.->|"WS handshake + ws_auth (device signature)"| Backend
+  Room3 -.->|"WS handshake + ws_auth (device signature)"| Backend
   Door["Door Node"] -->|"POST /api/access/check"| Backend
   Backend -->|"WS commands"| Room1
   Backend -->|"WS commands"| Room2
@@ -184,6 +190,61 @@ flowchart LR
 - Card policy route mismatch fallback in frontend.
 - Hardware integration not fully closed.
 - Software integration validated with backend tests.
+
+---
+
+## Solution Approach Block Diagram (for rubric prompt)
+
+Use this when asked:
+**"Remind us of solution path(s), social/cultural/global factors, and changes since design."**
+
+### Slide visual (paste-ready Mermaid)
+
+```mermaid
+flowchart TD
+  P[Problem: fragmented room control and weak observability]
+  R[Requirements: latency, safety, auditability, usability]
+  A[Approach: software-first integration backbone]
+
+  P --> R --> A
+
+  C1[Path 1: Access control workflow]
+  C2[Path 2: Environmental monitoring workflow]
+  C3[Path 3: Lighting and HVAC control workflow]
+  SG[Social/Cultural factors: understandable UI, low training burden]
+  GG[Global/Practical factors: energy, cost, maintainability]
+
+  A --> C1
+  A --> C2
+  A --> C3
+  A --> SG
+  A --> GG
+
+  I[Integrated platform: Dashboard + API + database + realtime channel]
+  C1 --> I
+  C2 --> I
+  C3 --> I
+  SG --> I
+  GG --> I
+
+  V[Verification and validation loop]
+  X[Changes since design: demo/live split, software-first fallback, risk-gated hardware closure]
+  D[Deployment strategy: baseline demo, then stretch demo]
+
+  I --> V --> D
+  I --> X --> D
+```
+
+### Speaking bullets (simple, 20-30 seconds)
+
+- We built one integrated platform with three workflows: access, monitoring, and control.
+- Social/cultural priority: keep the UI clear and easy for non-expert users.
+- Global/practical priority: reduce energy waste and keep maintenance cost realistic.
+- Main change since design: software-first baseline with a hardware stretch path.
+
+### One-line script
+
+"Our solution approach combines access, monitoring, and control in one observable platform, shaped by usability and energy/cost realities, and updated since design with a software-first baseline and a risk-gated hardware stretch."
 
 ---
 

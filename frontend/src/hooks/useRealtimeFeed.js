@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import CryptoJS from 'crypto-js';
 import { buildWebSocketUrl } from '../services/api';
 
 const MAX_RECONNECT_DELAY_MS = 10000;
@@ -8,19 +9,12 @@ function getReconnectDelayMs(attempt) {
   return Math.min(base, MAX_RECONNECT_DELAY_MS);
 }
 
-async function hmacHex(message, secret) {
-  const encoder = new TextEncoder();
-  const key = await window.crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  const signature = await window.crypto.subtle.sign('HMAC', key, encoder.encode(message));
-  return Array.from(new Uint8Array(signature))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+/**
+ * HMAC-SHA256 hex digest (matches backend hmac + sha256 hexdigest).
+ * Uses crypto-js so WebSocket auth works on plain HTTP hosts (Web Crypto subtle is secure-context only).
+ */
+function hmacHex(message, secret) {
+  return CryptoJS.HmacSHA256(message, secret).toString(CryptoJS.enc.Hex);
 }
 
 /**
@@ -87,7 +81,7 @@ export default function useRealtimeFeed({ enabled = true, onMessage }) {
           setStatus('authenticating');
         };
 
-        socket.onmessage = async (event) => {
+        socket.onmessage = (event) => {
           if (!isMounted) return;
 
           try {
@@ -99,7 +93,7 @@ export default function useRealtimeFeed({ enabled = true, onMessage }) {
               const nonce = String(parsed.nonce || '');
               const issuedAt = Number(parsed.issued_at || 0);
               const canonical = `${role}:${clientId}:${nonce}:${issuedAt}`;
-              const signature = await hmacHex(canonical, secret);
+              const signature = hmacHex(canonical, secret);
 
               socket.send(
                 JSON.stringify({
