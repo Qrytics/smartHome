@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="846" viewBox="0 0 1900 846">
+
+<style>
+  .title { font: 700 32px Arial, sans-serif; fill: #0f172a; }
+  .subtitle { font: 500 18px Arial, sans-serif; fill: #475569; }
+  .label { font: 500 18px Arial, sans-serif; fill: #0f172a; }
+  .small { font: 400 14px Arial, sans-serif; fill: #334155; }
+  .tick { font: 400 14px Arial, sans-serif; fill: #475569; }
+  .ok { fill: #16a34a; }
+  .warn { fill: #d97706; }
+  .bad { fill: #dc2626; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; }
+  .axis { stroke: #94a3b8; stroke-width: 1.5; }
+  .value { font: 500 16px Arial, sans-serif; fill: #0f172a; }
+</style>
+<rect width="1900" height="846" fill="#ffffff" />
+<text class="title" x="40" y="70">Requirement Evidence Table (Poster Ready)</text>
+<text class="subtitle" x="40" y="104">Directly derived from measured results in your test run summary.</text>
+
+<rect x="30" y="70" width="1840" height="74" fill="#e2e8f0" />
+<text class="label" x="40" y="114">Requirement</text>
+<text class="label" x="500" y="114">Target</text>
+<text class="label" x="760" y="114">Testability</text>
+<text class="label" x="1040" y="114">Measured evidence</text>
+<text class="label" x="1760" y="114">Status</text>
+<rect x="30" y="144" width="1840" height="74" fill="#ffffff" />
+<text class="small" x="40" y="188">Dashboard update</text>
+<text class="small" x="500" y="188">&lt; 1000 ms</text>
+<text class="small" x="760" y="188">Fully testable</text>
+<text class="small" x="1040" y="188">Dashboard got the update in 19.54 ms</text>
+<text x="1760" y="188" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#16a34a">PASS</text>
+<line class="grid" x1="30" y1="218" x2="1870" y2="218" />
+<rect x="30" y="218" width="1840" height="74" fill="#f8fafc" />
+<text class="small" x="40" y="262">Historical data query</text>
+<text class="small" x="500" y="262">&lt; 2000 ms</text>
+<text class="small" x="760" y="262">Fully testable</text>
+<text class="small" x="1040" y="262">History loaded in 7.96 ms (worst normal run)</text>
+<text x="1760" y="262" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#16a34a">PASS</text>
+<line class="grid" x1="30" y1="292" x2="1870" y2="292" />
+<rect x="30" y="292" width="1840" height="74" fill="#ffffff" />
+<text class="small" x="40" y="336">Unauthorized access rejection</text>
+<text class="small" x="500" y="336">100% reject</text>
+<text class="small" x="760" y="336">Fully testable</text>
+<text class="small" x="1040" y="336">30/30 unauthorized cards denied (11.16 ms)</text>
+<text x="1760" y="336" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#64748b">N/A</text>
+<line class="grid" x1="30" y1="366" x2="1870" y2="366" />
+<rect x="30" y="366" width="1840" height="74" fill="#f8fafc" />
+<text class="small" x="40" y="410">Permission revoke</text>
+<text class="small" x="500" y="410">&lt; 100 ms</text>
+<text class="small" x="760" y="410">Fully testable</text>
+<text class="small" x="1040" y="410">Card went from allowed to denied in 17.25 ms</text>
+<text x="1760" y="410" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#16a34a">PASS</text>
+<line class="grid" x1="30" y1="440" x2="1870" y2="440" />
+<rect x="30" y="440" width="1840" height="74" fill="#ffffff" />
+<text class="small" x="40" y="484">Sampling rate</text>
+<text class="small" x="500" y="484">1 Hz</text>
+<text class="small" x="760" y="484">Partially testable</text>
+<text class="small" x="1040" y="484">Sent data every 1 s, backend accepted 10/10</text>
+<text x="1760" y="484" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#64748b">N/A</text>
+<line class="grid" x1="30" y1="514" x2="1870" y2="514" />
+<rect x="30" y="514" width="1840" height="74" fill="#f8fafc" />
+<text class="small" x="40" y="558">Light update</text>
+<text class="small" x="500" y="558">&lt; 1000 ms</text>
+<text class="small" x="760" y="558">Partially testable</text>
+<text class="small" x="1040" y="558">Command/update path is fast, no physical lamp attached</text>
+<text x="1760" y="558" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#64748b">N/A</text>
+<line class="grid" x1="30" y1="588" x2="1870" y2="588" />
+<rect x="30" y="588" width="1840" height="74" fill="#ffffff" />
+<text class="small" x="40" y="632">Brightness control response</text>
+<text class="small" x="500" y="632">&lt; 300 ms</text>
+<text class="small" x="760" y="632">Partially testable</text>
+<text class="small" x="1040" y="632">Brightness command finished in 7.24 ms</text>
+<text x="1760" y="632" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#16a34a">PASS</text>
+<line class="grid" x1="30" y1="662" x2="1870" y2="662" />
+<rect x="30" y="662" width="1840" height="74" fill="#f8fafc" />
+<text class="small" x="40" y="706">Daylight response</text>
+<text class="small" x="500" y="706">&lt; 1000 ms</text>
+<text class="small" x="760" y="706">Partially testable</text>
+<text class="small" x="1040" y="706">Daylight mode command finished in 19.10 ms</text>
+<text x="1760" y="706" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#16a34a">PASS</text>
+<line class="grid" x1="30" y1="736" x2="1870" y2="736" />
+
+</svg>

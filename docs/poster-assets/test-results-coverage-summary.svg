@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="814" viewBox="0 0 1600 814">
+
+<style>
+  .title { font: 700 32px Arial, sans-serif; fill: #0f172a; }
+  .subtitle { font: 500 18px Arial, sans-serif; fill: #475569; }
+  .label { font: 500 18px Arial, sans-serif; fill: #0f172a; }
+  .small { font: 400 14px Arial, sans-serif; fill: #334155; }
+  .tick { font: 400 14px Arial, sans-serif; fill: #475569; }
+  .ok { fill: #16a34a; }
+  .warn { fill: #d97706; }
+  .bad { fill: #dc2626; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; }
+  .axis { stroke: #94a3b8; stroke-width: 1.5; }
+  .value { font: 500 16px Arial, sans-serif; fill: #0f172a; }
+</style>
+<rect width="1600" height="814" fill="#ffffff" />
+<text class="title" x="70" y="70">Testability Breakdown (Details)</text>
+<text class="subtitle" x="70" y="104">This replaces percentage-only summaries: list what was covered, and the measured evidence for each line.</text>
+<text class="label" x="80" y="150" fill="#0f172a">Fully testable (what we validated end-to-end)</text>
+<text class="small" x="86" y="214">• Dashboard update</text>
+<text class="small" x="86" y="242">  (Fully testable): Dashboard got the update in 19.54 ms</text>
+<text class="small" x="86" y="278">• Historical data query</text>
+<text class="small" x="86" y="306">  (Fully testable): History loaded in 7.96 ms (worst normal run)</text>
+<text class="small" x="86" y="342">• Unauthorized access rejection</text>
+<text class="small" x="86" y="370">  (Fully testable): 30/30 unauthorized cards denied (11.16 ms)</text>
+<text class="small" x="86" y="406">• Permission revoke</text>
+<text class="small" x="86" y="434">  (Fully testable): Card went from allowed to denied in 17.25 ms</text>
+
+<text class="label" x="80" y="462" fill="#0f172a">Partially testable (software path or simulated hardware)</text>
+<text class="small" x="86" y="526">• Sampling rate</text>
+<text class="small" x="86" y="554">  (Partially testable): Sent data every 1 s, backend accepted 10/10</text>
+<text class="small" x="86" y="590">• Light update</text>
+<text class="small" x="86" y="618">  (Partially testable): Command/update path is fast, no physical lamp attached</text>
+<text class="small" x="86" y="654">• Brightness control response</text>
+<text class="small" x="86" y="682">  (Partially testable): Brightness command finished in 7.24 ms</text>
+<text class="small" x="86" y="718">• Daylight response</text>
+<text class="small" x="86" y="746">  (Partially testable): Daylight mode command finished in 19.10 ms</text>
+
+</svg>

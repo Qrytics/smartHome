@@ -1,7 +1,6 @@
 # Smart Home Final Posterboard Plan (Print-Ready)
 
-Use this as the source of truth for what to put on your final poster.
-It is aligned to `docs/8_FinalPosterGuidance.pdf`.
+Aligned with `docs/8_FinalPosterGuidance.pdf`.
 
 ## Non-Negotiable Requirements (from course guidance)
 
@@ -178,3 +177,34 @@ If you're in crunch mode, prioritize in this exact order:
 5. Final checklist + export + upload.
 
 Anything extra (comparison section, future work, long background) is optional.
+
+## TypeScript-Generated Test Result Graphics
+
+I added a TS generator so your test visuals are reproducible and editable:
+
+- Script: `docs/poster-assets/generate-test-result-diagrams.ts`
+
+Run from repo root:
+
+- `npx --yes tsx "docs/poster-assets/generate-test-result-diagrams.ts"`
+
+Generated files:
+
+- `docs/poster-assets/test-results-latency-vs-target.svg`
+- `docs/poster-assets/test-results-coverage-summary.svg`
+- `docs/poster-assets/test-results-evidence-table.svg`
+
+Use these SVGs directly in PowerPoint (they stay sharp when resized).
+
+## Full-canvas layout mockup (30×40 in)
+
+For a one-glance view of the planned poster layout (correct canvas size, section blocks, and embedded test assets), use:
+
+- Output: `docs/poster-assets/poster-mockup-30x40in.svg`
+- Script: `docs/poster-assets/generate-poster-mockup.ts`
+
+Regenerate from repo root:
+
+- `npx --yes tsx "docs/poster-assets/generate-poster-mockup.ts"`
+
+Open the SVG in a browser or vector tool to check spacing. In PowerPoint, **Insert → Pictures** for the test-result SVGs if linked previews do not show.
