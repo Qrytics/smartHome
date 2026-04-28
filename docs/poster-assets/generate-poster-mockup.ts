@@ -16,13 +16,13 @@ function esc(s: string): string {
 function makePoster(): string {
   const W = 30;
   const H = 40;
-  const m = 0.55;
+  const m = 0.48;
   const innerW = W - 2 * m;
-  const headerH = 2.7;
-  const footerH = 1.15;
+  const headerH = 2.45;
+  const footerH = 1.02;
 
-  const contentTop = m + headerH + 0.2;
-  const contentBottom = H - m - footerH - 0.15;
+  const contentTop = m + headerH + 0.12;
+  const contentBottom = H - m - footerH - 0.1;
   const contentH = contentBottom - contentTop;
 
   const colW = (innerW - 2 * 0.35) / 3;
@@ -31,14 +31,14 @@ function makePoster(): string {
   const col3 = col2 + colW + 0.35;
 
   const row1H = contentH * 0.45;
-  const rowGap = 0.25;
+  const rowGap = 0.16;
   const row2H = contentH - row1H - rowGap;
   const row1Top = contentTop;
   const row2Top = row1Top + row1H + rowGap;
 
   // Vertical space reserved for panel title bar before body content starts.
   // titleBarH = 0.92, so 1.0 gives 0.08" breathing room after the bar.
-  const PANEL_INSET = 1.0;
+  const PANEL_INSET = 0.88;
 
   const title = "Smart Home Model";
   const subtitle = "Web-first building management: secure access, live telemetry, policy-driven control";
@@ -79,9 +79,9 @@ function makePoster(): string {
     `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#bg)"/>`,
     `<rect x="${m}" y="${m}" width="${innerW}" height="${H - 2 * m}" fill="#ffffff" stroke="#e2e8f0" filter="url(#shadow)"/>`,
     `<rect x="${m}" y="${m}" width="${innerW}" height="${headerH}" fill="#0f172a"/>`,
-    `<text class="t h1" font-size="0.72" x="${m + 0.35}" y="${m + 1.05}" fill="#ffffff">${esc(title)}</text>`,
-    `<text class="t sub" font-size="0.2" x="${m + 0.35}" y="${m + 1.48}" fill="#cbd5e1">${esc(subtitle)}</text>`,
-    `<text class="t meta" font-size="0.18" x="${W - m - 0.35}" y="${m + 0.95}" text-anchor="end" fill="#cbd5e1">${esc(team)}</text>`,
+    `<text class="t h1" font-size="0.82" x="${m + 0.35}" y="${m + 1.02}" fill="#ffffff">${esc(title)}</text>`,
+    `<text class="t sub" font-size="0.24" x="${m + 0.35}" y="${m + 1.52}" fill="#cbd5e1">${esc(subtitle)}</text>`,
+    `<text class="t meta" font-size="0.21" x="${W - m - 0.35}" y="${m + 0.92}" text-anchor="end" fill="#cbd5e1">${esc(team)}</text>`,
 
     // ── Col 1 / Row 1 : Product Pitch ────────────────────────────────────────
     rectPanel(col1, row1Top, colW, row1H, "Product pitch", "Bold the outcomes you can defend with evidence (targets + test results)."),
@@ -89,8 +89,8 @@ function makePoster(): string {
     // whitespace nodes into SVG and never wrapped. Replace with two wrapTextBlock calls.
     wrapTextBlock(col1 + 0.25, row1Top + PANEL_INSET + 0.05, colW - 0.5,
       "Key outcomes: dashboard freshness, access-path latency where measured, and complete logging in Timescale for auditability.",
-      0.33, "p", true),
-    wrapTextBlock(col1 + 0.25, row1Top + PANEL_INSET + 0.75, colW - 0.5, pitch, 0.30, "p"),
+      0.38, "p", true),
+    wrapTextBlock(col1 + 0.25, row1Top + PANEL_INSET + 0.78, colW - 0.5, pitch, 0.36, "p"),
 
     // ── Col 2 / Row 1 top: System diagram ────────────────────────────────────
     (() => {
@@ -118,7 +118,7 @@ function makePoster(): string {
 
     // ── Col 3 / Row 1 : Judge take-aways ─────────────────────────────────────
     rectPanel(col3, row1Top, colW, row1H, "What judges see in 20 seconds", "One glance at the story: web stack + physical edge + proof."),
-    bulleted(col3 + 0.25, row1Top + PANEL_INSET + 0.05, colW - 0.5, 0.33, [
+    bulleted(col3 + 0.25, row1Top + PANEL_INSET + 0.05, colW - 0.5, 0.38, [
       "React dashboard: live charts + access logs + control actions",
       "FastAPI + broker + TimescaleDB: ingest, policy, and persistence",
       "ESP32 edge: RFID/lock, sensors, and actuation paths",
@@ -169,14 +169,14 @@ function makePoster(): string {
         wrapTextBlock(
           col2 + 0.25, top + PANEL_INSET + 0.05, colW - 0.5,
           "We optimized for a responsive operator loop: measured server-side timings are far under our UI targets. Partial hardware cases (e.g. lighting without a physical lamp) are called out as limitations.",
-          0.28, "p",
+          0.34, "p",
         ),
       ].join("\n");
     })(),
 
     // ── Col 3 / Row 2 : Demo plan ─────────────────────────────────────────────
     rectPanel(col3, row2Top, colW, row2H, "Demo plan (30 seconds each)", "Helps sponsors know what to ask."),
-    bulleted(col3 + 0.25, row2Top + PANEL_INSET + 0.05, colW - 0.5, 0.33, [
+    bulleted(col3 + 0.25, row2Top + PANEL_INSET + 0.05, colW - 0.5, 0.38, [
       "Open dashboard: show a live sensor trace updating",
       "Swipe RFID: show grant + log line + lock response",
       "Toggle policy: show denial path + time-to-enforce",
@@ -184,8 +184,8 @@ function makePoster(): string {
 
     // ── Footer ────────────────────────────────────────────────────────────────
     `<rect x="${m}" y="${H - m - footerH}" width="${innerW}" height="${footerH}" fill="#f1f5f9" stroke="#e2e8f0"/>`,
-    `<text class="t meta" font-size="0.18" x="${m + 0.35}" y="${H - m - footerH + 0.45}">Checklist: 30x40in canvas · body text 24pt+ · labels 18pt+ · import assets below · export PDF+PNG for print shop</text>`,
-    `<text class="t meta" font-size="0.18" x="${W - m - 0.35}" y="${H - m - footerH + 0.45}" text-anchor="end">Mockup: docs/poster-assets/poster-mockup-30x40in.svg</text>`,
+    `<text class="t meta" font-size="0.21" x="${m + 0.35}" y="${H - m - footerH + 0.42}">Checklist: 30x40in canvas · body text 24pt+ · labels 18pt+ · import assets below · export PDF+PNG for print shop</text>`,
+    `<text class="t meta" font-size="0.21" x="${W - m - 0.35}" y="${H - m - footerH + 0.42}" text-anchor="end">Mockup: docs/poster-assets/poster-mockup-30x40in.svg</text>`,
     `</svg>`,
   ].join("\n");
 }
@@ -218,12 +218,12 @@ function photoGrid(x: number, y: number, w: number, h: number): string {
       out.push(
         `<g>`,
         `  <rect x="${cx}" y="${cy}" width="${cellW}" height="${cellH}" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>`,
-        `  <text class="t meta" x="${cx + 0.08}" y="${cy + 0.22}" font-size="0.20" font-weight="800">Photo ${i + 1}</text>`,
-        hasRoom
-          ? `  <text class="t meta" x="${cx + 0.08}" y="${cy + 0.42}" font-size="0.17" fill="#64748b">${esc(labels[i])}</text>`
+        `  <text class="t meta" x="${cx + 0.08}" y="${cy + 0.24}" font-size="0.23" font-weight="800">Photo ${i + 1}</text>`,
+          hasRoom
+          ? `  <text class="t meta" x="${cx + 0.08}" y="${cy + 0.48}" font-size="0.19" fill="#64748b">${esc(labels[i])}</text>`
           : "",
         hasRoom
-          ? `  <text class="t meta" x="${cx + 0.08}" y="${cy + cellH - 0.12}" font-size="0.14" fill="#94a3b8">(replace with photo)</text>`
+          ? `  <text class="t meta" x="${cx + 0.08}" y="${cy + cellH - 0.1}" font-size="0.17" fill="#94a3b8">(replace with photo)</text>`
           : "",
         `</g>`,
       );
@@ -236,13 +236,13 @@ function photoGrid(x: number, y: number, w: number, h: number): string {
 
 function rectPanel(x: number, y: number, w: number, h: number, title: string, subtitle: string): string {
   const r = 0.12;
-  const titleBarH = 0.92;
+  const titleBarH = 0.88;
   return [
     `<g>`,
     `  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="#ffffff" stroke="#e2e8f0"/>`,
     `  <rect x="${x}" y="${y}" width="${w}" height="${titleBarH}" rx="${r}" fill="#0f172a" opacity="0.06"/>`,
-    `  <text class="t boxTitle" font-size="0.34" x="${x + 0.22}" y="${y + 0.38}">${esc(title)}</text>`,
-    `  <text class="t boxSub" font-size="0.22" x="${x + 0.22}" y="${y + 0.72}">${esc(subtitle)}</text>`,
+    `  <text class="t boxTitle" font-size="0.39" x="${x + 0.2}" y="${y + 0.36}">${esc(title)}</text>`,
+    `  <text class="t boxSub" font-size="0.26" x="${x + 0.2}" y="${y + 0.68}">${esc(subtitle)}</text>`,
     `</g>`,
   ].join("\n");
 }
@@ -317,7 +317,7 @@ function assetImage(file: string, x: number, y: number, w: number, h: number): s
     `<g>`,
     `  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>`,
     `  <image x="${x + 0.05}" y="${y + 0.05}" width="${w - 0.1}" height="${h - 0.1}" preserveAspectRatio="xMidYMid meet" href="${file}" xlink:href="${file}"/>`,
-    `  <text class="t meta" font-size="0.18" x="${x + w / 2}" y="${y + 0.28}" text-anchor="middle" fill="#94a3b8">${esc(file)}</text>`,
+    `  <text class="t meta" font-size="0.16" x="${x + w / 2}" y="${y + h - 0.12}" text-anchor="middle" fill="#94a3b8">${esc(file)}</text>`,
     `</g>`,
   ].join("\n");
 }
@@ -344,9 +344,9 @@ function architectureMini(x: number, y: number, w: number, h: number): string {
     const showSub = nodeH > 0.45;
     return [
       `<rect x="${bx}" y="${by}" width="${nodeW}" height="${nodeH}" rx="${r}" fill="${fill}" stroke="#475569" stroke-width="0.02"/>`,
-      `<text class="t p" x="${bx + 0.06}" y="${titleY}" fill="#0f172a" font-size="0.20" font-weight="800">${esc(label)}</text>`,
+      `<text class="t p" x="${bx + 0.06}" y="${titleY}" fill="#0f172a" font-size="0.24" font-weight="800">${esc(label)}</text>`,
       showSub
-        ? `<text class="t boxSub" x="${bx + 0.06}" y="${subY}" font-size="0.16" fill="#334155">${esc(sub)}</text>`
+        ? `<text class="t boxSub" x="${bx + 0.06}" y="${subY}" font-size="0.19" fill="#334155">${esc(sub)}</text>`
         : "",
     ].join("\n");
   };

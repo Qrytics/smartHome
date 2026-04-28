@@ -1,64 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1060" viewBox="0 0 1800 1060">
+<svg xmlns="http://www.w3.org/2000/svg" width="1728" height="702" viewBox="0 0 1728 702">
 
 <style>
-  .title { font: 700 32px Arial, sans-serif; fill: #0f172a; }
-  .subtitle { font: 500 18px Arial, sans-serif; fill: #475569; }
-  .label { font: 500 18px Arial, sans-serif; fill: #0f172a; }
-  .small { font: 400 14px Arial, sans-serif; fill: #334155; }
-  .tick { font: 400 14px Arial, sans-serif; fill: #475569; }
+  .title { font: 700 40px Arial, sans-serif; fill: #0f172a; }
+  .subtitle { font: 500 22px Arial, sans-serif; fill: #475569; }
+  .label { font: 500 22px Arial, sans-serif; fill: #0f172a; }
+  .small { font: 400 18px Arial, sans-serif; fill: #334155; }
+  .tick { font: 500 18px Arial, sans-serif; fill: #475569; }
   .ok { fill: #16a34a; }
   .warn { fill: #d97706; }
   .bad { fill: #dc2626; }
   .grid { stroke: #e2e8f0; stroke-width: 1; }
-  .axis { stroke: #94a3b8; stroke-width: 1.5; }
-  .value { font: 500 16px Arial, sans-serif; fill: #0f172a; }
+  .axis { stroke: #94a3b8; stroke-width: 2; }
+  .value { font: 600 21px Arial, sans-serif; fill: #0f172a; }
 </style>
-<rect width="1800" height="1060" fill="#ffffff" />
-<text class="title" x="70" y="70">Latency vs Requirement Targets</text>
-<text class="subtitle" x="70" y="104">Read top row as the requirement ceiling, bottom row as measured time.</text>
-<line class="axis" x1="430" y1="130" x2="430" y2="900" />
-<text class="tick" x="430" y="932" text-anchor="middle">0 ms</text>
-<line class="grid" x1="696" y1="130" x2="696" y2="900" />
-<text class="tick" x="696" y="932" text-anchor="middle">400 ms</text>
-<line class="grid" x1="962" y1="130" x2="962" y2="900" />
-<text class="tick" x="962" y="932" text-anchor="middle">800 ms</text>
-<line class="grid" x1="1228" y1="130" x2="1228" y2="900" />
-<text class="tick" x="1228" y="932" text-anchor="middle">1200 ms</text>
-<line class="grid" x1="1494" y1="130" x2="1494" y2="900" />
-<text class="tick" x="1494" y="932" text-anchor="middle">1600 ms</text>
-<line class="grid" x1="1760" y1="130" x2="1760" y2="900" />
-<text class="tick" x="1760" y="932" text-anchor="middle">2000 ms</text>
-<text class="label" x="410" y="172" text-anchor="end">Dashboard update</text>
-<rect x="430" y="150" width="665" height="28" fill="#e2e8f0" rx="6" />
-<text class="value" x="1105" y="171">1000 ms</text>
-<rect x="430" y="192" width="12.9941" height="28" fill="#16a34a" rx="6" />
-<text class="value" x="452.9941" y="213">19.54 ms</text>
-<text class="label" x="410" y="322" text-anchor="end">Historical data query</text>
-<rect x="430" y="300" width="1330" height="28" fill="#e2e8f0" rx="6" />
-<text class="value" x="1770" y="321">2000 ms</text>
-<rect x="430" y="342" width="5.2934" height="28" fill="#16a34a" rx="6" />
-<text class="value" x="445.2934" y="363">7.96 ms</text>
-<text class="label" x="410" y="472" text-anchor="end">Permission revoke</text>
-<rect x="430" y="450" width="66.5" height="28" fill="#e2e8f0" rx="6" />
-<text class="value" x="506.5" y="471">100 ms</text>
-<rect x="430" y="492" width="11.471250000000001" height="28" fill="#16a34a" rx="6" />
-<text class="value" x="451.47125" y="513">17.25 ms</text>
-<text class="label" x="410" y="622" text-anchor="end">Brightness control response</text>
-<rect x="430" y="600" width="199.5" height="28" fill="#e2e8f0" rx="6" />
-<text class="value" x="639.5" y="621">300 ms</text>
-<rect x="430" y="642" width="4.8145999999999995" height="28" fill="#16a34a" rx="6" />
-<text class="value" x="444.8146" y="663">7.24 ms</text>
-<text class="label" x="410" y="772" text-anchor="end">Daylight response</text>
-<rect x="430" y="750" width="665" height="28" fill="#e2e8f0" rx="6" />
-<text class="value" x="1105" y="771">1000 ms</text>
-<rect x="430" y="792" width="12.701500000000001" height="28" fill="#16a34a" rx="6" />
-<text class="value" x="452.7015" y="813">19.10 ms</text>
-<g transform="translate(70, 980)">
-  <rect x="0" y="0" width="26" height="16" fill="#e2e8f0" rx="4" />
-  <text class="label" x="40" y="14">Target ceiling (requirement max)</text>
-  <rect x="420" y="0" width="26" height="16" fill="#16a34a" rx="4" />
-  <text class="label" x="460" y="14">Measured time (meets target)</text>
-  <rect x="820" y="0" width="26" height="16" fill="#dc2626" rx="4" />
-  <text class="label" x="860" y="14">Measured time (fails target)</text>
+<rect width="1728" height="702" fill="#ffffff" />
+<line class="axis" x1="318" y1="14" x2="318" y2="636" />
+<text class="tick" x="318" y="664" text-anchor="middle">0 ms</text>
+<line class="grid" x1="574.4" y1="14" x2="574.4" y2="636" />
+<text class="tick" x="574.4" y="664" text-anchor="middle">400 ms</text>
+<line class="grid" x1="830.8" y1="14" x2="830.8" y2="636" />
+<text class="tick" x="830.8" y="664" text-anchor="middle">800 ms</text>
+<line class="grid" x1="1087.2" y1="14" x2="1087.2" y2="636" />
+<text class="tick" x="1087.2" y="664" text-anchor="middle">1200 ms</text>
+<line class="grid" x1="1343.6" y1="14" x2="1343.6" y2="636" />
+<text class="tick" x="1343.6" y="664" text-anchor="middle">1600 ms</text>
+<line class="grid" x1="1600" y1="14" x2="1600" y2="636" />
+<text class="tick" x="1594" y="664" text-anchor="end">2000 ms</text>
+<text class="label" x="304" y="52" text-anchor="end">Dashboard update</text>
+<rect x="318" y="26" width="641" height="36" fill="#e2e8f0" rx="3" />
+<text class="value" x="969" y="52">1000 ms</text>
+<rect x="318" y="73" width="12.525139999999999" height="36" fill="#16a34a" rx="2" />
+<text class="value" x="340.52514" y="99">19.54 ms</text>
+<text class="label" x="304" y="174" text-anchor="end">Historical data query</text>
+<rect x="318" y="148" width="1282" height="36" fill="#e2e8f0" rx="3" />
+<text class="value" x="1610" y="174">2000 ms</text>
+<rect x="318" y="195" width="5.10236" height="36" fill="#16a34a" rx="2" />
+<text class="value" x="333.10236" y="221">7.96 ms</text>
+<text class="label" x="304" y="296" text-anchor="end">Permission revoke</text>
+<rect x="318" y="270" width="64.10000000000001" height="36" fill="#e2e8f0" rx="3" />
+<text class="value" x="392.1" y="296">100 ms</text>
+<rect x="318" y="317" width="11.057250000000002" height="36" fill="#16a34a" rx="2" />
+<text class="value" x="339.05725" y="343">17.25 ms</text>
+<text class="label" x="304" y="418" text-anchor="end">Brightness control response</text>
+<rect x="318" y="392" width="192.29999999999998" height="36" fill="#e2e8f0" rx="3" />
+<text class="value" x="520.3" y="418">300 ms</text>
+<rect x="318" y="439" width="4.64084" height="36" fill="#16a34a" rx="2" />
+<text class="value" x="332.64084" y="465">7.24 ms</text>
+<text class="label" x="304" y="540" text-anchor="end">Daylight response</text>
+<rect x="318" y="514" width="641" height="36" fill="#e2e8f0" rx="3" />
+<text class="value" x="969" y="540">1000 ms</text>
+<rect x="318" y="561" width="12.243100000000002" height="36" fill="#16a34a" rx="2" />
+<text class="value" x="340.2431" y="587">19.10 ms</text>
+<g transform="translate(318, 670)">
+  <rect x="0" y="2" width="30" height="19" fill="#e2e8f0" rx="2" />
+  <text class="label" x="38" y="17">Target ceiling (requirement max)</text>
+  <rect x="418" y="2" width="30" height="19" fill="#16a34a" rx="2" />
+  <text class="label" x="456" y="17">Measured time</text>
 </g>
 </svg>

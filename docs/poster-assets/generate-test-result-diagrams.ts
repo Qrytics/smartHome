@@ -79,17 +79,17 @@ function svgHeader(width: number, height: number): string {
 function commonStyles(): string {
   return `
 <style>
-  .title { font: 700 32px Arial, sans-serif; fill: #0f172a; }
-  .subtitle { font: 500 18px Arial, sans-serif; fill: #475569; }
-  .label { font: 500 18px Arial, sans-serif; fill: #0f172a; }
-  .small { font: 400 14px Arial, sans-serif; fill: #334155; }
-  .tick { font: 400 14px Arial, sans-serif; fill: #475569; }
+  .title { font: 700 40px Arial, sans-serif; fill: #0f172a; }
+  .subtitle { font: 500 22px Arial, sans-serif; fill: #475569; }
+  .label { font: 500 22px Arial, sans-serif; fill: #0f172a; }
+  .small { font: 400 18px Arial, sans-serif; fill: #334155; }
+  .tick { font: 500 18px Arial, sans-serif; fill: #475569; }
   .ok { fill: #16a34a; }
   .warn { fill: #d97706; }
   .bad { fill: #dc2626; }
   .grid { stroke: #e2e8f0; stroke-width: 1; }
-  .axis { stroke: #94a3b8; stroke-width: 1.5; }
-  .value { font: 500 16px Arial, sans-serif; fill: #0f172a; }
+  .axis { stroke: #94a3b8; stroke-width: 2; }
+  .value { font: 600 21px Arial, sans-serif; fill: #0f172a; }
 </style>`;
 }
 
@@ -104,28 +104,33 @@ function escapeSvgText(value: string): string {
 
 function makeLatencyChartSvg(data: Requirement[]): string {
   const rows = data.filter((d) => d.targetMs !== null && d.measuredMs !== null);
-  const width = 1800;
-  const left = 430;
-  const right = 40;
-  const top = 150;
-  const groupGap = 150;
-  const barH = 28;
-  const chartW = width - left - right;
-  const height = top + groupGap * rows.length + 160;
+  // Tight left gutter; slightly wider for 22px requirement labels.
+  const left = 318;
+  // Room for last tick ("2000 ms") and full-width bar value labels on the right.
+  const right = 128;
+  const chartW = 1282;
+  const width = left + chartW + right;
+  const top = 26;
+  const groupGap = 122;
+  const barH = 36;
+  const barStackGap = 11;
+  const legendBelow = 44;
+  const bottomPad = 22;
+  const height = top + groupGap * rows.length + legendBelow + bottomPad;
 
   const maxX = Math.max(
     1,
     ...rows.map((r) => Math.max(r.targetMs!, r.measuredMs!))
   );
   const tickCount = 5;
-  const gridTop = top - 20;
+  const gridTop = top - 12;
   const gridBottom = top + groupGap * rows.length;
 
   const bandWidth = (value: number) => (value / maxX) * chartW;
   const barWidth = (value: number) => {
     const w = bandWidth(value);
-    if (value > 0 && w < 3) {
-      return 3;
+    if (value > 0 && w < 4) {
+      return 4;
     }
     return w;
   };
@@ -139,8 +144,11 @@ function makeLatencyChartSvg(data: Requirement[]): string {
         `<line class="grid" x1="${x}" y1="${gridTop}" x2="${x}" y2="${gridBottom}" />`
       );
     }
+    const isLast = i === tickCount;
+    const tickX = isLast ? left + chartW - 6 : x;
+    const tickAnchor = isLast ? "end" : "middle";
     contentLines.push(
-      `<text class="tick" x="${x}" y="${gridBottom + 32}" text-anchor="middle">${v.toFixed(0)} ms</text>`
+      `<text class="tick" x="${tickX}" y="${gridBottom + 28}" text-anchor="${tickAnchor}">${v.toFixed(0)} ms</text>`
     );
   }
 
@@ -149,55 +157,56 @@ function makeLatencyChartSvg(data: Requirement[]): string {
     const measuredMs = r.measuredMs as number;
     const groupTop = top + idx * groupGap;
     const yTarget = groupTop;
-    const yMeas = groupTop + (barH + 14);
+    const yMeas = groupTop + barH + barStackGap;
     const targetW = barWidth(targetMs);
     const measuredW = barWidth(measuredMs);
     const pass = measuredMs <= targetMs;
     const measuredColor = pass ? "#16a34a" : "#dc2626";
 
-    const nameParts = r.name.length > 34
-      ? [r.name.slice(0, 34), r.name.slice(34)]
+    const nameParts = r.name.length > 32
+      ? [r.name.slice(0, 32), r.name.slice(32)]
       : [r.name];
 
+    const labelLineGap = 24;
     nameParts.forEach((line, li) => {
       contentLines.push(
-        `<text class="label" x="${left - 20}" y="${groupTop + 22 + li * 20}" text-anchor="end">${escapeSvgText(
+        `<text class="label" x="${left - 14}" y="${groupTop + 26 + li * labelLineGap}" text-anchor="end">${escapeSvgText(
           line
         )}</text>`
       );
     });
 
+    const valDy = Math.round(barH * 0.72);
     contentLines.push(
-      `<rect x="${left}" y="${yTarget}" width="${targetW}" height="${barH}" fill="#e2e8f0" rx="6" />`
+      `<rect x="${left}" y="${yTarget}" width="${targetW}" height="${barH}" fill="#e2e8f0" rx="3" />`
     );
     contentLines.push(
-      `<text class="value" x="${left + targetW + 10}" y="${yTarget + 21}">${targetMs} ms</text>`
+      `<text class="value" x="${left + targetW + 10}" y="${yTarget + valDy}">${targetMs} ms</text>`
     );
 
     contentLines.push(
-      `<rect x="${left}" y="${yMeas}" width="${measuredW}" height="${barH}" fill="${measuredColor}" rx="6" />`
+      `<rect x="${left}" y="${yMeas}" width="${measuredW}" height="${barH}" fill="${measuredColor}" rx="2" />`
     );
     contentLines.push(
-      `<text class="value" x="${left + measuredW + 10}" y="${yMeas + 21}">${measuredMs.toFixed(2)} ms</text>`
+      `<text class="value" x="${left + measuredW + 10}" y="${yMeas + valDy}">${measuredMs.toFixed(2)} ms</text>`
     );
   });
 
-  const legendY = gridBottom + 80;
+  const legendY = gridBottom + 34;
+  // Legend starts under the y-axis / “0 ms” tick (same x as the axis line).
+  const legendTx = left;
+
   return [
     svgHeader(width, height),
     commonStyles(),
     `<rect width="${width}" height="${height}" fill="#ffffff" />`,
-    `<text class="title" x="70" y="70">Latency vs Requirement Targets</text>`,
-    `<text class="subtitle" x="70" y="104">Read top row as the requirement ceiling, bottom row as measured time.</text>`,
     `<line class="axis" x1="${left}" y1="${gridTop}" x2="${left}" y2="${gridBottom}" />`,
     contentLines.join("\n"),
-    `<g transform="translate(70, ${legendY})">`,
-    `  <rect x="0" y="0" width="26" height="16" fill="#e2e8f0" rx="4" />`,
-    `  <text class="label" x="40" y="14">Target ceiling (requirement max)</text>`,
-    `  <rect x="420" y="0" width="26" height="16" fill="#16a34a" rx="4" />`,
-    `  <text class="label" x="460" y="14">Measured time (meets target)</text>`,
-    `  <rect x="820" y="0" width="26" height="16" fill="#dc2626" rx="4" />`,
-    `  <text class="label" x="860" y="14">Measured time (fails target)</text>`,
+    `<g transform="translate(${legendTx}, ${legendY})">`,
+    `  <rect x="0" y="2" width="30" height="19" fill="#e2e8f0" rx="2" />`,
+    `  <text class="label" x="38" y="17">Target ceiling (requirement max)</text>`,
+    `  <rect x="418" y="2" width="30" height="19" fill="#16a34a" rx="2" />`,
+    `  <text class="label" x="456" y="17">Measured time</text>`,
     `</g>`,
     `</svg>`,
   ].join("\n");
@@ -207,10 +216,10 @@ function makeCoverageSummarySvg(data: Requirement[]): string {
   const fullItems = data.filter((d) => d.testability === "Fully testable");
   const partialItems = data.filter((d) => d.testability === "Partially testable");
 
-  const width = 1600;
-  const lineH = 28;
-  const top = 150;
-  const x = 80;
+  const width = 1520;
+  const lineH = 34;
+  const top = 118;
+  const x = 44;
 
   const wrap = (s: string, maxChars: number): string[] => {
     if (s.length <= maxChars) {
@@ -228,20 +237,20 @@ function makeCoverageSummarySvg(data: Requirement[]): string {
   const renderList = (title: string, items: Requirement[], yStart: number, accent: string): { svg: string; endY: number } => {
     let y = yStart;
     let svg = `<text class="label" x="${x}" y="${y}" fill="${accent}">${title}</text>\n`;
-    y += 36;
+    y += 32;
     items.forEach((d) => {
       const detail = `(${d.testability}): ${d.note}`;
       const lines = [
         `• ${d.name}`,
-        ...wrap(detail, 110).map((l) => `  ${l}`),
+        ...wrap(detail, 88).map((l) => `  ${l}`),
       ];
       lines.forEach((line) => {
         y += lineH;
         svg += `<text class="small" x="${x + 6}" y="${y}">${escapeSvgText(line)}</text>\n`;
       });
-      y += 8;
+      y += 6;
     });
-    return { svg, endY: y + 20 };
+    return { svg, endY: y + 14 };
   };
 
   const a = renderList("Fully testable (what we validated end-to-end)", fullItems, top, "#0f172a");
@@ -252,14 +261,14 @@ function makeCoverageSummarySvg(data: Requirement[]): string {
     "#0f172a"
   );
 
-  const height = b.endY + 40;
+  const height = b.endY + 28;
 
   return [
     svgHeader(width, height),
     commonStyles(),
     `<rect width="${width}" height="${height}" fill="#ffffff" />`,
-    `<text class="title" x="70" y="70">Testability Breakdown (Details)</text>`,
-    `<text class="subtitle" x="70" y="104">This replaces percentage-only summaries: list what was covered, and the measured evidence for each line.</text>`,
+    `<text class="title" x="44" y="52">Testability Breakdown (Details)</text>`,
+    `<text class="subtitle" x="44" y="86">This replaces percentage-only summaries: list what was covered, and the measured evidence for each line.</text>`,
     a.svg,
     b.svg,
     `</svg>`,
@@ -267,17 +276,17 @@ function makeCoverageSummarySvg(data: Requirement[]): string {
 }
 
 function makeEvidenceTableSvg(data: Requirement[]): string {
-  const width = 1900;
-  const rowH = 74;
-  const top = 140;
-  const height = top + rowH * (data.length + 1) + 40;
+  const width = 1820;
+  const rowH = 78;
+  const top = 108;
+  const height = top + rowH * (data.length + 1) + 28;
 
   const col = {
-    req: 40,
-    target: 500,
-    testability: 760,
-    evidence: 1040,
-    status: 1760,
+    req: 36,
+    target: 480,
+    testability: 720,
+    evidence: 1000,
+    status: 1680,
   };
 
   let rows = "";
@@ -297,23 +306,23 @@ function makeEvidenceTableSvg(data: Requirement[]): string {
             ? `< ${d.targetMs} ms`
             : "N/A";
 
-    rows += `<rect x="30" y="${y - rowH + 4}" width="${width - 60}" height="${rowH}" fill="${
+    rows += `<rect x="24" y="${y - rowH + 4}" width="${width - 48}" height="${rowH}" fill="${
       i % 2 === 0 ? "#ffffff" : "#f8fafc"
     }" />
 `;
-    rows += `<text class="small" x="${col.req}" y="${y - 26}">${escapeSvgText(d.name)}</text>
+    rows += `<text class="small" x="${col.req}" y="${y - 28}">${escapeSvgText(d.name)}</text>
 `;
-    rows += `<text class="small" x="${col.target}" y="${y - 26}">${escapeSvgText(targetText)}</text>
+    rows += `<text class="small" x="${col.target}" y="${y - 28}">${escapeSvgText(targetText)}</text>
 `;
-    rows += `<text class="small" x="${col.testability}" y="${y - 26}">${escapeSvgText(
+    rows += `<text class="small" x="${col.testability}" y="${y - 28}">${escapeSvgText(
       d.testability
     )}</text>
 `;
-    rows += `<text class="small" x="${col.evidence}" y="${y - 26}">${escapeSvgText(d.note)}</text>
+    rows += `<text class="small" x="${col.evidence}" y="${y - 28}">${escapeSvgText(d.note)}</text>
 `;
-    rows += `<text x="${col.status}" y="${y - 26}" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="${statusColor}">${statusText}</text>
+    rows += `<text x="${col.status}" y="${y - 28}" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="${statusColor}">${statusText}</text>
 `;
-    rows += `<line class="grid" x1="30" y1="${y + 4}" x2="${width - 30}" y2="${y + 4}" />
+    rows += `<line class="grid" x1="24" y1="${y + 4}" x2="${width - 24}" y2="${y + 4}" />
 `;
   });
 
@@ -321,15 +330,15 @@ function makeEvidenceTableSvg(data: Requirement[]): string {
     svgHeader(width, height),
     commonStyles(),
     `<rect width="${width}" height="${height}" fill="#ffffff" />`,
-    `<text class="title" x="40" y="70">Requirement Evidence Table (Poster Ready)</text>`,
-    `<text class="subtitle" x="40" y="104">Directly derived from measured results in your test run summary.</text>`,
+    `<text class="title" x="36" y="54">Requirement Evidence Table (Poster Ready)</text>`,
+    `<text class="subtitle" x="36" y="88">Directly derived from measured results in your test run summary.</text>`,
     ``,
-    `<rect x="30" y="${top - rowH + 4}" width="${width - 60}" height="${rowH}" fill="#e2e8f0" />`,
-    `<text class="label" x="${col.req}" y="${top - 26}">Requirement</text>`,
-    `<text class="label" x="${col.target}" y="${top - 26}">Target</text>`,
-    `<text class="label" x="${col.testability}" y="${top - 26}">Testability</text>`,
-    `<text class="label" x="${col.evidence}" y="${top - 26}">Measured evidence</text>`,
-    `<text class="label" x="${col.status}" y="${top - 26}">Status</text>`,
+    `<rect x="24" y="${top - rowH + 4}" width="${width - 48}" height="${rowH}" fill="#e2e8f0" />`,
+    `<text class="label" x="${col.req}" y="${top - 28}">Requirement</text>`,
+    `<text class="label" x="${col.target}" y="${top - 28}">Target</text>`,
+    `<text class="label" x="${col.testability}" y="${top - 28}">Testability</text>`,
+    `<text class="label" x="${col.evidence}" y="${top - 28}">Measured evidence</text>`,
+    `<text class="label" x="${col.status}" y="${top - 28}">Status</text>`,
     rows,
     `</svg>`,
   ].join("\n");

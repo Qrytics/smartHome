@@ -23,161 +23,167 @@
   </style>
 </defs>
 <rect x="0" y="0" width="30" height="40" fill="url(#bg)"/>
-<rect x="0.55" y="0.55" width="28.9" height="38.9" fill="#ffffff" stroke="#e2e8f0" filter="url(#shadow)"/>
-<rect x="0.55" y="0.55" width="28.9" height="2.7" fill="#0f172a"/>
-<text class="t h1" font-size="0.72" x="0.9" y="1.6" fill="#ffffff">Smart Home Model</text>
-<text class="t sub" font-size="0.2" x="0.9" y="2.0300000000000002" fill="#cbd5e1">Web-first building management: secure access, live telemetry, policy-driven control</text>
-<text class="t meta" font-size="0.18" x="29.099999999999998" y="1.5" text-anchor="end" fill="#cbd5e1">Mario Belmonte, Cindy Chen · 18-500</text>
+<rect x="0.48" y="0.48" width="29.04" height="39.04" fill="#ffffff" stroke="#e2e8f0" filter="url(#shadow)"/>
+<rect x="0.48" y="0.48" width="29.04" height="2.45" fill="#0f172a"/>
+<text class="t h1" font-size="0.82" x="0.83" y="1.5" fill="#ffffff">Smart Home Model</text>
+<text class="t sub" font-size="0.24" x="0.83" y="2" fill="#cbd5e1">Web-first building management: secure access, live telemetry, policy-driven control</text>
+<text class="t meta" font-size="0.21" x="29.169999999999998" y="1.4" text-anchor="end" fill="#cbd5e1">Mario Belmonte, Cindy Chen · 18-500</text>
 <g>
-  <rect x="0.55" y="3.45" width="9.4" height="15.615000000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="0.55" y="3.45" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="0.77" y="3.83">Product pitch</text>
-  <text class="t boxSub" font-size="0.22" x="0.77" y="4.17">Bold the outcomes you can defend with evidence (targets + test results).</text>
+  <rect x="0.48" y="3.0500000000000003" width="9.446666666666667" height="15.9075" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="0.48" y="3.0500000000000003" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="0.6799999999999999" y="3.41">Product pitch</text>
+  <text class="t boxSub" font-size="0.26" x="0.6799999999999999" y="3.7300000000000004">Bold the outcomes you can defend with evidence (targets + test results).</text>
 </g>
-<text class="t p" x="0.8" y="4.5" font-size="0.33" font-weight="800">Key outcomes: dashboard freshness, access-path</text>
-<text class="t p" x="0.8" y="4.995" font-size="0.33" font-weight="800">latency where measured, and complete logging in</text>
-<text class="t p" x="0.8" y="5.49" font-size="0.33" font-weight="800">Timescale for auditability.</text>
-<text class="t p" x="0.8" y="5.2" font-size="0.3">Use case: a building manager needs one place to see</text>
-<text class="t p" x="0.8" y="5.65" font-size="0.3">environment + enforce access in real time. The house is a</text>
-<text class="t p" x="0.8" y="6.1" font-size="0.3">physical demo: door access and room telemetry are driven</text>
-<text class="t p" x="0.8" y="6.55" font-size="0.3">by the web platform. Key targets: dashboard updates &lt; 1</text>
-<text class="t p" x="0.8" y="7" font-size="0.3">s, access checks &lt; 500 ms (p95), and auditable event</text>
-<text class="t p" x="0.8" y="7.45" font-size="0.3">logging.</text>
+<text class="t p" x="0.73" y="3.98" font-size="0.38" font-weight="800">Key outcomes: dashboard freshness,</text>
+<text class="t p" x="0.73" y="4.55" font-size="0.38" font-weight="800">access-path latency where measured, and</text>
+<text class="t p" x="0.73" y="5.12" font-size="0.38" font-weight="800">complete logging in Timescale for</text>
+<text class="t p" x="0.73" y="5.69" font-size="0.38" font-weight="800">auditability.</text>
+<text class="t p" x="0.73" y="4.71" font-size="0.36">Use case: a building manager needs one place to</text>
+<text class="t p" x="0.73" y="5.25" font-size="0.36">see environment + enforce access in real time.</text>
+<text class="t p" x="0.73" y="5.79" font-size="0.36">The house is a physical demo: door access and</text>
+<text class="t p" x="0.73" y="6.33" font-size="0.36">room telemetry are driven by the web platform.</text>
+<text class="t p" x="0.73" y="6.87" font-size="0.36">Key targets: dashboard updates &lt; 1 s, access</text>
+<text class="t p" x="0.73" y="7.41" font-size="0.36">checks &lt; 500 ms (p95), and auditable event</text>
+<text class="t p" x="0.73" y="7.95" font-size="0.36">logging.</text>
 <g>
-  <rect x="10.3" y="3.45" width="9.4" height="9.056700000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="10.3" y="3.45" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="10.520000000000001" y="3.83">System diagram</text>
-  <text class="t boxSub" font-size="0.22" x="10.520000000000001" y="4.17">End-to-end data + control flow.</text>
+  <rect x="10.276666666666667" y="3.0500000000000003" width="9.446666666666667" height="9.22635" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="10.276666666666667" y="3.0500000000000003" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="10.476666666666667" y="3.41">System diagram</text>
+  <text class="t boxSub" font-size="0.26" x="10.476666666666667" y="3.7300000000000004">End-to-end data + control flow.</text>
 </g>
-<rect x="10.906" y="4.847835" width="2.4920000000000004" height="1.4" rx="0.05" fill="#dbeafe" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="10.966000000000001" y="5.067835" fill="#0f172a" font-size="0.20" font-weight="800">React</text>
-<text class="t boxSub" x="10.966000000000001" y="5.347835" font-size="0.16" fill="#334155">Dashboard (HTTP/WS)</text>
-<rect x="13.754000000000001" y="4.847835" width="2.4920000000000004" height="1.4" rx="0.05" fill="#c7d2fe" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="13.814000000000002" y="5.067835" fill="#0f172a" font-size="0.20" font-weight="800">FastAPI</text>
-<text class="t boxSub" x="13.814000000000002" y="5.347835" font-size="0.16" fill="#334155">API + real-time</text>
-<rect x="16.602" y="4.847835" width="2.4920000000000004" height="1.4" rx="0.05" fill="#a5b4fc" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="16.662" y="5.067835" fill="#0f172a" font-size="0.20" font-weight="800">DB + broker</text>
-<text class="t boxSub" x="16.662" y="5.347835" font-size="0.16" fill="#334155">Timescale + MQTT</text>
-<rect x="10.906" y="8.826185000000002" width="2.4920000000000004" height="1.4" rx="0.05" fill="#bbf7d0" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="10.966000000000001" y="9.046185000000003" fill="#0f172a" font-size="0.20" font-weight="800">Door ESP32</text>
-<text class="t boxSub" x="10.966000000000001" y="9.326185000000002" font-size="0.16" fill="#334155">RFID + lock</text>
-<rect x="13.754000000000001" y="8.826185000000002" width="2.4920000000000004" height="1.4" rx="0.05" fill="#86efac" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="13.814000000000002" y="9.046185000000003" fill="#0f172a" font-size="0.20" font-weight="800">Room ESP32s</text>
-<text class="t boxSub" x="13.814000000000002" y="9.326185000000002" font-size="0.16" fill="#334155">Sensors + actuators</text>
-<rect x="16.602" y="8.826185000000002" width="2.4920000000000004" height="1.4" rx="0.05" fill="#fde68a" stroke="#475569" stroke-width="0.02"/>
-<text class="t p" x="16.662" y="9.046185000000003" fill="#0f172a" font-size="0.20" font-weight="800">Physical model</text>
-<text class="t boxSub" x="16.662" y="9.326185000000002" font-size="0.16" fill="#334155">Labeled subsystems</text>
-<line x1="13.398000000000001" y1="5.547835" x2="13.734000000000002" y2="5.547835" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
-<line x1="16.246000000000002" y1="5.547835" x2="16.582" y2="5.547835" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
-<line x1="14.960000000000003" y1="6.247835" x2="14.960000000000003" y2="8.806185000000003" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
-<line x1="15.040000000000001" y1="8.826185000000002" x2="15.040000000000001" y2="6.267835" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
+<rect x="10.884533333333334" y="4.3423175" width="2.505066666666667" height="1.4" rx="0.05" fill="#dbeafe" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="10.944533333333334" y="4.5623175" fill="#0f172a" font-size="0.24" font-weight="800">React</text>
+<text class="t boxSub" x="10.944533333333334" y="4.8423175" font-size="0.19" fill="#334155">Dashboard (HTTP/WS)</text>
+<rect x="13.747466666666668" y="4.3423175" width="2.505066666666667" height="1.4" rx="0.05" fill="#c7d2fe" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="13.807466666666668" y="4.5623175" fill="#0f172a" font-size="0.24" font-weight="800">FastAPI</text>
+<text class="t boxSub" x="13.807466666666668" y="4.8423175" font-size="0.19" fill="#334155">API + real-time</text>
+<rect x="16.610400000000002" y="4.3423175" width="2.505066666666667" height="1.4" rx="0.05" fill="#a5b4fc" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="16.6704" y="4.5623175" fill="#0f172a" font-size="0.24" font-weight="800">DB + broker</text>
+<text class="t boxSub" x="16.6704" y="4.8423175" font-size="0.19" fill="#334155">Timescale + MQTT</text>
+<rect x="10.884533333333334" y="8.465492500000002" width="2.505066666666667" height="1.4" rx="0.05" fill="#bbf7d0" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="10.944533333333334" y="8.685492500000002" fill="#0f172a" font-size="0.24" font-weight="800">Door ESP32</text>
+<text class="t boxSub" x="10.944533333333334" y="8.965492500000002" font-size="0.19" fill="#334155">RFID + lock</text>
+<rect x="13.747466666666668" y="8.465492500000002" width="2.505066666666667" height="1.4" rx="0.05" fill="#86efac" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="13.807466666666668" y="8.685492500000002" fill="#0f172a" font-size="0.24" font-weight="800">Room ESP32s</text>
+<text class="t boxSub" x="13.807466666666668" y="8.965492500000002" font-size="0.19" fill="#334155">Sensors + actuators</text>
+<rect x="16.610400000000002" y="8.465492500000002" width="2.505066666666667" height="1.4" rx="0.05" fill="#fde68a" stroke="#475569" stroke-width="0.02"/>
+<text class="t p" x="16.6704" y="8.685492500000002" fill="#0f172a" font-size="0.24" font-weight="800">Physical model</text>
+<text class="t boxSub" x="16.6704" y="8.965492500000002" font-size="0.19" fill="#334155">Labeled subsystems</text>
+<line x1="13.389600000000002" y1="5.0423175" x2="13.727466666666668" y2="5.0423175" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
+<line x1="16.252533333333336" y1="5.0423175" x2="16.590400000000002" y2="5.0423175" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
+<line x1="14.960000000000003" y1="5.7423175" x2="14.960000000000003" y2="8.445492500000002" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
+<line x1="15.040000000000001" y1="8.465492500000002" x2="15.040000000000001" y2="5.7623175" stroke="#475569" stroke-width="0.05" marker-end="url(#arrow)"/>
 <g>
-  <rect x="10.3" y="12.606700000000002" width="9.4" height="6.458300000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="10.3" y="12.606700000000002" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="10.520000000000001" y="12.986700000000003">Hardware + demo photos</text>
-  <text class="t boxSub" font-size="0.22" x="10.520000000000001" y="13.326700000000002">Label every module: RFID, lock relay, BME280, TEMT6000, dimmer, fan relay, ESP32.</text>
-</g>
-<g>
-  <rect x="10.5" y="13.606700000000002" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="10.58" y="13.826700000000002" font-size="0.20" font-weight="800">Photo 1</text>
-  <text class="t meta" x="10.58" y="14.026700000000002" font-size="0.17" fill="#64748b">Model overview</text>
-  <text class="t meta" x="10.58" y="16.115850000000002" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="10.276666666666667" y="12.37635" width="9.446666666666667" height="6.58115" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="10.276666666666667" y="12.37635" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="10.476666666666667" y="12.73635">Hardware + demo photos</text>
+  <text class="t boxSub" font-size="0.26" x="10.476666666666667" y="13.05635">Label every module: RFID, lock relay, BME280, TEMT6000, dimmer, fan relay, ESP32.</text>
 </g>
 <g>
-  <rect x="13.533333333333333" y="13.606700000000002" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="13.613333333333333" y="13.826700000000002" font-size="0.20" font-weight="800">Photo 2</text>
-  <text class="t meta" x="13.613333333333333" y="14.026700000000002" font-size="0.17" fill="#64748b">Door node (RFID + lock)</text>
-  <text class="t meta" x="13.613333333333333" y="16.115850000000002" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="10.476666666666667" y="13.256350000000001" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="10.556666666666667" y="13.496350000000001" font-size="0.23" font-weight="800">Photo 1</text>
+  <text class="t meta" x="10.556666666666667" y="13.736350000000002" font-size="0.19" fill="#64748b">Model overview</text>
+  <text class="t meta" x="10.556666666666667" y="15.906925000000003" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="16.566666666666666" y="13.606700000000002" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="16.646666666666665" y="13.826700000000002" font-size="0.20" font-weight="800">Photo 3</text>
-  <text class="t meta" x="16.646666666666665" y="14.026700000000002" font-size="0.17" fill="#64748b">Room node wiring</text>
-  <text class="t meta" x="16.646666666666665" y="16.115850000000002" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="13.525555555555556" y="13.256350000000001" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="13.605555555555556" y="13.496350000000001" font-size="0.23" font-weight="800">Photo 2</text>
+  <text class="t meta" x="13.605555555555556" y="13.736350000000002" font-size="0.19" fill="#64748b">Door node (RFID + lock)</text>
+  <text class="t meta" x="13.605555555555556" y="15.906925000000003" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="10.5" y="16.335850000000004" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="10.58" y="16.555850000000003" font-size="0.20" font-weight="800">Photo 4</text>
-  <text class="t meta" x="10.58" y="16.755850000000006" font-size="0.17" fill="#64748b">Dashboard (live view)</text>
-  <text class="t meta" x="10.58" y="18.845000000000006" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="16.574444444444445" y="13.256350000000001" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="16.654444444444444" y="13.496350000000001" font-size="0.23" font-weight="800">Photo 3</text>
+  <text class="t meta" x="16.654444444444444" y="13.736350000000002" font-size="0.19" fill="#64748b">Room node wiring</text>
+  <text class="t meta" x="16.654444444444444" y="15.906925000000003" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="13.533333333333333" y="16.335850000000004" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="13.613333333333333" y="16.555850000000003" font-size="0.20" font-weight="800">Photo 5</text>
-  <text class="t meta" x="13.613333333333333" y="16.755850000000006" font-size="0.17" fill="#64748b">Under-hood (power/relays)</text>
-  <text class="t meta" x="13.613333333333333" y="18.845000000000006" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="10.476666666666667" y="16.106925" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="10.556666666666667" y="16.346925" font-size="0.23" font-weight="800">Photo 4</text>
+  <text class="t meta" x="10.556666666666667" y="16.586925" font-size="0.19" fill="#64748b">Dashboard (live view)</text>
+  <text class="t meta" x="10.556666666666667" y="18.7575" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="16.566666666666666" y="16.335850000000004" width="2.9333333333333336" height="2.629150000000002" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
-  <text class="t meta" x="16.646666666666665" y="16.555850000000003" font-size="0.20" font-weight="800">Photo 6</text>
-  <text class="t meta" x="16.646666666666665" y="16.755850000000006" font-size="0.17" fill="#64748b">CAD (optional)</text>
-  <text class="t meta" x="16.646666666666665" y="18.845000000000006" font-size="0.14" fill="#94a3b8">(replace with photo)</text>
+  <rect x="13.525555555555556" y="16.106925" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="13.605555555555556" y="16.346925" font-size="0.23" font-weight="800">Photo 5</text>
+  <text class="t meta" x="13.605555555555556" y="16.586925" font-size="0.19" fill="#64748b">Under-hood (power/relays)</text>
+  <text class="t meta" x="13.605555555555556" y="18.7575" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="20.050000000000004" y="3.45" width="9.4" height="15.615000000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="20.050000000000004" y="3.45" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="20.270000000000003" y="3.83">What judges see in 20 seconds</text>
-  <text class="t boxSub" font-size="0.22" x="20.270000000000003" y="4.17">One glance at the story: web stack + physical edge + proof.</text>
-</g>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="4.5">• React dashboard: live charts + access logs +</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="4.995">control actions</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="5.655">• FastAPI + broker + TimescaleDB: ingest, policy,</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="6.15">and persistence</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="6.8100000000000005">• ESP32 edge: RFID/lock, sensors, and actuation</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="7.305000000000001">paths</text>
-<g>
-  <rect x="0.55" y="19.315" width="9.4" height="10.359250000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="0.55" y="19.315" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="0.77" y="19.695">Test results: latency vs targets</text>
-  <text class="t boxSub" font-size="0.22" x="0.77" y="20.035">Use legend to explain bar colors.</text>
+  <rect x="16.574444444444445" y="16.106925" width="2.9488888888888893" height="2.7505749999999995" fill="#f8fafc" stroke="#cbd5e1" rx="0.08"/>
+  <text class="t meta" x="16.654444444444444" y="16.346925" font-size="0.23" font-weight="800">Photo 6</text>
+  <text class="t meta" x="16.654444444444444" y="16.586925" font-size="0.19" fill="#64748b">CAD (optional)</text>
+  <text class="t meta" x="16.654444444444444" y="18.7575" font-size="0.17" fill="#94a3b8">(replace with photo)</text>
 </g>
 <g>
-  <rect x="0.75" y="20.315" width="9" height="9.23925" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
-  <image x="0.8" y="20.365000000000002" width="8.9" height="9.13925" preserveAspectRatio="xMidYMid meet" href="test-results-latency-vs-target.svg" xlink:href="test-results-latency-vs-target.svg"/>
-  <text class="t meta" font-size="0.18" x="5.25" y="20.595000000000002" text-anchor="middle" fill="#94a3b8">test-results-latency-vs-target.svg</text>
+  <rect x="20.073333333333338" y="3.0500000000000003" width="9.446666666666667" height="15.9075" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="20.073333333333338" y="3.0500000000000003" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="20.273333333333337" y="3.41">What judges see in 20 seconds</text>
+  <text class="t boxSub" font-size="0.26" x="20.273333333333337" y="3.7300000000000004">One glance at the story: web stack + physical edge + proof.</text>
+</g>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="3.98">• React dashboard: live charts + access logs</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="4.55">+ control actions</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="5.3100000000000005">• FastAPI + broker + TimescaleDB: ingest,</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="5.880000000000001">policy, and persistence</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="6.6400000000000015">• ESP32 edge: RFID/lock, sensors, and</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="7.210000000000002">actuation paths</text>
+<g>
+  <rect x="0.48" y="19.1175" width="9.446666666666667" height="10.605375000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="0.48" y="19.1175" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="0.6799999999999999" y="19.4775">Test results: latency vs targets</text>
+  <text class="t boxSub" font-size="0.26" x="0.6799999999999999" y="19.7975">Use legend to explain bar colors.</text>
 </g>
 <g>
-  <rect x="0.55" y="29.774250000000002" width="9.4" height="8.375750000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="0.55" y="29.774250000000002" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="0.77" y="30.15425">Testability breakdown</text>
-  <text class="t boxSub" font-size="0.22" x="0.77" y="30.49425">What was actually exercised.</text>
+  <rect x="0.6799999999999999" y="19.9975" width="9.046666666666667" height="9.605375000000004" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
+  <image x="0.73" y="20.0475" width="8.946666666666667" height="9.505375000000004" preserveAspectRatio="xMidYMid meet" href="test-results-latency-vs-target.svg" xlink:href="test-results-latency-vs-target.svg"/>
+  <text class="t meta" font-size="0.16" x="5.203333333333333" y="29.482875000000003" text-anchor="middle" fill="#94a3b8">test-results-latency-vs-target.svg</text>
 </g>
 <g>
-  <rect x="0.75" y="30.774250000000002" width="9" height="7.2557500000000035" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
-  <image x="0.8" y="30.824250000000003" width="8.9" height="7.155750000000004" preserveAspectRatio="xMidYMid meet" href="test-results-coverage-summary.svg" xlink:href="test-results-coverage-summary.svg"/>
-  <text class="t meta" font-size="0.18" x="5.25" y="31.054250000000003" text-anchor="middle" fill="#94a3b8">test-results-coverage-summary.svg</text>
+  <rect x="0.48" y="29.822875000000003" width="9.446666666666667" height="8.577125000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="0.48" y="29.822875000000003" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="0.6799999999999999" y="30.182875000000003">Testability breakdown</text>
+  <text class="t boxSub" font-size="0.26" x="0.6799999999999999" y="30.502875000000003">What was actually exercised.</text>
 </g>
 <g>
-  <rect x="10.3" y="19.315" width="9.4" height="11.6777" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="10.3" y="19.315" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="10.520000000000001" y="19.695">Test evidence table (numbers + pass/fail)</text>
-  <text class="t boxSub" font-size="0.22" x="10.520000000000001" y="20.035">Keep 24pt+ body text in final export.</text>
+  <rect x="0.6799999999999999" y="30.702875000000002" width="9.046666666666667" height="7.577125000000003" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
+  <image x="0.73" y="30.752875000000003" width="8.946666666666667" height="7.477125000000004" preserveAspectRatio="xMidYMid meet" href="test-results-coverage-summary.svg" xlink:href="test-results-coverage-summary.svg"/>
+  <text class="t meta" font-size="0.16" x="5.203333333333333" y="38.16000000000001" text-anchor="middle" fill="#94a3b8">test-results-coverage-summary.svg</text>
 </g>
 <g>
-  <rect x="10.5" y="20.315" width="9" height="10.557699999999999" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
-  <image x="10.55" y="20.365000000000002" width="8.9" height="10.457699999999999" preserveAspectRatio="xMidYMid meet" href="test-results-evidence-table.svg" xlink:href="test-results-evidence-table.svg"/>
-  <text class="t meta" font-size="0.18" x="15" y="20.595000000000002" text-anchor="middle" fill="#94a3b8">test-results-evidence-table.svg</text>
+  <rect x="10.276666666666667" y="19.1175" width="9.446666666666667" height="11.955150000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="10.276666666666667" y="19.1175" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="10.476666666666667" y="19.4775">Test evidence table (numbers + pass/fail)</text>
+  <text class="t boxSub" font-size="0.26" x="10.476666666666667" y="19.7975">Keep 24pt+ body text in final export.</text>
 </g>
 <g>
-  <rect x="10.3" y="31.0927" width="9.4" height="7.057300000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="10.3" y="31.0927" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="10.520000000000001" y="31.4727">Engineering trade-off</text>
-  <text class="t boxSub" font-size="0.22" x="10.520000000000001" y="31.8127">Latency vs security vs real hardware constraints.</text>
+  <rect x="10.476666666666667" y="19.9975" width="9.046666666666667" height="10.955150000000005" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="0.08 0.06" rx="0.1"/>
+  <image x="10.526666666666667" y="20.0475" width="8.946666666666667" height="10.855150000000005" preserveAspectRatio="xMidYMid meet" href="test-results-evidence-table.svg" xlink:href="test-results-evidence-table.svg"/>
+  <text class="t meta" font-size="0.16" x="15" y="30.832650000000005" text-anchor="middle" fill="#94a3b8">test-results-evidence-table.svg</text>
 </g>
-<text class="t p" x="10.55" y="32.1427" font-size="0.28">We optimized for a responsive operator loop: measured</text>
-<text class="t p" x="10.55" y="32.5627" font-size="0.28">server-side timings are far under our UI targets. Partial</text>
-<text class="t p" x="10.55" y="32.9827" font-size="0.28">hardware cases (e.g. lighting without a physical lamp) are</text>
-<text class="t p" x="10.55" y="33.402699999999996" font-size="0.28">called out as limitations.</text>
 <g>
-  <rect x="20.050000000000004" y="19.315" width="9.4" height="18.835" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
-  <rect x="20.050000000000004" y="19.315" width="9.4" height="0.92" rx="0.12" fill="#0f172a" opacity="0.06"/>
-  <text class="t boxTitle" font-size="0.34" x="20.270000000000003" y="19.695">Demo plan (30 seconds each)</text>
-  <text class="t boxSub" font-size="0.22" x="20.270000000000003" y="20.035">Helps sponsors know what to ask.</text>
+  <rect x="10.276666666666667" y="31.172650000000004" width="9.446666666666667" height="7.227350000000001" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="10.276666666666667" y="31.172650000000004" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="10.476666666666667" y="31.532650000000004">Engineering trade-off</text>
+  <text class="t boxSub" font-size="0.26" x="10.476666666666667" y="31.852650000000004">Latency vs security vs real hardware constraints.</text>
 </g>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="20.365000000000002">• Open dashboard: show a live sensor trace updating</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="21.025000000000002">• Swipe RFID: show grant + log line + lock response</text>
-<text class="t p" font-size="0.33" x="20.300000000000004" y="21.685000000000002">• Toggle policy: show denial path + time-to-enforce</text>
-<rect x="0.55" y="38.300000000000004" width="28.9" height="1.15" fill="#f1f5f9" stroke="#e2e8f0"/>
-<text class="t meta" font-size="0.18" x="0.9" y="38.75000000000001">Checklist: 30x40in canvas · body text 24pt+ · labels 18pt+ · import assets below · export PDF+PNG for print shop</text>
-<text class="t meta" font-size="0.18" x="29.099999999999998" y="38.75000000000001" text-anchor="end">Mockup: docs/poster-assets/poster-mockup-30x40in.svg</text>
+<text class="t p" x="10.526666666666667" y="32.102650000000004" font-size="0.34">We optimized for a responsive operator loop:</text>
+<text class="t p" x="10.526666666666667" y="32.61265" font-size="0.34">measured server-side timings are far under our UI</text>
+<text class="t p" x="10.526666666666667" y="33.12265000000001" font-size="0.34">targets. Partial hardware cases (e.g. lighting</text>
+<text class="t p" x="10.526666666666667" y="33.632650000000005" font-size="0.34">without a physical lamp) are called out as</text>
+<text class="t p" x="10.526666666666667" y="34.14265" font-size="0.34">limitations.</text>
+<g>
+  <rect x="20.073333333333338" y="19.1175" width="9.446666666666667" height="19.282500000000002" rx="0.12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="20.073333333333338" y="19.1175" width="9.446666666666667" height="0.88" rx="0.12" fill="#0f172a" opacity="0.06"/>
+  <text class="t boxTitle" font-size="0.39" x="20.273333333333337" y="19.4775">Demo plan (30 seconds each)</text>
+  <text class="t boxSub" font-size="0.26" x="20.273333333333337" y="19.7975">Helps sponsors know what to ask.</text>
+</g>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="20.0475">• Open dashboard: show a live sensor trace</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="20.6175">updating</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="21.3775">• Swipe RFID: show grant + log line + lock</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="21.9475">response</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="22.707500000000003">• Toggle policy: show denial path +</text>
+<text class="t p" font-size="0.38" x="20.323333333333338" y="23.277500000000003">time-to-enforce</text>
+<rect x="0.48" y="38.5" width="29.04" height="1.02" fill="#f1f5f9" stroke="#e2e8f0"/>
+<text class="t meta" font-size="0.21" x="0.83" y="38.92">Checklist: 30x40in canvas · body text 24pt+ · labels 18pt+ · import assets below · export PDF+PNG for print shop</text>
+<text class="t meta" font-size="0.21" x="29.169999999999998" y="38.92" text-anchor="end">Mockup: docs/poster-assets/poster-mockup-30x40in.svg</text>
 </svg>
