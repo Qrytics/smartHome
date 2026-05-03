@@ -26,8 +26,9 @@ This project presents a web-first smart building model that integrates RFID acce
 9. [Project Management](#project-management)
 10. [Related Work](#related-work)
 11. [Quick Start](#quick-start)
-12. [Repository Structure](#repository-structure)
-13. [References](#references)
+12. [Deploying to Vercel](#deploying-the-dashboard-to-vercel-public-demo)
+13. [Repository Structure](#repository-structure)
+14. [References](#references)
 
 ---
 
@@ -623,6 +624,56 @@ See **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** for the complete guide 
 - Running the backend as a systemd service (auto-start on reboot)
 - SSH port-forwarding to access the dashboard remotely
 - Pointing ESP32 firmware at the RPi IP address
+
+### Deploying the Dashboard to Vercel (public demo)
+
+The frontend can be deployed as a standalone static app on [Vercel](https://vercel.com). When deployed without a live backend, it automatically falls back to a fully functional **demo/mock mode** with synthetic sensor data, RFID access logs, and lighting telemetry — no backend required.
+
+#### Step 1 — Create a Vercel project
+
+1. Go to [vercel.com](https://vercel.com) → **New Project** → Import `Qrytics/smartHome`
+2. Under **Root Directory**, enter **`frontend`**
+3. Framework Preset will auto-detect as **Create React App**
+4. Build Command: `CI=false npm run build` *(already set in `frontend/vercel.json`)*
+5. Output Directory: `build` *(already set in `frontend/vercel.json`)*
+6. No environment variables are required — the dashboard defaults to demo mode
+7. Click **Deploy**
+
+Note the deployment URL (e.g. `https://smarthome-dashboard.vercel.app`).
+
+#### Step 2 — Proxy from mario-belmonte.com via portfolioSite
+
+Add the following three entries to the `rewrites` array in `Qrytics/portfolioSite`'s `vercel.json`, replacing `<YOUR-VERCEL-URL>` with the URL from Step 1:
+
+```json
+{
+  "source": "/projects/smart-home-iot-dashboard/smartHome",
+  "destination": "https://<YOUR-VERCEL-URL>/"
+},
+{
+  "source": "/projects/smart-home-iot-dashboard/smartHome/",
+  "destination": "https://<YOUR-VERCEL-URL>/"
+},
+{
+  "source": "/projects/smart-home-iot-dashboard/smartHome/:path*",
+  "destination": "https://<YOUR-VERCEL-URL>/:path*"
+}
+```
+
+After merging those changes to `portfolioSite`, the dashboard will be live at:
+```
+https://mario-belmonte.com/projects/smart-home-iot-dashboard/smartHome
+```
+
+#### Demo mode behaviour
+
+When no backend is reachable the app silently switches all data sections to **demo mode**:
+- Environmental sensor (temperature, humidity, pressure) — smooth synthetic curves updated every few seconds
+- Lighting telemetry — simulated daylight-harvest dimmer data
+- RFID access logs — seeded with realistic entries (grant/deny events)
+- Automation rules — pre-loaded with a default ruleset
+
+The admin panel is accessible with the default credentials `admin` / `changeme`.
 
 ---
 
