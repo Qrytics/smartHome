@@ -627,7 +627,7 @@ See **[docs/RPI_DEPLOYMENT.md](docs/RPI_DEPLOYMENT.md)** for the complete guide 
 
 ### Deploying the Dashboard to Vercel (public demo)
 
-The frontend can be deployed as a standalone static app on [Vercel](https://vercel.com). When deployed without a live backend, it automatically falls back to a fully functional **demo/mock mode** with synthetic sensor data, RFID access logs, and lighting telemetry — no backend required.
+The frontend can be deployed as a standalone static app on [Vercel](https://vercel.com). When deployed without a live backend, it switches all data sections to **demo/mock mode** — behaviour implemented in `frontend/src/contexts/SmartHomeContext.jsx` and `frontend/src/services/mockStore.js`. Each section defaults to `auto` mode: it attempts a health-check on the configured API URL and, on failure, falls back to synthetic sensor data, RFID access logs, and lighting telemetry.
 
 #### Step 1 — Create a Vercel project
 
@@ -636,7 +636,7 @@ The frontend can be deployed as a standalone static app on [Vercel](https://verc
 3. Framework Preset will auto-detect as **Create React App**
 4. Build Command: `CI=false npm run build` *(already set in `frontend/vercel.json`)*
 5. Output Directory: `build` *(already set in `frontend/vercel.json`)*
-6. No environment variables are required — the dashboard defaults to demo mode
+6. No environment variables are required for demo mode — the API URL defaults to `http://localhost:8000`, which fails immediately from a remote browser and triggers the mock data fallback. To connect a real backend, set `REACT_APP_API_URL` to the backend's public URL.
 7. Click **Deploy**
 
 Note the deployment URL (e.g. `https://smarthome-dashboard.vercel.app`).
@@ -673,7 +673,7 @@ When no backend is reachable the app silently switches all data sections to **de
 - RFID access logs — seeded with realistic entries (grant/deny events)
 - Automation rules — pre-loaded with a default ruleset
 
-The admin panel is accessible with the default credentials `admin` / `changeme`.
+The admin panel uses the credentials set via `REACT_APP_ADMIN_USERNAME` / `REACT_APP_ADMIN_PASSWORD` (both default to `admin` / `changeme` when not configured). **If connecting to a real backend, set these environment variables in the Vercel dashboard to strong credentials.**
 
 ---
 
